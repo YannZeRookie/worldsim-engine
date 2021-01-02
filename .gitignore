@@ -1,0 +1,10 @@
+/.project
+/.idea
+/.settings
+.DS_Store
+.vs
+obj/
+bin/
+release/
+DotSettings.user
+*.DotSettings.user

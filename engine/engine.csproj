@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.5" />
+      <PackageReference Include="ChoETL.NETStandard" Version="1.2.1.5" />
+      <PackageReference Include="ChoETL.Yaml" Version="1.0.0.7" />
+      <PackageReference Include="Mono.Options" Version="6.6.0.161" />
+      <PackageReference Include="SharpYaml" Version="1.6.6" />
+    </ItemGroup>
+
+</Project>

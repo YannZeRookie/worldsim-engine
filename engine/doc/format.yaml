@@ -1,0 +1,174 @@
+# This is the YAML file-format description of the WoldSim project
+# Licence: MIT
+# Ogee Foundation https://www.ogeefoundation.org/
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Key Principles
+# --------------
+#
+# The Simulation Engine is completely agnostic in terms of what it manipulates. As far as it is concerned, it
+# merely computes float values that you choose to name the way you want and that have arbitrary units that you choose.
+# Some of these values are "produced", some others are "consumed" - hence their "resource" name.
+# All the Simulation Engine does is managing stock levels and trying to match demand with supply. When resources are
+# depleted, production becomes impacted on a pro-rata basis of the most severe shortage (weakest resource rule).
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Header
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Format descriptor: must be "WorldSim". Required
+format: WorldSim
+# Type of file: "scenario", "lib" or "fixture". Required
+type: scenario
+# Version of the WorldSim engine that this file is intended for. See doc about semantic versioning. Required
+version: "0.1"
+# Date of the last update of the file (ISO-8601). Optional
+modDate: 2021-01-02T10:57:43+01:00
+# Author. Optional and all sub-fields optional. Additional fields can be added freely (Twitter nickname, website, etc.)
+author:
+  name: Yann Corno
+  email: yann@ogeefoundation.org
+  github: https://github.com/YannZeRookie
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Simulation Background
+# Note: this part can be located in a separate file, so that it can be shared among different simulations
+# To do so, use the "include" keyword like this:
+#   include "path to YAML file to include"
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Physical Units used in this file. All fields required
+# These can be what you want
+units:
+  - id: mass-t
+    name: Mass
+    description: Mass - Metric Tons
+    symbol: T
+  - id: distance
+    name: Distance
+    description: Distance in kilometers
+    symbol: km
+  - id: light
+    name: candela
+    description: Average luminous intensity from the Sun per surface unit
+    symbol: cd
+
+  # Units conversion table (when it makes sense)
+  # unitsConversion
+  # TODO
+
+# Resources or the physical quantities used by JM2s in this file. All fields required
+# These can be what you want as long as they use the units defined earlier in 'units' (or null)
+resources:
+  - id: coal
+    name: Coal
+    description: A primary fossile energy that generates lots of CO2
+    type: stock       # Can be "stock" (carries over each sim iteration) or "volatile" (is recomputed at each sim iteration)
+    unit_id: mass-t   # See Physical Units list above
+  - id: o2
+    name: O2
+    description: A gazeous molecule used to produce energy and to breathe
+    type: stock
+    unit_id: mass-t
+  - id: co2
+    name: CO2
+    description: A gazeous molecule responsible for the Climate Global Warming
+    type: stock
+    unit_id: mass-t
+  - id: water
+    name: Fresh Water
+    description: Water usable by plants, animals and humans
+    type: stock
+    unit_id: mass-t
+  - id: science
+    name: Science Level
+    description: An arbitrary value representing science knowledge
+    type: volatile
+    unit_id: null        # This quantity does not have any units
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Simulation Context
+# Here we describe what is specific to this simulation and the initial state of the simulation
+# ----------------------------------------------------------------------------------------------------------------------
+
+# List of Key Attributes (aka KPIs) to track
+keyAttributes:
+  - name: Atmosphere CO2
+    description: Total of CO2 in the atmosphere
+    formula: sum(co2)         # Sum the co2 resources across all JM2 cells
+    unit_id: mass-t           # Unit or null
+    # TODO: define good and bad levels
+  - name: Atmosphere O2
+    description: Total of oxygen in the atmosphere
+    formula: sum(o2)
+    unit_id: mass-t
+  - name: Available Coal
+    description: Total extracted and usable Coal
+    formula: sum(coal)
+    unit_id: mass-t
+
+# Time management
+time:
+  stepUnit: year      # Can be "year", "month" or "day". Required
+  stepValue: 1        # Integer. Optional, default is 1. 
+  start: 1800-01-01   # Start date. Required
+  end: 2200-01-01     # End date if simulation has to stop at some point. Optional
+
+# Description of this simulation scenario
+scenario:
+  title: Simulation Engine Demo
+  description: |
+    In this scenario we are going to focus on three cells,
+    two producing coal and oxygen and one consuming them to produce carbon dioxide.
+    The goal of this scenario is to demonstrate the Simulation Engine basics.
+  targets:
+    - Target 1              # TODO
+    - Target 2              # TODO
+
+# Map
+map:
+  sizeX: 3                  # Number of cells in X
+  sizeY: 1                  # Number of cells in Y
+  Cells:
+    - x: 0                  # X coordinate of the cell
+      y: 0                  # Y coordinate of the cell
+      jm2_id: mine          # ID of the JM2 placed on this map cell. Here: a mine
+      jm2_init:             # These are initialization parameters specific to this JM2
+        resource_id: coal     # Resource ID mined by this JM2
+        reserve: 1.2e6        # Total reserve of the mine. When down to 0, production stops
+        production: 1.0e3     # Annual production of the mine
+    - x: 1
+      y: 0
+      jm2_id: mine          # ID of the JM2 placed on this map cell. Here, a 'mine' again (hum)
+      jm2_init:             # These are initialization parameters specific to this JM2
+        resource_id: o2
+        reserve: 1e6
+        production: 1000
+    - x: 2                  # X coordinate of the cell
+      y: 0                  # Y coordinate of the cell
+      jm2_id: factory       # ID of the JM2 placed on this map cell. Here: a factory
+      jm2_init:             # These are initialization parameters specific to this JM2
+        opex:                 # List of Operational Expenses, i.e. supplies needed for production
+          - resource_id: coal   # Resourced ID of the needed resource   
+            consumption: 500    # Annual Consumption of this supply 
+          - resource_id: o2
+            consumption: 1333   # It takes one C atom of 12g and two O atoms of 16g... 
+        output:
+          - resource_id: co2
+            production: 1833    # ...to produce a CO2 molecule of 44g
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Current Simulation State
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Current Time. Optional
+# The simulation data will be fast-forwarded to this date when opened
+# If not supplied, the Current Time will be time.start by default
+currentTime: 1965-01-01
+
+# Actions
+# TODO

@@ -1,0 +1,26 @@
+people:
+  - id: 1
+    name: Tom
+    birth:
+      date: 1965-05-22
+      city: San Francisco
+      state: CA
+      country: USA
+    homes:
+      - city: Palo Alto
+        state: CA
+        country: USA
+      - city: Minneapolis
+        state: MN
+        country: USA
+    ages: [2, 3]
+  - id: 2
+    name: Mark
+    birth:
+      date: 1968-07-10
+      city: Soisy
+      state: null
+      country: France
+    homes:
+country: USA
+language: English
