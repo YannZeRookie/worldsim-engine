@@ -39,6 +39,22 @@ namespace WorldSim.Engine
             get => _map;
         }
 
+        //-- Background utilities
+        /// <summary>
+        /// Compute the maximum text width of all KPIs
+        /// </summary>
+        /// <returns></returns>
+        public int GetKeyAttributesMaxWidth()
+        {
+            int maxWidth = 0;
+            foreach (var kpi in KeyAttributes)
+            {
+                maxWidth = Math.Max(maxWidth, kpi.Name.Length);
+            }
+
+            return maxWidth;
+        }
+
         //-- Factories & Tools
         // Unit Factory
         public IUnit CreateUnit(string id, string name, string description, string symbol)
@@ -183,11 +199,11 @@ namespace WorldSim.Engine
             return result;
         }
 
-        public override string ToString()
+        public string ToString(int padding)
         {
             float value = GetValue();
             string symbol = _world.Units[UnitId].Symbol;
-            return String.Format("{0}={1,8:0.0} {2}", Name, value, symbol);
+            return String.Format("{0,-" + padding.ToString() + "}:{1,8:0.0} {2}", Name, value, symbol);
         }
     }
 
@@ -258,20 +274,43 @@ namespace WorldSim.Engine
         {
             switch (this.StepUnit)
             {
-                case TimeStep.year:
-                    _current = _current.AddYears(this.StepValue);
-                    break;
                 case TimeStep.month:
                     _current = _current.AddMonths(this.StepValue);
                     break;
                 case TimeStep.day:
                     _current = _current.AddDays(this.StepValue);
                     break;
+                default:
+                    _current = _current.AddYears(this.StepValue);
+                    break;
             }
 
             _iteration++;
             _world.Step();
         }
+
+        public void StepBack()
+        {
+            if (_iteration > 0)
+            {
+                DateTime newCurrent;
+                switch (this.StepUnit)
+                {
+                    case TimeStep.month:
+                        newCurrent = _current.AddMonths(-this.StepValue);
+                        break;
+                    case TimeStep.day:
+                        newCurrent = _current.AddDays(-this.StepValue);
+                        break;
+                    default:
+                        newCurrent = _current.AddYears(-this.StepValue);
+                        break;
+                }
+
+                RunTo(newCurrent);
+            }
+        }
+
 
         public void RunTo(DateTime targetDate)
         {
@@ -404,13 +443,14 @@ namespace WorldSim.Engine
             foreach (var s in Stocks)
             {
                 string unitId = _world.Resources[s.Key].UnitId;
+                string name = _world.Resources[s.Key].Name;
                 string symbol = _world.Units[unitId].Symbol;
-                result += String.Format("{0}={1,10:0.0} {2} ", s.Key, s.Value, symbol);
+                result += String.Format("{0}:{1,10:0.0} {2} ", name, s.Value, symbol);
             }
 
             if (!this.Jm2.IsNull() && !this.Jm2.Efficiency.IsNull())
             {
-                result += String.Format(" Efficiency= {0,3:0}%", this.Jm2.Efficiency * 100.0f);
+                result += String.Format(" Efficiency: {0,3:0}%", this.Jm2.Efficiency * 100.0f);
             }
 
             return start + result;
@@ -451,6 +491,7 @@ namespace WorldSim.Engine
 
         public virtual void Restart()
         {
+            Efficiency = null;
         }
 
         public virtual void Step(Map map, Dictionary<string, float> stocks, float annualDivider,
@@ -493,6 +534,7 @@ namespace WorldSim.Engine
             _resourceId = _init["resource_id"] as string;
             _reserve = Convert.ToSingle(_init["reserve"]);
             _production = Convert.ToSingle(_init["production"]);
+            base.Restart();
         }
 
         public override void Step(Map map, Dictionary<string, float> stocks, float annualDivider,
@@ -536,6 +578,7 @@ namespace WorldSim.Engine
                 string resource_id = (string) ((JValue) o["resource_id"]).Value;
                 _output[resource_id] = Convert.ToSingle(((JValue) o["production"]).Value);
             }
+            base.Restart();
         }
 
         public override void Step(Map map, Dictionary<string, float> stocks, float annualDivider,

@@ -21,7 +21,7 @@ namespace WorldSim.Engine.Tests
             //-- Header
             Assert.NotNull(engine.World);
             Assert.AreEqual("scenario", engine.World.Type);
-            Assert.AreEqual(new DateTime(2020, 12, 27, 16, 11, 0), engine.World.ModDate);
+            Assert.AreEqual(new DateTime(2021, 01, 02, 10, 57, 43), engine.World.ModDate);
             Assert.AreEqual("Yann Corno", engine.World.Author["name"]);
             //-- Background
             Assert.IsNotNull(engine.World.Units["mass-t"]);
@@ -52,6 +52,15 @@ namespace WorldSim.Engine.Tests
             engine.World.Time.Restart();
             Assert.AreEqual(engine.World.Time.Start, engine.World.Time.Current);
             Assert.AreEqual(0.0f, engine.World.Map.Cells[0, 0].GetStock("coal"));
+        }
+
+        [Test]
+        public void LoadAndDontRunSimple01Yaml()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/simple01.yaml", true);
+            Assert.AreEqual(new DateTime(1800, 1, 1), engine.World.Time.Start);
+            Assert.AreEqual(engine.World.Time.Start, engine.World.Time.Current);
         }
 
         /// <summary>

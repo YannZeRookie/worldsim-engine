@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ChoETL;
 using WorldSim.API;
@@ -79,6 +80,8 @@ namespace WorldSim.IO
     {
         protected IWorld World;
         protected string FileName;
+        public TimeSpan LoadDelay { get; set; }
+        public TimeSpan CurrentStateDelay { get; set; }
 
         public Importer(IWorld world, string fileName)
         {
@@ -86,17 +89,24 @@ namespace WorldSim.IO
             this.FileName = fileName;
         }
 
-        public void LoadYaml()
+        public DateTime LoadYaml(bool dontRun = false)
         {
+            DateTime currentTime;
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             using (var r = new ChoYamlReader<YamlFileData>(this.FileName))
             {
                 YamlFileData fileData = r.First();
-                ProcessFileData(fileData);
+                currentTime = ProcessFileData(fileData, dontRun);
             }
+            stopWatch.Stop();
+            LoadDelay = stopWatch.Elapsed;
+            return currentTime;
         }
 
-        protected void ProcessFileData(YamlFileData fileData)
+        protected DateTime ProcessFileData(YamlFileData fileData, bool dontRun = false)
         {
+            DateTime currentTime;
             //-- Header
             if (!String.IsNullOrWhiteSpace(fileData.Type))
             {
@@ -155,10 +165,21 @@ namespace WorldSim.IO
             }
 
             //-- Current Simulation State
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            currentTime = this.World.Time.Current;
             if (fileData.CurrentTime.Ticks != DateTime.MinValue.Ticks)
             {
-                this.World.Time.Current = fileData.CurrentTime;
+                currentTime = fileData.CurrentTime;
+                if (!dontRun)
+                {
+                    this.World.Time.Current = fileData.CurrentTime;
+                }
             }
+            stopWatch.Stop();
+            CurrentStateDelay = stopWatch.Elapsed;
+            //-- Done
+            return currentTime;
         }
     }
 }

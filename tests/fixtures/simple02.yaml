@@ -46,11 +46,11 @@ resources:
 
 # List of Key Attributes to track
 keyAttributes:
-  - name: Available Coal
+  - name: Usable Coal
     description: Total extracted and usable Coal
     formula: sum(coal)
     unit_id: mass-t
-  - name: Atmosphere CO2
+  - name: CO2 in atmosphere
     description: Total of CO2 in the atmosphere
     formula: sum(co2)
     unit_id: mass-t

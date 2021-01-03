@@ -68,35 +68,35 @@ time:
 
 # Map
 map:
-  sizeX: 3
-  sizeY: 1
+  sizeX: 2
+  sizeY: 2
   Cells:
-  - x: 0
-    y: 0
-    jm2_id: mine      # ID of the JM2 placed on this map cell
-    jm2_init:         # These are initialization parameters specific to this JM2
-      resource_id: coal
-      reserve: 225
-      production: 100
-  - x: 1
-    y: 0
-    jm2_id: mine      # ID of the JM2 placed on this map cell
-    jm2_init:         # These are initialization parameters specific to this JM2
-      resource_id: o2
-      reserve: 1e6
-      production: 1000
-  - x: 2
-    y: 0
-    jm2_id: factory
-    jm2_init:         # These are initialization parameters specific to this JM2
-      opex:
-        - resource_id: coal
-          consumption: 50
-        - resource_id: o2
-          consumption: 100
-      output:
-        - resource_id: co2
-          production: 50
+    - x: 0
+      y: 0
+      jm2_id: mine      # ID of the JM2 placed on this map cell
+      jm2_init:         # These are initialization parameters specific to this JM2
+        resource_id: coal
+        reserve: 225
+        production: 100
+    - x: 1
+      y: 0
+      jm2_id: mine      # ID of the JM2 placed on this map cell
+      jm2_init:         # These are initialization parameters specific to this JM2
+        resource_id: o2
+        reserve: 1e6
+        production: 1000
+    - x: 0
+      y: 1
+      jm2_id: factory
+      jm2_init:         # These are initialization parameters specific to this JM2
+        opex:
+          - resource_id: coal
+            consumption: 50
+          - resource_id: o2
+            consumption: 100
+        output:
+          - resource_id: co2
+            production: 50
 
 
 # ----------------------------------------------------------------------------------------------------------------------

@@ -53,7 +53,7 @@ namespace WorldSim
             public string Formula { get; set; }
             public string UnitId { get; set; }
             public float GetValue(); // Get the value of this Key Attribute at the current time
-            public string ToString();
+            public string ToString(int padding);
         }
 
         public enum TimeStep
@@ -74,6 +74,7 @@ namespace WorldSim
             public float GetAnnualDivider();
             public void Restart();
             public void Step();
+            public void StepBack();
             public bool Reached(DateTime to)
             {
                 return Current >= to;
