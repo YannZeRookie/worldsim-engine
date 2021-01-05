@@ -103,6 +103,8 @@ namespace WorldSim
             public IJM2 Jm2 { get; set; }
             public float GetStock(string resourceId);
             public void SetStock(string resourceId, float stock);
+            public float GetInitialStock(string resourceId);
+            public void SetInitialStock(string resourceId, float stock);
             public string ToString();
         }
 

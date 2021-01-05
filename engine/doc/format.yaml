@@ -130,27 +130,37 @@ scenario:
 
 # Map
 map:
-  sizeX: 3                  # Number of cells in X
-  sizeY: 1                  # Number of cells in Y
+  sizeX: 2                  # Number of cells in X
+  sizeY: 2                  # Number of cells in Y
   Cells:
     - x: 0                  # X coordinate of the cell
       y: 0                  # Y coordinate of the cell
-      jm2_id: mine          # ID of the JM2 placed on this map cell. Here: a mine
+      jm2_id: mine          # ID of the JM2 placed on this map cell. Here: a mine. Having a JM2 on a Cell is optional
       jm2_init:             # These are initialization parameters specific to this JM2
-        resource_id: coal     # Resource ID mined by this JM2
-        reserve: 1.2e6        # Total reserve of the mine. When down to 0, production stops
-        production: 1.0e3     # Annual production of the mine
+        resource_id: coal     # Resource ID mined by this JM2. Required.
+        reserve: 1.2e6        # Total reserve of the mine. When down to 0, production stops. Required.
+        production: 1.0e3     # Annual production of the mine. Required.
     - x: 1
       y: 0
-      jm2_id: mine          # ID of the JM2 placed on this map cell. Here, a 'mine' again (hum)
-      jm2_init:             # These are initialization parameters specific to this JM2
-        resource_id: o2
-        reserve: 1e6
-        production: 1000
-    - x: 2                  # X coordinate of the cell
-      y: 0                  # Y coordinate of the cell
-      jm2_id: factory       # ID of the JM2 placed on this map cell. Here: a factory
-      jm2_init:             # These are initialization parameters specific to this JM2
+      jm2_id: source        # Here, a Source. it's pretty much like a mine, except that the reserve field is optional
+      jm2_init:             
+        resource_id: o2     # Resource ID. Required.
+        #reserve: 1e6       # Let's make this source infinite 
+        production: 1000    # Annual production
+    - x: 0
+      y: 1
+      jm2_id: sink          # A Sink. It's the opposite of a Source. It can have a limit, in which case it will stop when full
+      jm2_init:            
+        resource_id: co2    # Resource ID. Required.
+        #limit: 1e6         # Let's make this sink bottomless 
+        consumption: 200    # Annual consumption
+    - x: 1
+      y: 1
+      stocks:                 # You can define a list of initial stocks in any Cell. Optional
+        - resource_id: coal     # Resource ID. Required
+          stock: 900            # Value of initial stock. Required
+      jm2_id: factory         # A factory
+      jm2_init:
         opex:                 # List of Operational Expenses, i.e. supplies needed for production
           - resource_id: coal   # Resourced ID of the needed resource   
             consumption: 500    # Annual Consumption of this supply 
@@ -170,5 +180,5 @@ map:
 # If not supplied, the Current Time will be time.start by default
 currentTime: 1965-01-01
 
-# Actions
+# Actions & Timelines
 # TODO

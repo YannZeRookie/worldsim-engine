@@ -47,10 +47,17 @@ namespace WorldSim.IO
         public CellFileData[] Cells { get; set; }
     }
 
+    public class StockFileData
+    {
+        public string Resource_Id { get; set; }
+        public float Stock { get; set; }
+    }
+
     public class CellFileData
     {
         public Int32 X { get; set; }
         public Int32 Y { get; set; }
+        public StockFileData[] Stocks { get; set; }
         public string Jm2_Id { get; set; }
         public Dictionary<string, object> Jm2_Init { get; set; }
     }
@@ -99,6 +106,7 @@ namespace WorldSim.IO
                 YamlFileData fileData = r.First();
                 currentTime = ProcessFileData(fileData, dontRun);
             }
+
             stopWatch.Stop();
             LoadDelay = stopWatch.Elapsed;
             return currentTime;
@@ -157,6 +165,14 @@ namespace WorldSim.IO
             this.World.CreateMap(fileData.Map.SizeX, fileData.Map.SizeY);
             foreach (var cell in fileData.Map.Cells)
             {
+                if (cell.Stocks != null)
+                {
+                    foreach (var stock in cell.Stocks)
+                    {
+                        this.World.Map.Cells[cell.X, cell.Y].SetInitialStock(stock.Resource_Id, stock.Stock);
+                    }
+                }
+
                 if (!string.IsNullOrWhiteSpace(cell.Jm2_Id))
                 {
                     IJM2 jm2 = this.World.CreateJM2(cell.Jm2_Id, cell.Jm2_Init);
@@ -176,6 +192,7 @@ namespace WorldSim.IO
                     this.World.Time.Current = fileData.CurrentTime;
                 }
             }
+
             stopWatch.Stop();
             CurrentStateDelay = stopWatch.Elapsed;
             //-- Done

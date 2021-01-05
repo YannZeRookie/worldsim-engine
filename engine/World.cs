@@ -87,6 +87,10 @@ namespace WorldSim.Engine
         {
             switch (jm2Id)
             {
+                case "source":
+                    return new JM2Source(init);
+                case "sink":
+                    return new JM2Sink(init);
                 case "mine":
                     return new JM2Mine(init);
                 case "factory":
@@ -397,11 +401,16 @@ namespace WorldSim.Engine
         private World _world;
         private Dictionary<string, float> _output;
         public Dictionary<string, float> Stocks { get; set; }
+        private IDictionary<string, float> InitialStocks { get; }
+        public Int32 X { get; set; }
+        public Int32 Y { get; set; }
+        public IJM2 Jm2 { get; set; }
 
         public Cell(Int32 x, Int32 y, Dictionary<string, IResource> resources, IWorld world)
         {
             this.X = x;
             this.Y = y;
+            this.InitialStocks = new Dictionary<string, float>();
             this.Stocks = new Dictionary<string, float>();
             foreach (var r in resources)
             {
@@ -416,15 +425,11 @@ namespace WorldSim.Engine
         {
             foreach (var k in this.Stocks.Keys)
             {
-                this.Stocks[k] = 0.0f;
+                this.Stocks[k] = InitialStocks.ContainsKey(k) ? InitialStocks[k] : 0.0f;
             }
 
             ((JM2) Jm2)?.Restart();
         }
-
-        public Int32 X { get; set; }
-        public Int32 Y { get; set; }
-        public IJM2 Jm2 { get; set; }
 
         public float GetStock(string resourceId)
         {
@@ -434,6 +439,20 @@ namespace WorldSim.Engine
         public void SetStock(string resourceId, float stock)
         {
             this.Stocks[resourceId] = stock;
+        }
+
+        public float GetInitialStock(string resourceId)
+        {
+            return this.InitialStocks[resourceId];
+        }
+
+        public void SetInitialStock(string resourceId, float stock)
+        {
+            this.InitialStocks[resourceId] = stock;
+            if (this._world.Time.Iteration == 0)
+            {
+                this.Stocks[resourceId] = stock;
+            }
         }
 
         public override string ToString()
@@ -515,16 +534,16 @@ namespace WorldSim.Engine
         }
     }
 
-    public class JM2Mine : JM2
+    public class JM2Source : JM2
     {
         private string _resourceId;
-        private float _reserve;
+        private float? _reserve;
         private float _production;
         private IDictionary<string, object> _init;
 
-        public JM2Mine(IDictionary<string, object> init)
+        public JM2Source(IDictionary<string, object> init) : base()
         {
-            Id = "mine";
+            Id = "source";
             _init = init;
             Restart();
         }
@@ -532,7 +551,7 @@ namespace WorldSim.Engine
         public override void Restart()
         {
             _resourceId = _init["resource_id"] as string;
-            _reserve = Convert.ToSingle(_init["reserve"]);
+            _reserve = _init.ContainsKey("reserve") ? Convert.ToSingle(_init["reserve"]) : null;
             _production = Convert.ToSingle(_init["production"]);
             base.Restart();
         }
@@ -541,12 +560,71 @@ namespace WorldSim.Engine
             Dictionary<string, float> output)
         {
             float productionTarget = _production / annualDivider;
-            float mined = Math.Min(_reserve, productionTarget);
+            float mined = 0.0f;
+            if (_reserve != null)
+            {
+                float reserve = (float) _reserve;
+                mined = Math.Min(reserve, productionTarget);
+                Efficiency = (mined < reserve) ? 1.0f : (reserve > 0.0f ? mined / productionTarget : 0.0f);
+                _reserve -= mined;
+            }
+            else
+            {
+                // Infinite reserves
+                mined = productionTarget;
+                Efficiency = 1.0f;
+            }
+
             output[_resourceId] = mined;
-            Efficiency = (mined < _reserve) ? 1.0f : (_reserve > 0.0f ? mined / productionTarget : 0.0f);
-            _reserve -= mined;
         }
     }
+
+    public class JM2Sink : JM2
+    {
+        private string _resourceId;
+        private float? _limit;
+        private float _consumption;
+        private IDictionary<string, object> _init;
+
+        public JM2Sink(IDictionary<string, object> init) : base()
+        {
+            Id = "sink";
+            _init = init;
+            Restart();
+        }
+
+        public override void Restart()
+        {
+            _resourceId = _init["resource_id"] as string;
+            _limit = _init.ContainsKey("limit") ? Convert.ToSingle(_init["limit"]) : null;
+            _consumption = Convert.ToSingle(_init["consumption"]);
+            base.Restart();
+        }
+
+        public override void Step(Map map, Dictionary<string, float> stocks, float annualDivider,
+            Dictionary<string, float> output)
+        {
+            float consumptionTarget = _consumption / annualDivider;
+            float actualTarget = Math.Min(_limit ?? _consumption, _consumption) / annualDivider;
+            float consumed = 0.0f;
+            float efficiency = 1.0f;
+
+            consumed = ConsumeResource(_resourceId, actualTarget, map, stocks);
+            if (consumptionTarget > 0.0f)
+                efficiency = consumed / consumptionTarget;
+
+            Efficiency = efficiency;
+        }
+    }
+
+    public class JM2Mine : JM2Source
+    {
+        public JM2Mine(IDictionary<string, object> init) : base(init)
+        {
+            Id = "mine";
+        }
+    }
+
 
     public class JM2Factory : JM2
     {
@@ -554,7 +632,7 @@ namespace WorldSim.Engine
         private Dictionary<string, float> _output;
         private IDictionary<string, object> _init;
 
-        public JM2Factory(IDictionary<string, object> init)
+        public JM2Factory(IDictionary<string, object> init) : base()
         {
             Id = "factory";
             _init = init;
@@ -578,6 +656,7 @@ namespace WorldSim.Engine
                 string resource_id = (string) ((JValue) o["resource_id"]).Value;
                 _output[resource_id] = Convert.ToSingle(((JValue) o["production"]).Value);
             }
+
             base.Restart();
         }
 

@@ -1,4 +1,4 @@
-# Map test file #01
+# Simple WorldSim test file to test initial Stocks in Cells
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -9,7 +9,7 @@
 format: WorldSim
 type: scenario
 version: "0.1"
-modDate: 2021-01-02T10:57:43+01:00
+modDate: 2021-01-05T10:57:43+01:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -24,7 +24,7 @@ units:
   - id: mass-t
     name: Mass
     description: Mass - Metric Tons
-    symbol: T
+    symbol: T    
 
 # Resources or the physical quantities used by JM2s in this file. All fields required
 resources:
@@ -33,26 +33,22 @@ resources:
     description: A primary fossile energy that generates lots of CO2
     type: stock
     unit_id: mass-t
-  - id: o2
-    name: O2
-    description: A gazeous molecule used to produce energy
-    type: stock
-    unit_id: mass-t
   - id: co2
     name: CO2
     description: A gazeous molecule responsible for the Climate Global Warming
     type: stock
     unit_id: mass-t
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Simulation Context
+# Here we describe what is specific to this simulation and the initial state of the simulation
+# ----------------------------------------------------------------------------------------------------------------------
+
 # List of Key Attributes to track
 keyAttributes:
-  - name: Available Coal
-    description: Total extracted and usable Coal
+  - name: Coal Stock
+    description: Total usable Coal
     formula: sum(coal)
-    unit_id: mass-t
-  - name: Atmosphere O2
-    description: Total of oxygen in the atmosphere
-    formula: sum(o2)
     unit_id: mass-t
   - name: Atmosphere CO2
     description: Total of CO2 in the atmosphere
@@ -69,38 +65,26 @@ time:
 # Map
 map:
   sizeX: 2
-  sizeY: 2
+  sizeY: 1
   Cells:
-    - x: 0
-      y: 0
-      jm2_id: mine      # ID of the JM2 placed on this map cell
-      jm2_init:         # These are initialization parameters specific to this JM2
-        resource_id: coal
-        reserve: 225
-        production: 100
-    - x: 1
-      y: 0
-      jm2_id: mine      # ID of the JM2 placed on this map cell
-      jm2_init:         # These are initialization parameters specific to this JM2
-        resource_id: o2
-        reserve: 1e6
-        production: 1000
-    - x: 0
-      y: 1
-      jm2_id: factory
-      jm2_init:         # These are initialization parameters specific to this JM2
-        opex:
-          - resource_id: coal
-            consumption: 50
-          - resource_id: o2
-            consumption: 100
-        output:
-          - resource_id: co2
-            production: 50
-
+  - x: 0
+    y: 0 
+    stocks:           # List of initial stocks in this Cell. Optional
+      - resource_id: coal   # Resource ID. Required
+        stock: 900          # Value of initial stock. Required
+  - x: 1
+    y: 0
+    jm2_id: factory
+    jm2_init: # These are initialization parameters specific to this JM2
+      opex:
+        - resource_id: coal
+          consumption: 200
+      output:
+        - resource_id: co2
+          production: 100
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Current Simulation State
 # ----------------------------------------------------------------------------------------------------------------------
 
-currentTime: 1805-01-01
+currentTime: 1802-01-01

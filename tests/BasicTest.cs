@@ -229,13 +229,204 @@ cities:
         }
 
         [Test]
-        public void ReadGeneric()
+        public void ReadFullGeneric()
         {
             using (var parser = new ChoYamlReader("../../../fixtures/basic.yaml"))
             {
                 foreach (var e in parser)
                 {
                     Console.WriteLine(e.Dump());
+                }
+            }
+        }
+
+        class PersonData
+        {
+            public DateTime Creation { get; set; }
+            public string Firstname { get; set; }
+            public string Lastname { get; set; }
+            public int Age { get; set; }
+        }
+
+        [Test]
+        public void ReadEntireFile1()
+        {
+            string yaml = @"
+creation: 2020-12-26
+firstname: John
+lastname: Doe
+age: 35";
+            using (var parser = ChoYamlReader<PersonData>.LoadText(yaml))
+            {
+                foreach (var e in parser)
+                {
+                    Console.WriteLine(e.Firstname); // John
+                    Console.WriteLine(e.Lastname); // Doe
+                    Assert.AreEqual("John", e.Firstname);
+                    Assert.AreEqual("Doe", e.Lastname);
+                }
+            }
+        }
+
+        [Test]
+        public void ReadEntireFileAnonymous()
+        {
+            string yaml = @"
+creation: 2020-12-26
+firstname: John
+lastname: Doe
+age: 35";
+            using (var parser = ChoYamlReader<IDictionary<string, object>>.LoadText(yaml))
+            {
+                foreach (var e in parser)
+                {
+                    string firstname = (string) e["firstname"]; // John
+                    DateTime creation = DateTime.Parse((string) e["creation"]); // 2020-12-26
+                    int age = (int) e["age"]; // 35
+                    Console.WriteLine(e.Dump());
+                    Assert.AreEqual("John", firstname);
+                    Assert.AreEqual(new DateTime(2020, 12, 26), creation);
+                    Assert.AreEqual(35, age);
+                }
+            }
+        }
+
+        class ChildData
+        {
+            public string Firstname { get; set; }
+            public string Lastname { get; set; }
+            public DateTime Dob { get; set; }
+        }
+
+        class AddressData
+        {
+            public string Street { get; set; }
+            public string City { get; set; }
+            public string State { get; set; }
+            public string Zip { get; set; }
+            public string Country { get; set; }
+        }
+
+        class ParentData
+        {
+            public DateTime Creation { get; set; }
+            public string Firstname { get; set; }
+            public string Lastname { get; set; }
+            public int Age { get; set; }
+            public ChildData[] Children { get; set; }
+            public AddressData[] Addresses { get; set; }
+        }
+
+        [Test]
+        public void ReadEntireFile2()
+        {
+            string yaml = @"
+creation: 2020-12-26
+firstname: John
+lastname: Doe
+age: 35
+children:
+    - firstname: Emmanuel
+      lastname: Doe
+      dob: 1990-01-02
+    - firstname: Elise
+      lastname: Doe
+      dob: 1996-01-02
+addresses:
+    - street: 1234 California Ave
+      city: San Francisco
+      state: CA
+      zip: 98765
+      country: USA
+    - street: 666 Midtown Ct
+      city: Palo Alto
+      zip: 94444
+      state: CA
+      country: USA
+";
+            using (var parser = ChoYamlReader<ParentData>.LoadText(yaml))
+            {
+                foreach (var e in parser)
+                {
+                    Console.WriteLine(e.Firstname); // John
+                    Console.WriteLine(e.Lastname); // Doe
+                    Console.WriteLine(e.Children[0].Firstname); // Emmanuel
+                    Console.WriteLine(e.Addresses[0].Street); // 1234 California Ave
+                    Assert.AreEqual("John", e.Firstname);
+                    Assert.AreEqual("Doe", e.Lastname);
+                    Assert.AreEqual("Emmanuel", e.Children[0].Firstname);
+                    Assert.AreEqual("1234 California Ave", e.Addresses[0].Street);
+                    Assert.AreEqual(2, e.Children.Length);
+                    Assert.AreEqual(2, e.Addresses.Length);
+                }
+            }
+        }
+
+
+        class ChildrenData
+        {
+            public IList<object> Children { get; set; }
+        }
+
+        [Test]
+        public void ReadAnonymousLists()
+        {
+            string yaml = @"
+children:
+- firstname: Emmanuel
+  lastname: Doe
+  dob: 1990-01-02
+- firstname: Elise
+  lastname: Doe
+  dob: 1996-10-02
+";
+            using (var parser = ChoYamlReader<ChildrenData>.LoadText(yaml))
+            {
+                foreach (var e in parser)
+                {
+                    IDictionary<object, object> firstChild = (IDictionary<object, object>) e.Children[0];
+                    string firstname = (string) firstChild["firstname"]; // Emmanuel
+                    Console.WriteLine(e.Dump());
+                    Assert.AreEqual("Emmanuel", firstname);
+                }
+            }
+        }
+
+        class OwnerData
+        {
+            public PossessionData[] Possessions { get; set; }
+        }
+
+        class PossessionData
+        {
+            public string Type { get; set; }
+            public IDictionary<string, object> Description  { get; set; }
+        }
+
+        [Test]
+        public void ReadDynamicData()
+        {
+            string yaml = @"
+possessions:
+- type: car
+  description:
+    color: blue
+    doors: 4
+- type: computer
+  description:
+    disk: 1 TB
+    memory: 16 MB
+";
+            using (var parser = ChoYamlReader<OwnerData>.LoadText(yaml))
+            {
+                foreach (var e in parser)
+                {
+                    string carColor = (string) e.Possessions[0].Description["color"];   // blue
+                    foreach (var p in e.Possessions)
+                    {
+                        Console.WriteLine(p.Description.Dump());
+                    }
+                    Assert.AreEqual("blue", carColor);
                 }
             }
         }

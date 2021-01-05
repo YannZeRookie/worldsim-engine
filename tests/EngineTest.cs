@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using WorldSim.API;
-using WorldSim.Engine;
 
 namespace WorldSim.Engine.Tests
 {
@@ -241,6 +240,54 @@ namespace WorldSim.Engine.Tests
             engine.World.Time.Current = new DateTime(1803, 1, 1);
             Assert.AreEqual(125.0f, engine.World.Map.Cells[0, 0].GetStock("coal"));
             Assert.AreEqual(0.25f, engine.World.Map.Cells[0, 0].Jm2.Efficiency);
+        }
+
+        [Test]
+        public void InitialStock01Yaml()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/initial_stocks.yaml", true);
+            //-- Header
+            Assert.NotNull(engine.World);
+
+            ICell cell = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual(900.0f, cell.GetStock("coal"));
+
+            engine.World.Time.Step();
+            Assert.AreEqual(700.0f, cell.GetStock("coal"));
+            Assert.AreEqual(100.0f, engine.World.Map.Cells[1, 0].GetStock("co2"));
+        }
+        
+        [Test]
+        public void TestSourcesAndSinks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/map02.yaml", true);
+            Assert.NotNull(engine.World);
+            
+            ICell limitedSource = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual("source", limitedSource.Jm2.Id);
+            ICell unlimitedSource = engine.World.Map.Cells[1, 0];
+            Assert.AreEqual("source", unlimitedSource.Jm2.Id);
+            ICell factory = engine.World.Map.Cells[0, 1];
+            Assert.AreEqual("factory", factory.Jm2.Id);
+            ICell sink = engine.World.Map.Cells[1, 1];
+            Assert.AreEqual("sink", sink.Jm2.Id);
+            
+            engine.World.Time.Step();
+
+            Assert.AreEqual(100.0f, limitedSource.GetStock("coal"));
+            Assert.AreEqual(300.0f, unlimitedSource.GetStock("o2"));
+            Assert.AreEqual(0.0f, factory.GetStock("co2"));
+            
+            engine.World.Time.Step();
+            Assert.AreEqual(2.0*100.0f - 50.0f, limitedSource.GetStock("coal"));
+            Assert.AreEqual(2.0*300.0f - 100.0f , unlimitedSource.GetStock("o2"));
+            Assert.AreEqual(50.0f , factory.GetStock("co2"));
+            
+            engine.World.Time.Step();
+            Assert.AreEqual(2*50.0f - 25.0f, factory.GetStock("co2"));
+
         }
     }
 }

@@ -155,17 +155,17 @@ namespace cli
                 if (interactive)
                 {
                     ConsoleKeyInfo cki = Console.ReadKey(true);
-                    if ((cki.Key == ConsoleKey.UpArrow) || (cki.Key == ConsoleKey.PageUp))
+                    if ((cki.Key == ConsoleKey.LeftArrow) || (cki.Key == ConsoleKey.PageUp))
                     {
                         // Go Backward
                         engine.World.Time.StepBack();
                     }
-                    else if ((cki.Key == ConsoleKey.LeftArrow) || (cki.Key == ConsoleKey.Home))
+                    else if ((cki.Key == ConsoleKey.UpArrow) || (cki.Key == ConsoleKey.Home))
                     {
                         // Go to Start
                         engine.World.Time.Restart();
                     }
-                    else if ((cki.Key == ConsoleKey.RightArrow) || (cki.Key == ConsoleKey.End))
+                    else if ((cki.Key == ConsoleKey.DownArrow) || (cki.Key == ConsoleKey.End))
                     {
                         // Go to End
                         engine.World.Time.Current = engine.World.Time.End;
