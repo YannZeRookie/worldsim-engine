@@ -326,23 +326,23 @@ firstname: John
 lastname: Doe
 age: 35
 children:
-    - firstname: Emmanuel
-      lastname: Doe
-      dob: 1990-01-02
-    - firstname: Elise
-      lastname: Doe
-      dob: 1996-01-02
+- firstname: Emmanuel
+  lastname: Doe
+  dob: 1990-01-02
+- firstname: Elise
+  lastname: Doe
+  dob: 1996-01-02
 addresses:
-    - street: 1234 California Ave
-      city: San Francisco
-      state: CA
-      zip: 98765
-      country: USA
-    - street: 666 Midtown Ct
-      city: Palo Alto
-      zip: 94444
-      state: CA
-      country: USA
+- street: 1234 California Ave
+  city: San Francisco
+  state: CA
+  zip: 98765
+  country: USA
+- street: 666 Midtown Ct
+  city: Palo Alto
+  zip: 94444
+  state: CA
+  country: USA
 ";
             using (var parser = ChoYamlReader<ParentData>.LoadText(yaml))
             {

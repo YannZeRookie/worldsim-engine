@@ -18,7 +18,7 @@ namespace cli
             string toDateOption = "";
             var verbosity = 0;
             var graphic = false;
-            var delay = "";
+            var delay = "0";
             var interactive = false;
             var shouldShowHelp = false;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -35,7 +35,7 @@ namespace cli
                     }
                 },
                 {"g|graphic", "Use the 'graphic' display mode", g => graphic = (g != null)},
-                {"d|delay=", "Delay in 1000th of secs in 'graphic' mode", d => delay = d},
+                {"d|delay=", "Delay in 1000th of secs between steps in -vv mode", d => delay = d},
                 {"i|interactive", "Use arrow keys to progress", i => interactive = (i != null)},
                 {"h|help", "show this message and exit", h => shouldShowHelp = (h != null)},
             };
@@ -44,7 +44,6 @@ namespace cli
             {
                 // Parse the command line
                 var fileNames = options.Parse(args);
-                if (delay == "") delay = (graphic ? "10" : "0");
                 int result = 0;
                 if (shouldShowHelp)
                 {
@@ -78,10 +77,10 @@ namespace cli
 
         private static int Help(OptionSet options)
         {
-            Console.WriteLine("Usage: engine.exe [OPTIONS]+ fileName");
+            Console.WriteLine("Usage: engine [OPTIONS]+ fileName");
             Console.WriteLine("Run a simulation until the `to` date and show the resulting KPIs.");
             Console.WriteLine("If no `to` date is specified, the `currentTime` from the file is used.");
-            Console.WriteLine("If a `from` date is specified, KPIs will be shown for each step.");
+            Console.WriteLine("If a `from` date is specified, details will be displayed from this date.");
             Console.WriteLine();
 
             // output the options

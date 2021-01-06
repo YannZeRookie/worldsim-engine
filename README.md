@@ -99,21 +99,61 @@ the way from its start when it's loaded anyway.
 For more advanced time settings, it's easier and just as fast to edit your YAML file directly. See the Time section in
 the file.
 
+To display a more visual representation of the map, you can use the `-g` option in combination with the `-vv` option.
+
+    ./engine -vv -g map02.yaml
+    Loaded file in 752 ms
+    #   5: 1805-01-01  [██████              ]  33%
+    Available Coal:    25,0 T
+    Atmosphere O2 :  1100,0 T
+    Atmosphere CO2:   125,0 T
+    
+    ┌0,0─source─ ──────┬1,0─source─█──────┐
+    │ Coal:     25,0 T │ Coal:      0,0 T │
+    │ O2  :      0,0 T │ O2  :   1100,0 T │
+    │ CO2 :      0,0 T │ CO2 :      0,0 T │
+    ├0,1─factory─█─────┼1,1─sink─█────────┤
+    │ Coal:      0,0 T │ Coal:      0,0 T │
+    │ O2  :      0,0 T │ O2  :      0,0 T │
+    │ CO2 :    125,0 T │ CO2 :      0,0 T │
+    └──────────────────┴──────────────────┘
+
+In both text and graphic modes, you can introduce a pause delay (in msecs) to get something animated:
+
+    ./engine -vv -g -d 500 map02.yaml
+
+Instead of having an automated animation, you can use the interactive mode with the `-i` option. This allows you to use
+the keyboard to move from one iteration to the next.
+
+    ./engine -vv -g -i map02.yaml
+
+- right arrow: next iteration
+- left arrow: previous iteration, i.e. go back in time
+- up arrow: rewind to beginning of simulation (start time)
+- down arrow: fast-forward to end of simulation (end time)
+- T: go to the simulation current time (if one was set in the file)
+- Q or ESC: quit
+
+Note that the interactive mode also works in text display mode. 
+
 Using `-h` or `--help` gives details about the options:
 
     $ ./engine --help
-    Usage: engine.exe [OPTIONS]+ fileName
-    Run a simulation until the `to` date and show the resulting KPIs.
-    If no `to` date is specified, the `currentTime` from the file is used.
-    If a `from` date is specified, KPIs will be shown for each step.
-    
-    Options:
-    -f, --from=VALUE           start date (YYYY-MM-DD). Implies -v
-    -t, --to=VALUE             end date (YYYY-MM-DD)
-    -v                         increase details verbosity:
-                                   -v show each step
-                                   -vv show each step and cells
-    -h, --help                 show this message and exit
+        Usage: engine [OPTIONS]+ fileName
+        Run a simulation until the `to` date and show the resulting KPIs.
+        If no `to` date is specified, the `currentTime` from the file is used.
+        If a `from` date is specified, KPIs will be shown for each step.
+        
+        Options:
+        -f, --from=VALUE           start date (YYYY-MM-DD). Implies -v
+        -t, --to=VALUE             stop date (YYYY-MM-DD)
+        -v                         increase details verbosity:
+                                        -v show each step
+                                        -vv show each step and cells
+        -g, --graphic              Use the 'graphic' display mode
+        -d, --delay=VALUE          Delay in 1000th of secs between steps in -vv mode
+        -i, --interactive          Use arrow keys to progress
+        -h, --help                 show this message and exit
 
 Building the project
 --------------------
@@ -123,6 +163,14 @@ compile it in Visual Studio as Rider is supposed to be fully compatible (I have 
 
 Release Notes
 -------------
+
+### 2021-01-06 - Version 0.2:
+
+- Nice "graphic" mode showing the Map Cells in "ASCII art" - or should I say "UTF-8 art" ;-)
+- You can now set initial stocks values on Cells in YAML files
+- New JM2s: Sources and Sinks
+
+See the doc/format.yaml file for details and examples.
 
 ### 2021-01-02 - Version 0.1:
 
