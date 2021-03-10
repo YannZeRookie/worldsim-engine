@@ -94,8 +94,8 @@ resources:
 # Here we describe what is specific to this simulation and the initial state of the simulation
 # ----------------------------------------------------------------------------------------------------------------------
 
-# List of Key Attributes (aka KPIs) to track
-keyAttributes:
+# List of KPIs to track
+kpis:
   - name: Atmosphere CO2
     description: Total of CO2 in the atmosphere
     formula: sum(co2)         # Sum the co2 resources across all JM2 cells

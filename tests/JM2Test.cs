@@ -32,6 +32,7 @@ namespace WorldSim.Engine.Tests
                 {"resource_id", "coal"},
                 {"production", 100.0f}
             };
+            Time time = new Time(null);
             JM2Source jm2 = new JM2Source(init);
             Assert.AreEqual("source", jm2.Id);
 
@@ -40,7 +41,7 @@ namespace WorldSim.Engine.Tests
                 {"coal", 0.0f}
             };
             Dictionary<string, float> output = new Dictionary<string, float>();
-            jm2.Step((Map) _world.Map, stocks, 1.0f, output);
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
 
             Assert.AreEqual(100.0f, output["coal"]);
             Assert.AreEqual(1.0f, jm2.Efficiency);
@@ -55,6 +56,7 @@ namespace WorldSim.Engine.Tests
                 {"reserve", 50.0f},
                 {"production", 100.0f}
             };
+            Time time = new Time(null);
             JM2Source jm2 = new JM2Source(init);
             Assert.AreEqual("source", jm2.Id);
 
@@ -63,7 +65,7 @@ namespace WorldSim.Engine.Tests
                 {"coal", 0.0f}
             };
             Dictionary<string, float> output = new Dictionary<string, float>();
-            jm2.Step((Map) _world.Map, stocks, 1.0f, output);
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
 
             Assert.AreEqual(50.0f, output["coal"]);
             Assert.AreEqual(0.5f, jm2.Efficiency);
@@ -78,6 +80,7 @@ namespace WorldSim.Engine.Tests
                 {"reserve", 200.0f},
                 {"production", 100.0f}
             };
+            Time time = new Time(null);
             JM2Mine jm2 = new JM2Mine(init);
             Assert.AreEqual("mine", jm2.Id);
 
@@ -86,7 +89,7 @@ namespace WorldSim.Engine.Tests
                 {"coal", 0.0f}
             };
             Dictionary<string, float> output = new Dictionary<string, float>();
-            jm2.Step((Map) _world.Map, stocks, 1.0f, output);
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
 
             Assert.AreEqual(100.0f, output["coal"]);
             Assert.AreEqual(1.0f, jm2.Efficiency);
@@ -100,15 +103,16 @@ namespace WorldSim.Engine.Tests
                 {"resource_id", "coal"},
                 {"consumption", 100.0f}
             };
+            Time time = new Time(null);
             JM2Sink jm2 = new JM2Sink(init);
             Assert.AreEqual("sink", jm2.Id);
 
             Cell cell = (Cell) _world.Map.Cells[0, 0];
             cell.Jm2 = jm2;
             Assert.AreEqual(100.0f, cell.GetStock("coal"));
-            cell.StepPrepare();
-            cell.StepExecute(1.0f);
-            cell.StepFinalize();
+            cell.StepPrepare(time);
+            cell.StepExecute(time, 1.0f);
+            cell.StepFinalize(time);
             Assert.AreEqual(0.0f, cell.GetStock("coal")); // Because we reached the limit
             Assert.AreEqual(1.0f, jm2.Efficiency);
         }
@@ -122,15 +126,16 @@ namespace WorldSim.Engine.Tests
                 {"limit", 50},
                 {"consumption", 100.0f}
             };
+            Time time = new Time(null);
             JM2Sink jm2 = new JM2Sink(init);
             Assert.AreEqual("sink", jm2.Id);
 
             Cell cell = (Cell) _world.Map.Cells[0, 0];
             cell.Jm2 = jm2;
             Assert.AreEqual(100.0f, cell.GetStock("coal"));
-            cell.StepPrepare();
-            cell.StepExecute(1.0f);
-            cell.StepFinalize();
+            cell.StepPrepare(time);
+            cell.StepExecute(time, 1.0f);
+            cell.StepFinalize(time);
             Assert.AreEqual(50.0f, cell.GetStock("coal")); // Because we reached the limit
             Assert.AreEqual(0.5f, jm2.Efficiency);
         }

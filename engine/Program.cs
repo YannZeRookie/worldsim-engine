@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Threading;
 using ChoETL;
 using Mono.Options;
@@ -20,6 +21,7 @@ namespace cli
             var graphic = false;
             var delay = "0";
             var interactive = false;
+            var csvOutput = false;
             var shouldShowHelp = false;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -37,6 +39,7 @@ namespace cli
                 {"g|graphic", "Use the 'graphic' display mode", g => graphic = (g != null)},
                 {"d|delay=", "Delay in 1000th of secs between steps in -vv mode", d => delay = d},
                 {"i|interactive", "Use arrow keys to progress", i => interactive = (i != null)},
+                {"c|csv", "Output results in a CSV file", c => csvOutput = (c != null)},
                 {"h|help", "show this message and exit", h => shouldShowHelp = (h != null)},
             };
 
@@ -59,7 +62,7 @@ namespace cli
                     foreach (var fileName in fileNames)
                     {
                         result += RunSimulation(fileName, fromDate, toDate, verbosity, graphic, Int32.Parse(delay),
-                            interactive);
+                            interactive, csvOutput);
                     }
                 }
 
@@ -90,7 +93,7 @@ namespace cli
         }
 
         public static int RunSimulation(string fileName, DateTime? fromDate, DateTime? toDate, int verbosity,
-            bool graphic, Int32 delay, bool interactive)
+            bool graphic, Int32 delay, bool interactive, bool csvOutput)
         {
             Engine engine = new Engine();
             if (fileName.Length == 0) throw new Exception("no file specified");
@@ -126,6 +129,36 @@ namespace cli
             if (verbosity <= 0) // No step details to show? Fast-forward directly to target!
                 engine.World.Time.Current = reachDate;
 
+            ChoCSVWriter csvWriter = null;
+            if (csvOutput)
+            {
+                csvWriter = new ChoCSVWriter(fileName + ".csv");
+                csvWriter.WithFirstLineHeader();
+                string[] fields =
+                    new string[2 + engine.World.Kpis.Count + (verbosity > 1
+                        ? engine.World.Map.SizeX * engine.World.Map.SizeY * engine.World.Resources.Count
+                        : 0)];
+                int i = 0;
+                fields[i++] = "#";
+                fields[i++] = "Date";
+                foreach (var kpi in engine.World.Kpis)
+                {
+                    fields[i++] = kpi.Name;
+                }
+
+                for (int y = 0; y < engine.World.Map.SizeY; y++)
+                {
+                    for (int x = 0; x < engine.World.Map.SizeX; x++)
+                    {
+                        foreach (var resource in engine.World.Resources.Values)
+                        {
+                            fields[i++] = "[" + x + ":" + y + "] " + resource.Name;
+                        }
+                    }
+                }
+
+                csvWriter.WriteHeader(fields);
+            }
 
             //-- Compute the maximum widths. TODO: move this code higher up
             int resNamesWidth = 0;
@@ -148,7 +181,7 @@ namespace cli
             {
                 if (verbosity >= 1)
                 {
-                    PrintCurrent(engine, verbosity, graphic, startPosition, widths);
+                    PrintCurrent(engine, verbosity, graphic, startPosition, widths, csvWriter);
                 }
 
                 if (interactive)
@@ -191,13 +224,17 @@ namespace cli
                 }
             }
 
-            PrintCurrent(engine, verbosity, graphic, startPosition, widths);
+            PrintCurrent(engine, verbosity, graphic, startPosition, widths, csvWriter);
+
+            if (csvWriter != null) csvWriter.Close();
             return 0;
         }
 
         private static void PrintCurrent(Engine engine, int verbosity,
-            bool graphic, (int, int) startPosition, IDictionary<string, int> widths)
+            bool graphic, (int, int) startPosition, IDictionary<string, int> widths, ChoCSVWriter csvWriter)
         {
+            dynamic csvRecord = new ExpandoObject();
+
             if (graphic) Console.SetCursorPosition(startPosition.Item1, startPosition.Item2);
             //-- Iteration and date
             Console.Write("#{0,4}: {1:yyyy-MM-dd}  ", engine.World.Time.Iteration, engine.World.Time.Current);
@@ -205,11 +242,14 @@ namespace cli
                 PrintProgressBar(engine.World.Time.Start.Ticks, engine.World.Time.Current.Ticks,
                     engine.World.Time.End.Ticks);
             Console.WriteLine();
+            csvRecord.Iteration = engine.World.Time.Iteration;
+            csvRecord.Date = engine.World.Time.Current.ToString("yyyy-MM-dd");
             //-- KPIs
-            int kpiMaxWdith = engine.World.GetKeyAttributesMaxWidth();
-            foreach (var kpi in engine.World.KeyAttributes)
+            int kpiMaxWdith = engine.World.GetKpisMaxWidth();
+            foreach (var kpi in engine.World.Kpis)
             {
                 Console.WriteLine(kpi.ToString(kpiMaxWdith));
+                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue());
             }
 
             Console.WriteLine();
@@ -220,7 +260,25 @@ namespace cli
                     PrintMapGraphic(engine.World, widths);
                 else
                     PrintMapText(engine.World, widths);
+                if (csvWriter != null)
+                {
+                    for (int y = 0; y < engine.World.Map.SizeY; y++)
+                    {
+                        for (int x = 0; x < engine.World.Map.SizeX; x++)
+                        {
+                            ICell cell = engine.World.Map.Cells[x, y];
+                            foreach (var resource in engine.World.Resources.Values)
+                            {
+                                ((IDictionary<String, Object>) csvRecord).Add(x + ":" + y + " " + resource.Id,
+                                    cell.GetStock(resource.Id));
+                            }
+                        }
+                    }
+                }
             }
+
+            //--
+            if (csvWriter != null) csvWriter.Write(csvRecord);
         }
 
         private static void PrintMapText(IWorld world, IDictionary<string, int> widths)

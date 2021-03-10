@@ -24,7 +24,7 @@ namespace WorldSim.IO
         public string Unit_Id { get; set; }
     }
 
-    public class KeyAttributeFileData
+    public class KpiFileData
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -75,7 +75,7 @@ namespace WorldSim.IO
         //-- Background
         public UnitFileData[] Units { get; set; }
         public ResourceFileData[] Resources { get; set; }
-        public KeyAttributeFileData[] KeyAttributes { get; set; }
+        public KpiFileData[] Kpis { get; set; }
         public TimeFileData Time { get; set; }
         public MapFileData Map { get; set; }
 
@@ -146,9 +146,9 @@ namespace WorldSim.IO
                     this.World.CreateResource(r.Id, r.Name, r.Description, r.Type, r.Unit_Id));
             }
 
-            foreach (var k in fileData.KeyAttributes)
+            foreach (var k in fileData.Kpis)
             {
-                this.World.KeyAttributes.Add(this.World.CreateKeyAttribute(k.Name, k.Description, k.Formula,
+                this.World.Kpis.Add(this.World.CreateKpi(k.Name, k.Description, k.Formula,
                     k.Unit_Id));
             }
 

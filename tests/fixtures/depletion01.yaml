@@ -44,8 +44,8 @@ resources:
     type: stock
     unit_id: mass-t
 
-# List of Key Attributes to track
-keyAttributes:
+# List of KPIs to track
+kpis:
   - name: Available Coal
     description: Total extracted and usable Coal
     formula: sum(coal)

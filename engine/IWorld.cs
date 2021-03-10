@@ -9,7 +9,7 @@ namespace WorldSim
         ///     The <c>IWorld</c> interface represents the entire world. It id divided in 3 parts:
         ///     <list type="bullet">
         ///         <item>
-        ///             <term>The Metadata part, which contains general information about the file.</term>
+        ///             <term>The Metadata part, which contains general information .</term>
         ///         </item>
         ///         <item>
         ///             <term>The background of the simulation, ie all the variables, resources, KPIs, etc.</term>
@@ -57,7 +57,7 @@ namespace WorldSim
             /// <summary>
             ///     List of KPIs used in this simulation
             /// </summary>
-            public List<IKeyAttributes> KeyAttributes { get; }
+            public List<IKpi> Kpis { get; }
 
             /// <summary>
             ///     Time management class.
@@ -93,14 +93,14 @@ namespace WorldSim
             public IResource CreateResource(string id, string name, string description, string type, string unitId);
 
             /// <summary>
-            ///     Create a new KPI, i.e. something we are interested to track during the simulation
+            ///     Create a new KPI, i.e. something we are interested in tracking during the simulation
             /// </summary>
             /// <param name="name">The short name of this KPI</param>
             /// <param name="description">A longer description of this KPI</param>
             /// <param name="formula">Computation formula for this KPI</param>
             /// <param name="unitId">The ID of the unit for this KPI. See IUnit</param>
             /// <returns>A new KIP that can be added to the World's list of KPIs</returns>
-            public IKeyAttributes CreateKeyAttribute(string name, string description, string formula, string unitId);
+            public IKpi CreateKpi(string name, string description, string formula, string unitId);
 
             /// <summary>
             ///     Create a new Map and add it to the World
@@ -178,10 +178,10 @@ namespace WorldSim
         }
 
         /// <summary>
-        ///     The <c>IKeyAttributes</c> (aka "KPI") describes something we are interested to
-        ///     track during the simulation
+        ///     The <c>IKpi</c> ("Key Performance Indicator") describes something
+        ///     we are interested in tracking during the simulation
         /// </summary>
-        public interface IKeyAttributes
+        public interface IKpi
         {
             /// <summary>
             ///     The short name of this KPI
@@ -204,7 +204,7 @@ namespace WorldSim
             public string UnitId { get; set; }
 
             /// <summary>
-            ///     Get the value of this Key Attribute at the Current Time
+            ///     Get the value of this KPI at the Current Time
             /// </summary>
             /// <returns>Current Value</returns>
             public float GetValue();

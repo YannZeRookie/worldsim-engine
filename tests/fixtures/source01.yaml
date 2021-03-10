@@ -1,4 +1,4 @@
-# Simple WorldSim test file to test initial Stocks in Cells
+# Test of various sources
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -8,8 +8,8 @@
 
 format: WorldSim
 type: scenario
-version: "0.1"
-modDate: 2021-01-05T10:57:43+01:00
+version: "0.2"
+modDate: 2021-03-04T16:05:00+01:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -24,35 +24,21 @@ units:
   - id: mass-t
     name: Mass
     description: Mass - Metric Tons
-    symbol: T    
+    symbol: T
 
 # Resources or the physical quantities used by JM2s in this file. All fields required
 resources:
-  - id: coal
-    name: Coal
-    description: A primary fossile energy that generates lots of CO2
+  - id: stuff
+    name: Stuff
+    description: Some stuff that is produced by the sources
     type: stock
     unit_id: mass-t
-  - id: co2
-    name: CO2
-    description: A gazeous molecule responsible for the Climate Global Warming
-    type: stock
-    unit_id: mass-t
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Simulation Context
-# Here we describe what is specific to this simulation and the initial state of the simulation
-# ----------------------------------------------------------------------------------------------------------------------
 
 # List of KPIs to track
 kpis:
-  - name: Coal Stock
-    description: Total usable Coal
-    formula: sum(coal)
-    unit_id: mass-t
-  - name: Atmosphere CO2
-    description: Total of CO2 in the atmosphere
-    formula: sum(co2)
+  - name: Total Stuff
+    description: Total Stuff available
+    formula: sum(stuff)
     unit_id: mass-t
 
 # Time management
@@ -60,31 +46,24 @@ time:
   stepUnit: year      # Can be "year", "month" or "day". Required
   stepValue: 1        # Integer. Optional, default is 1. 
   start: 1800-01-01   # Start date. Required
-  end: 1810-01-01     # End date if simulation has to stop at some point. Optional
+  end: 1900-01-01     # End date if simulation has to stop at some point. Optional
 
 # Map
 map:
-  sizeX: 2
+  sizeX: 1
   sizeY: 1
   Cells:
-  - x: 0
-    y: 0 
-    stocks:           # List of initial stocks in this Cell. Optional
-      - resource_id: coal   # Resource ID. Required
-        stock: 900          # Value of initial stock. Required
-  - x: 1
-    y: 0
-    jm2_id: factory
-    jm2_init: # These are initialization parameters specific to this JM2
-      opex:
-        - resource_id: coal
-          consumption: 200
-      output:
-        - resource_id: co2
-          production: 100
+    - x: 0
+      y: 0
+      jm2_id: source      # A limited Source (there is a reserve)
+      jm2_init:
+        resource_id: stuff
+        reserve: 1000
+        production: 100
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Current Simulation State
 # ----------------------------------------------------------------------------------------------------------------------
 
-currentTime: 1802-01-01
+currentTime: 1850-01-01

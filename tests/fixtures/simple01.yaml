@@ -39,8 +39,8 @@ resources:
 # Here we describe what is specific to this simulation and the initial state of the simulation
 # ----------------------------------------------------------------------------------------------------------------------
 
-# List of Key Attributes to track
-keyAttributes:
+# List of KPIs to track
+kpis:
   - name: Coal Stock
     description: Total extracted and usable Coal
     formula: sum(coal)
