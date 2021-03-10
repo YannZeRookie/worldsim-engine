@@ -82,7 +82,7 @@ namespace WorldSim.Engine
             }
 
             _iteration++;
-            _world.Step(this);
+            _world?.Step(this);
         }
 
         public void StepBack()

@@ -5,16 +5,21 @@ namespace WorldSim.Engine
 {
     public class JM2Source : JM2
     {
-        private string _resourceId;
-        private float? _reserve;
-        private float _production;
-        private IDictionary<string, object> _init;
+        protected string _resourceId;
+        protected float? _reserve;
+        protected float _production;
+        protected IDictionary<string, object> _init;
 
         public JM2Source(IDictionary<string, object> init) : base()
         {
             Id = "source";
             _init = init;
             Restart();
+        }
+
+        public float? Reserve()
+        {
+            return _reserve;
         }
 
         public override void Restart()

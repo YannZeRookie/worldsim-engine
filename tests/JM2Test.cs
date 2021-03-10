@@ -94,6 +94,79 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(100.0f, output["coal"]);
             Assert.AreEqual(1.0f, jm2.Efficiency);
         }
+        
+        [Test]
+        public void TestRecyclingMine()
+        {
+            IDictionary<string, object> init = new Dictionary<string, object>()
+            {
+                {"resource_id", "coal"},
+                {"reserve", 1000.0f},
+                {"production", 100.0f},
+                {"time_in_use", 4},
+                {"recycling", 0.2f}
+            };
+            Time time = new Time(null);
+            JM2Mine jm2 = new JM2RecyclingMine(init);
+            Assert.AreEqual("recycling_mine", jm2.Id);
+
+            Dictionary<string, float> stocks = new Dictionary<string, float>()
+            {
+                {"coal", 0.0f}
+            };
+            Dictionary<string, float> output = new Dictionary<string, float>();
+
+            for (int i = 0; i < 4; i++)
+            {
+                jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+                stocks["coal"] += output["coal"];
+                time.Step();
+            }
+            Assert.AreEqual(600.0f, jm2.Reserve());
+            
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+            stocks["coal"] += output["coal"];
+            time.Step();
+            Assert.AreEqual(100.0f, output["coal"]);
+            Assert.AreEqual(520.0f, jm2.Reserve());
+            Assert.AreEqual(500.0f, stocks["coal"]);
+            
+            for (int i = 6; i < 12; i++)
+            {
+                jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+                stocks["coal"] += output["coal"];
+                time.Step();
+            }
+            Assert.AreEqual(40.0f, jm2.Reserve());
+            Assert.AreEqual(100.0f, output["coal"]);
+
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+            stocks["coal"] += output["coal"];
+            time.Step();
+            Assert.AreEqual(0.0f, jm2.Reserve());
+            Assert.AreEqual(60.0f, output["coal"]);
+
+            for (int i = 13; i < 16; i++)
+            {
+                jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+                stocks["coal"] += output["coal"];
+                time.Step();
+                Assert.AreEqual(0.0f, jm2.Reserve());
+                Assert.AreEqual(20.0f, output["coal"]);
+            }
+
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+            stocks["coal"] += output["coal"];
+            time.Step();
+            Assert.AreEqual(0.0f, jm2.Reserve());
+            Assert.AreEqual(12.0f, output["coal"]);
+            
+            jm2.Step((Map) _world.Map, stocks, time, 1.0f, output);
+            stocks["coal"] += output["coal"];
+            time.Step();
+            Assert.AreEqual(0.0f, jm2.Reserve());
+            Assert.AreEqual(4.0f, output["coal"]);
+        }
 
         [Test]
         public void TestSink()
