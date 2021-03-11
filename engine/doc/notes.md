@@ -22,6 +22,7 @@ Command line samples
 --------------------
 
     -vv -d 0 -g -i /Users/yann/dev/worldsim-engine/tests/fixtures/map02.yaml
+    -vv -i -g -t 1815-01-01 /Users/yann/dev/worldsim-engine/tests/fixtures/map02.yaml
 
     -vv /Users/yann/dev/worldsim-engine/tests/fixtures/source01.yaml
     -v -csv /Users/yann/dev/worldsim-engine/tests/fixtures/source01.yaml

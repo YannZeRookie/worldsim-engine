@@ -167,8 +167,8 @@ namespace cli
             foreach (var resource in engine.World.Resources.Values)
             {
                 if (resource.Name.Length > resNamesWidth) resNamesWidth = resource.Name.Length;
-                if (engine.World.Units[resource.UnitId].Symbol.Length > unitNamesWidth)
-                    unitNamesWidth = engine.World.Units[resource.UnitId].Symbol.Length;
+                if (resource.Unit.Symbol.Length > unitNamesWidth)
+                    unitNamesWidth = resource.Unit.Symbol.Length;
             }
 
             Dictionary<string, int> widths = new Dictionary<string, int>()
@@ -304,8 +304,8 @@ namespace cli
             foreach (var resource in world.Resources.Values)
             {
                 if (resource.Name.Length > resNamesWidth) resNamesWidth = resource.Name.Length;
-                if (world.Units[resource.UnitId].Symbol.Length > unitNamesWidth)
-                    unitNamesWidth = world.Units[resource.UnitId].Symbol.Length;
+                if (resource.Unit.Symbol.Length > unitNamesWidth)
+                    unitNamesWidth = resource.Unit.Symbol.Length;
             }
 
             int cellWidth = 1 + resNamesWidth + 2 + resWidth + 1 + unitNamesWidth + 2;
@@ -334,7 +334,7 @@ namespace cli
                         ICell cell = world.Map.Cells[x, y];
                         string col = "\u2502 ";
                         string res = String.Format("{0,-" + resNamesWidth + "}: {1," + resWidth + ":0.0} {2} ",
-                            resource.Name, cell.GetStock(resource.Id), world.Units[resource.UnitId].Symbol);
+                            resource.Name, cell.GetStock(resource.Id), resource.Unit.Symbol);
                         int resPaddingLen = cellWidth - 2 - res.Length;
                         string resPadding = (resPaddingLen > 0) ? new String(' ', resPaddingLen) : "";
                         Console.Write(col + res + resPadding);

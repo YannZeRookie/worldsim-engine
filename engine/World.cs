@@ -58,9 +58,9 @@ namespace WorldSim.Engine
         }
 
         // Resource Factory
-        public IResource CreateResource(string id, string name, string description, string type, string unitId)
+        public IResource CreateResource(string id, string name, string description, string type, IUnit? unit)
         {
-            return new Resource(id, name, description, type, unitId);
+            return new Resource(id, name, description, type, unit);
         }
 
         // KPI Factory
@@ -114,7 +114,7 @@ namespace WorldSim.Engine
             float annualDivider = this.Time.GetAnnualDivider();
             foreach (var cell in this.Map.Cells)
             {
-                ((Cell) cell).StepExecute(currentTime, annualDivider);
+                ((Cell) cell).StepExecute((Map) this.Map, currentTime, annualDivider);
             }
 
             //-- Finalization

@@ -17,7 +17,7 @@ namespace WorldSim.Engine.Tests
             _world = new World();
             Unit unit = new Unit("mass", "Mass", "Metric Tons", "T");
             _world.Units.Add("mass", unit);
-            Resource resource = new Resource("coal", "Coal", "Coal is bad", "stock", "mass");
+            Resource resource = new Resource("coal", "Coal", "Coal is bad", "stock", unit);
             _world.Resources.Add("coal", resource);
             Time time = new Time(_world);
             _world.CreateMap(1, 1);
@@ -184,7 +184,7 @@ namespace WorldSim.Engine.Tests
             cell.Jm2 = jm2;
             Assert.AreEqual(100.0f, cell.GetStock("coal"));
             cell.StepPrepare(time);
-            cell.StepExecute(time, 1.0f);
+            cell.StepExecute((Map) _world.Map, time, 1.0f);
             cell.StepFinalize(time);
             Assert.AreEqual(0.0f, cell.GetStock("coal")); // Because we reached the limit
             Assert.AreEqual(1.0f, jm2.Efficiency);
@@ -207,7 +207,7 @@ namespace WorldSim.Engine.Tests
             cell.Jm2 = jm2;
             Assert.AreEqual(100.0f, cell.GetStock("coal"));
             cell.StepPrepare(time);
-            cell.StepExecute(time, 1.0f);
+            cell.StepExecute((Map) _world.Map, time, 1.0f);
             cell.StepFinalize(time);
             Assert.AreEqual(50.0f, cell.GetStock("coal")); // Because we reached the limit
             Assert.AreEqual(0.5f, jm2.Efficiency);

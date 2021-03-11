@@ -42,6 +42,17 @@ namespace CSharpTest
             ilist[0].SetName("Alpha");
             Assert.AreEqual("TestItem: Alpha", list.GetItem(0).Talk());
         }
+
+        [Test]
+        // Are lists referenced or duplicated? The answer: they are referenced
+        public void TestListReferencing()
+        {
+            List<string> list = new List<string>() {"hello"};
+            ListHolder holder = new ListHolder(list);
+            Assert.AreEqual(1, holder.List.Count);
+            list.Add("World");
+            Assert.AreEqual(2, holder.List.Count);
+        }
     }
 
     public interface ITestItem
@@ -134,7 +145,7 @@ namespace CSharpTest
             TestItem[] a = new TestItem[2];
             ITestItem[] a2 = a;
         }
-        
+
         public IList<ITestItem> GetList()
         {
             return _list.ToList<ITestItem>();
@@ -148,9 +159,9 @@ namespace CSharpTest
             */
         }
     }
-    
+
     // Covariant return type in C#9 won't work with interfaces it seems
-    
+
     public abstract class ATestItem
     {
         public abstract string Talk();
@@ -171,5 +182,14 @@ namespace CSharpTest
         }
     }
 
+    // Are lists referenced or duplicated?
+    public class ListHolder
+    {
+        public IList<string> List;
 
+        public ListHolder(IList<string> l)
+        {
+            this.List = l;
+        }
+    }
 }

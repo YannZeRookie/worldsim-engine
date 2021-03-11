@@ -143,7 +143,7 @@ namespace WorldSim.IO
             {
                 if (string.IsNullOrWhiteSpace(r.Id)) throw new Exception("Resource must had an id");
                 this.World.Resources.Add(r.Id,
-                    this.World.CreateResource(r.Id, r.Name, r.Description, r.Type, r.Unit_Id));
+                    this.World.CreateResource(r.Id, r.Name, r.Description, r.Type, string.IsNullOrWhiteSpace(r.Unit_Id) ? null : this.World.Units[r.Unit_Id]));
             }
 
             foreach (var k in fileData.Kpis)

@@ -30,7 +30,7 @@ namespace WorldSim.Engine.Tests
                 var a = engine.World.Units["toto"];
             });
             Assert.IsNotNull(engine.World.Resources["coal"]);
-            Assert.AreEqual("mass-t", engine.World.Resources["coal"].UnitId);
+            Assert.AreEqual("mass-t", engine.World.Resources["coal"].Unit.Id);
 
             IKpi kpi = engine.World.Kpis[0];
             Assert.AreEqual("Coal Stock", kpi.Name);
@@ -247,9 +247,9 @@ namespace WorldSim.Engine.Tests
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/initial_stocks.yaml", true);
-            //-- Header
             Assert.NotNull(engine.World);
 
+            engine.World.Restart();
             ICell cell = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(900.0f, cell.GetStock("coal"));
 

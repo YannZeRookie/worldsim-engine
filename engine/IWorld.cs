@@ -88,9 +88,9 @@ namespace WorldSim
             /// <param name="name">The short name of this Resource</param>
             /// <param name="description">A longer description of this Resource</param>
             /// <param name="type">The type of the Resource. "stock" for now</param>
-            /// <param name="unitId">The ID of the Unit used by this Resource. See IUnit</param>
+            /// <param name="unit">The Unit used by this Resource</param>
             /// <returns>A new Resource that can be added to the World's list of Resources</returns>
-            public IResource CreateResource(string id, string name, string description, string type, string unitId);
+            public IResource CreateResource(string id, string name, string description, string type, IUnit? unit);
 
             /// <summary>
             ///     Create a new KPI, i.e. something we are interested in tracking during the simulation
@@ -174,7 +174,14 @@ namespace WorldSim
             /// <summary>
             ///     ID of the Unit used by this Resource. See IUnit
             /// </summary>
-            public string UnitId { get; set; }
+            public IUnit Unit { get; set; }
+
+            /// <summary>
+            /// Convert a value using this resource name and unit
+            /// </summary>
+            /// <param name="value"></param>
+            /// <returns></returns>
+            public string ValueToString(float value);
         }
 
         /// <summary>

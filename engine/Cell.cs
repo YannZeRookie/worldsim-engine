@@ -7,8 +7,8 @@ namespace WorldSim.Engine
 {
     public class Cell : ICell
     {
-        private World _world;
         private Dictionary<string, float> _output;
+        private Dictionary<string, IResource> Resources { get; set; }
         public Dictionary<string, float> Stocks { get; set; }
         private IDictionary<string, float> InitialStocks { get; }
         public Int32 X { get; set; }
@@ -19,15 +19,14 @@ namespace WorldSim.Engine
         {
             this.X = x;
             this.Y = y;
+            this.Resources = resources;
             this.InitialStocks = new Dictionary<string, float>();
             this.Stocks = new Dictionary<string, float>();
             foreach (var r in resources)
             {
                 this.Stocks[r.Key] = 0.0f;
             }
-
             _output = new Dictionary<string, float>();
-            _world = (World) world;
         }
 
         public void Restart()
@@ -58,22 +57,15 @@ namespace WorldSim.Engine
         public void SetInitialStock(string resourceId, float stock)
         {
             this.InitialStocks[resourceId] = stock;
-            if (this._world.Time.Iteration == 0)
-            {
-                this.Stocks[resourceId] = stock;
-            }
         }
 
         public override string ToString()
         {
             string start = String.Format("Cell[{0},{1}]: ", X, Y);
             string result = "";
-            foreach (var s in Stocks)
+            foreach (KeyValuePair<string,IResource> r in Resources)
             {
-                string unitId = _world.Resources[s.Key].UnitId;
-                string name = _world.Resources[s.Key].Name;
-                string symbol = _world.Units[unitId].Symbol;
-                result += String.Format("{0}:{1,10:0.0} {2} ", name, s.Value, symbol);
+                result += r.Value.ValueToString(Stocks[r.Key]) + " ";
             }
 
             if (!this.Jm2.IsNull() && !this.Jm2.Efficiency.IsNull())
@@ -89,12 +81,12 @@ namespace WorldSim.Engine
             _output.Clear();
         }
 
-        public void StepExecute(Time currentTime, float annualDivider)
+        public void StepExecute(Map map, Time currentTime, float annualDivider)
         {
             JM2 jm2 = (JM2) this.Jm2;
             if (jm2 != null)
             {
-                jm2.Step((Map) _world.Map, this.Stocks, currentTime, annualDivider, _output);
+                jm2.Step(map, this.Stocks, currentTime, annualDivider, _output);
             }
         }
 
