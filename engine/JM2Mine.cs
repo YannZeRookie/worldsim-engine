@@ -30,8 +30,8 @@ namespace WorldSim.Engine
             _timeInUse = _init.ContainsKey("time_in_use") ? Convert.ToInt32(_init["time_in_use"]) : 1;
         }
 
-        public override void Step(Map map, Dictionary<string, float> stocks, Time currentTime, float annualDivider,
-            Dictionary<string, float> output)
+        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, float> output)
         {
             float productionTarget = _production / annualDivider;
             float extracted = 0.0f;

@@ -7,15 +7,15 @@ namespace WorldSim.Engine
 {
     public class Cell : ICell
     {
-        private Dictionary<string, float> _output;
-        private Dictionary<string, IResource> Resources { get; set; }
-        public Dictionary<string, float> Stocks { get; set; }
+        private IDictionary<string, float> _output;
+        private IDictionary<string, IResource> Resources { get; set; }
+        public IDictionary<string, float> Stocks { get; set; }
         private IDictionary<string, float> InitialStocks { get; }
         public Int32 X { get; set; }
         public Int32 Y { get; set; }
         public IJM2 Jm2 { get; set; }
 
-        public Cell(Int32 x, Int32 y, Dictionary<string, IResource> resources, IWorld world)
+        public Cell(Int32 x, Int32 y, IDictionary<string, IResource> resources)
         {
             this.X = x;
             this.Y = y;

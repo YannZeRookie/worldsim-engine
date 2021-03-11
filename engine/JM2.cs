@@ -19,8 +19,8 @@ namespace WorldSim.Engine
             Efficiency = null;
         }
 
-        public virtual void Step(Map map, Dictionary<string, float> stocks, Time currentTime, float annualDivider,
-            Dictionary<string, float> output)
+        public virtual void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, float> output)
         {
         }
 
@@ -32,7 +32,7 @@ namespace WorldSim.Engine
         /// <param name="map"></param>
         /// <param name="stocks"></param>
         /// <returns></returns>
-        public float ConsumeResource(string resourceId, float needs, Map map, Dictionary<string, float> stocks)
+        public float ConsumeResource(string resourceId, float needs, Map map, IDictionary<string, float> stocks)
         {
             //-- Try local stock first
             float found = Math.Min(stocks[resourceId], needs);

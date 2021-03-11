@@ -30,8 +30,8 @@ namespace WorldSim.Engine
             base.Restart();
         }
 
-        public override void Step(Map map, Dictionary<string, float> stocks, Time currentTime, float annualDivider,
-            Dictionary<string, float> output)
+        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, float> output)
         {
             float productionTarget = _production / annualDivider;
             float produced = 0.0f;

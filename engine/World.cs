@@ -73,7 +73,7 @@ namespace WorldSim.Engine
         public void CreateMap(Int32 sizeX, Int32 sizeY)
         {
             Map map = new Map(sizeX, sizeY);
-            map.Init(this.Resources, this);
+            map.Init(this.Resources);
             this._map = map;
         }
 

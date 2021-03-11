@@ -17,13 +17,13 @@ namespace WorldSim.Engine
             this.Cells = new Cell[sizeX, sizeY];
         }
 
-        public void Init(Dictionary<string, IResource> resources, World world)
+        public void Init(IDictionary<string, IResource> resources)
         {
             for (int x = 0; x < SizeX; x++)
             {
                 for (int y = 0; y < SizeY; y++)
                 {
-                    this.Cells[x, y] = new Cell(x, y, resources, world);
+                    this.Cells[x, y] = new Cell(x, y, resources);
                 }
             }
         }
