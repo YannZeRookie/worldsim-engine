@@ -63,7 +63,7 @@ namespace WorldSim.Engine
         {
             _current = this.Start;
             _iteration = 0;
-            _world.Restart();
+            _world?.Restart();
         }
 
         public void Step()
