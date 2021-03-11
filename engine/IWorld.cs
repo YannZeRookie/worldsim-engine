@@ -98,9 +98,9 @@ namespace WorldSim
             /// <param name="name">The short name of this KPI</param>
             /// <param name="description">A longer description of this KPI</param>
             /// <param name="formula">Computation formula for this KPI</param>
-            /// <param name="unitId">The ID of the unit for this KPI. See IUnit</param>
+            /// <param name="unit">The unit for this KPI (if any)</param>
             /// <returns>A new KIP that can be added to the World's list of KPIs</returns>
-            public IKpi CreateKpi(string name, string description, string formula, string unitId);
+            public IKpi CreateKpi(string name, string description, string formula, IUnit? unit);
 
             /// <summary>
             ///     Create a new Map and add it to the World
@@ -199,22 +199,24 @@ namespace WorldSim
             public string Formula { get; set; }
 
             /// <summary>
-            ///     ID of the Unit used by this KPI. See IUnit
+            ///     Unit used by this KPI
             /// </summary>
-            public string UnitId { get; set; }
+            public IUnit? Unit { get; set; }
 
             /// <summary>
             ///     Get the value of this KPI at the Current Time
             /// </summary>
+            /// <param name="map">The map to compute the KPI on</param>
             /// <returns>Current Value</returns>
-            public float GetValue();
+            public float GetValue(IMap map);
 
             /// <summary>
             ///     Display a human-readable version of the KIP, with name + value + unit symbol
             /// </summary>
+            /// <param name="map">The map to compute the KPI on</param>
             /// <param name="padding">Number of padding spaces to reserve to the left of the value</param>
             /// <returns></returns>
-            public string ToString(int padding);
+            public string ToString(IMap map, int padding);
         }
 
         /// <summary>

@@ -7,25 +7,29 @@ namespace WorldSim.Engine
 {
     public class Kpi : IKpi
     {
-        private World _world;
-        private string _resourceID;
+        private IUnit? _unit;
+        private string _resourceId;
         public string Name { get; set; }
         public string Description { get; set; }
         public string Formula { get; set; }
-        public string UnitId { get; set; }
 
-        public Kpi(string name, string description, string formula, string unitId, IWorld world)
+        public IUnit Unit
+        {
+            get { return _unit; }
+            set { _unit = value; }
+        }
+
+        public Kpi(string name, string description, string formula, IUnit? unit)
         {
             Name = name;
             Description = description;
             Formula = formula;
-            UnitId = unitId;
-            _world = (World) world;
+            _unit = unit;
             Regex rx = new Regex(@"^sum\((\w+)\)$");
             MatchCollection matches = rx.Matches(formula);
             if (matches.Count == 1)
             {
-                _resourceID = matches.First().Groups[1].Value;
+                _resourceId = matches.First().Groups[1].Value;
             }
             else
             {
@@ -33,22 +37,22 @@ namespace WorldSim.Engine
             }
         }
 
-        public float GetValue()
+        public float GetValue(IMap map)
         {
             float result = 0.0f;
-            foreach (var cell in _world.Map.Cells)
+            foreach (var cell in map.Cells)
             {
-                result += cell.GetStock(_resourceID);
+                result += cell.GetStock(_resourceId);
             }
 
             return result;
         }
 
-        public string ToString(int padding)
+        public string ToString(IMap map, int padding)
         {
-            float value = GetValue();
-            string symbol = _world.Units[UnitId].Symbol;
-            return String.Format("{0,-" + padding.ToString() + "}:{1,8:0.0} {2}", Name, value, symbol);
+            float value = GetValue(map);
+            string symbol = (_unit != null ? " " + _unit.Symbol : "");
+            return String.Format("{0,-" + padding.ToString() + "}:{1,8:0.0}{2}", Name, value, symbol);
         }
     }
 }

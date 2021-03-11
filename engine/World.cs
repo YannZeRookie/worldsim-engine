@@ -64,9 +64,9 @@ namespace WorldSim.Engine
         }
 
         // KPI Factory
-        public IKpi CreateKpi(string name, string description, string formula, string unitId)
+        public IKpi CreateKpi(string name, string description, string formula, IUnit? unit)
         {
-            return new Kpi(name, description, formula, unitId, this);
+            return new Kpi(name, description, formula, unit);
         }
 
         // Map Factory

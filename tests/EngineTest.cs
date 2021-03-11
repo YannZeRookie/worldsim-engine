@@ -34,7 +34,7 @@ namespace WorldSim.Engine.Tests
 
             IKpi kpi = engine.World.Kpis[0];
             Assert.AreEqual("Coal Stock", kpi.Name);
-            Assert.AreEqual("mass-t", kpi.UnitId);
+            Assert.AreEqual("mass-t", kpi.Unit.Id);
 
             Assert.AreEqual(new DateTime(1800, 1, 1), engine.World.Time.Start);
             Assert.AreEqual(new DateTime(2200, 1, 1), engine.World.Time.End);
@@ -74,7 +74,7 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
-        public void TestKeyAttributes()
+        public void TestKpi()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml");
@@ -82,7 +82,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("Coal Stock", kpi.Name);
             engine.World.Time.Restart();
             engine.World.Time.Step();
-            Assert.AreEqual(1000.0f, kpi.GetValue());
+            Assert.AreEqual(1000.0f, kpi.GetValue(engine.World.Map));
         }
 
         [Test]

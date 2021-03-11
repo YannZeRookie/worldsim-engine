@@ -248,8 +248,8 @@ namespace cli
             int kpiMaxWdith = engine.World.GetKpisMaxWidth();
             foreach (var kpi in engine.World.Kpis)
             {
-                Console.WriteLine(kpi.ToString(kpiMaxWdith));
-                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue());
+                Console.WriteLine(kpi.ToString(engine.World.Map, kpiMaxWdith));
+                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue(engine.World.Map));
             }
 
             Console.WriteLine();
