@@ -51,5 +51,31 @@ namespace WorldSim.Engine
 
             output[_resourceId] = produced;
         }
+
+        public override string GetExtraLine(int extraLine)
+        {
+            if (_reserve != null)
+            {
+                switch (extraLine)
+                {
+                    case 0:
+                        return GetExtraLine0();
+                    case 1:
+                        return " Reserve: " + _reserve.ToString();
+                }
+            }
+
+            return "";
+        }
+
+        public override int NbExtraLines()
+        {
+            return _reserve != null ? 2 : 0;
+        }
+
+        public override int ExtraWidth()
+        {
+            return 20;
+        }
     }
 }

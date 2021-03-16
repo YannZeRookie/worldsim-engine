@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using WorldSim.API;
 
 namespace WorldSim.Engine
@@ -50,6 +52,44 @@ namespace WorldSim.Engine
             return maxWidth;
         }
 
+        /// <summary>
+        /// Compute the various widths and other parameters that will be used for display formating
+        /// </summary>
+        /// <returns>List of various dimensions</returns>
+        public IDictionary<string, int> ComputeWidths()
+        {
+            int resNamesWidth = 0;
+            int unitNamesWidth = 0;
+            int resWidth = 8;
+            foreach (var resource in Resources.Values)
+            {
+                if (resource.Name.Length > resNamesWidth) resNamesWidth = resource.Name.Length;
+                if (resource.Unit != null && resource.Unit.Symbol.Length > unitNamesWidth)
+                    unitNamesWidth = resource.Unit.Symbol.Length;
+            }
+
+            int cellExtraLines = 0;
+            int cellExtraWidth = 0;
+            foreach (ICell cell in _map.Cells)
+            {
+                int extraLines = cell.NbExtraLines();
+                if (extraLines > cellExtraLines) cellExtraLines = extraLines;
+                int extraWidth = cell.ExtraWidth();
+                if (extraWidth > cellExtraWidth) cellExtraWidth = extraWidth;
+            }
+
+            return new Dictionary<string, int>()
+            {
+                {"resNames", resNamesWidth}, // Maximum width of Resource names
+                {"unitNames", unitNamesWidth}, // Maximum width of Resource units
+                {"res", resWidth}, // Maximum width of Resource values
+                {"cellWidth", Math.Max(1 + resNamesWidth + 2 + resWidth + 1 + unitNamesWidth + 2, cellExtraWidth)},
+                {"cellExtraLines", cellExtraLines},
+                {"kpiMaxWidth", GetKpisMaxWidth()}
+            };
+        }
+
+
         //-- Factories & Tools
         // Unit Factory
         public IUnit CreateUnit(string id, string name, string description, string symbol)
@@ -66,7 +106,22 @@ namespace WorldSim.Engine
         // KPI Factory
         public IKpi CreateKpi(string name, string description, string formula, IUnit? unit)
         {
-            return new Kpi(name, description, formula, unit);
+            //-- Resource Sum
+            MatchCollection matches = new Regex(@"^sum\((\w+)\)$").Matches(formula);
+            if (matches.Count == 1)
+            {
+                string resourceId = matches.First().Groups[1].Value;
+                return new KpiResourceSum(name, description, formula, unit, resourceId);
+            }
+            
+            //-- Iteration number
+            if (formula == "iteration")
+            {
+                return new KpiIteration(name, description, formula, unit);
+            }
+            
+
+            throw new Exception("Error: could not understand formula: " + formula);
         }
 
         // Map Factory

@@ -1,0 +1,76 @@
+# Simple WorldSim testing a map with some empty cells
+# Licence: MIT
+# Ogee Foundation https://www.ogeefoundation.org/
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Header
+# ----------------------------------------------------------------------------------------------------------------------
+
+format: WorldSim
+type: scenario
+version: "0.1"
+modDate: 2021-03-16T17:00:00+01:00
+author:
+  name: Yann Corno
+  email: yann@ogeefoundation.org
+  github: https://github.com/YannZeRookie
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Simulation Background
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Physical Units used in this file. All fields required
+units:
+  - id: mass-t
+    name: Mass
+    description: Mass - Metric Tons
+    symbol: T    
+
+# Resources or the physical quantities used by JM2s in this file. All fields required
+resources:
+  - id: coal
+    name: Coal
+    description: A primary fossile energy that generates lots of CO2
+    type: stock
+    unit_id: mass-t
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Simulation Context
+# Here we describe what is specific to this simulation and the initial state of the simulation
+# ----------------------------------------------------------------------------------------------------------------------
+
+# List of KPIs to track
+kpis:
+  - name: Coal Stock
+    description: Total extracted and usable Coal
+    formula: sum(coal)
+    unit_id: mass-t
+
+# Time management
+time:
+  stepUnit: year      # Can be "year", "month" or "day". Required
+  stepValue: 1        # Integer. Optional, default is 1. 
+  start: 1800-01-01   # Start date. Required
+  end: 2200-01-01     # End date if simulation has to stop at some point. Optional
+
+# Map
+map:
+  sizeX: 2
+  sizeY: 1
+  Cells:
+  - x: 0
+    y: 0 
+    jm2_id: mine      # ID of the JM2 placed on this map cell
+    jm2_init:         # These are initialization parameters specific to this JM2
+      resource_id: coal
+      reserve: 40000
+      production: 1000
+  - x: 1              # The object of the test: a cell without any JM2 on it
+    y: 0 
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Current Simulation State
+# ----------------------------------------------------------------------------------------------------------------------
+
+currentTime: 1810-01-01

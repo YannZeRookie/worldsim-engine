@@ -46,5 +46,26 @@ namespace WorldSim.Engine
 
             return found;
         }
+
+        public virtual string GetExtraLine(int extraLine)
+        {
+            return "";
+        }
+        
+        public string GetExtraLine0()
+        {
+            return "JM2:";
+        }
+
+
+        public virtual int NbExtraLines()
+        {
+            return 0;
+        }
+
+        public virtual int ExtraWidth()
+        {
+            return 0;
+        }
     }
 }

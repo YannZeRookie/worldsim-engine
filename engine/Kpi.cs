@@ -5,10 +5,9 @@ using WorldSim.API;
 
 namespace WorldSim.Engine
 {
-    public class Kpi : IKpi
+    public abstract class Kpi : IKpi
     {
         private IUnit? _unit;
-        private string _resourceId;
         public string Name { get; set; }
         public string Description { get; set; }
         public string Formula { get; set; }
@@ -25,34 +24,50 @@ namespace WorldSim.Engine
             Description = description;
             Formula = formula;
             _unit = unit;
-            Regex rx = new Regex(@"^sum\((\w+)\)$");
-            MatchCollection matches = rx.Matches(formula);
-            if (matches.Count == 1)
-            {
-                _resourceId = matches.First().Groups[1].Value;
-            }
-            else
-            {
-                throw new Exception("Error: could not understand formula: " + formula);
-            }
         }
 
-        public float GetValue(IMap map)
+        public abstract float GetValue(IWorld world);
+
+        public string ToString(IWorld world, int padding)
+        {
+            float value = GetValue(world);
+            string symbol = (_unit != null ? " " + _unit.Symbol : "");
+            return String.Format("{0,-" + padding.ToString() + "}:{1,8:0.0}{2}", Name, value, symbol);
+        }
+    }
+
+    class KpiResourceSum : Kpi
+    {
+        private string _resourceId;
+
+        public KpiResourceSum(string name, string description, string formula, IUnit? unit, string resourceId) :
+            base(name, description, formula, unit)
+        {
+            _resourceId = resourceId;
+        }
+
+        public override float GetValue(IWorld world)
         {
             float result = 0.0f;
-            foreach (var cell in map.Cells)
+            foreach (var cell in world.Map.Cells)
             {
                 result += cell.GetStock(_resourceId);
             }
 
             return result;
         }
+    }
 
-        public string ToString(IMap map, int padding)
+    class KpiIteration : Kpi
+    {
+        public KpiIteration(string name, string description, string formula, IUnit? unit) :
+            base(name, description, formula, unit)
         {
-            float value = GetValue(map);
-            string symbol = (_unit != null ? " " + _unit.Symbol : "");
-            return String.Format("{0,-" + padding.ToString() + "}:{1,8:0.0}{2}", Name, value, symbol);
+        }
+
+        public override float GetValue(IWorld world)
+        {
+            return Convert.ToSingle(world.Time.Iteration);
         }
     }
 }

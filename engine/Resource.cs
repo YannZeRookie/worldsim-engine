@@ -5,9 +5,9 @@ namespace WorldSim.Engine
 {
     public class Resource : IResource
     {
-        private IUnit _unit;
+        private IUnit? _unit;
 
-        public IUnit Unit
+        public IUnit? Unit
         {
             get { return _unit; }
             set { _unit = value; }
@@ -29,7 +29,7 @@ namespace WorldSim.Engine
 
         public string ValueToString(float value)
         {
-            if (Unit == null)
+            if (_unit == null)
                 return String.Format("{0}:{1,10:0.0}", Name, value);
             else
                 return String.Format("{0}:{1,10:0.0} {2}", Name, value, Unit.Symbol);

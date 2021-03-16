@@ -82,7 +82,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("Coal Stock", kpi.Name);
             engine.World.Time.Restart();
             engine.World.Time.Step();
-            Assert.AreEqual(1000.0f, kpi.GetValue(engine.World.Map));
+            Assert.AreEqual(1000.0f, kpi.GetValue(engine.World));
         }
 
         [Test]
@@ -257,14 +257,14 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(700.0f, cell.GetStock("coal"));
             Assert.AreEqual(100.0f, engine.World.Map.Cells[1, 0].GetStock("co2"));
         }
-        
+
         [Test]
         public void TestSourcesAndSinks()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/map02.yaml", true);
             Assert.NotNull(engine.World);
-            
+
             ICell limitedSource = engine.World.Map.Cells[0, 0];
             Assert.AreEqual("source", limitedSource.Jm2.Id);
             ICell unlimitedSource = engine.World.Map.Cells[1, 0];
@@ -273,21 +273,60 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("factory", factory.Jm2.Id);
             ICell sink = engine.World.Map.Cells[1, 1];
             Assert.AreEqual("sink", sink.Jm2.Id);
-            
+
             engine.World.Time.Step();
 
             Assert.AreEqual(100.0f, limitedSource.GetStock("coal"));
             Assert.AreEqual(300.0f, unlimitedSource.GetStock("o2"));
             Assert.AreEqual(0.0f, factory.GetStock("co2"));
-            
-            engine.World.Time.Step();
-            Assert.AreEqual(2.0*100.0f - 50.0f, limitedSource.GetStock("coal"));
-            Assert.AreEqual(2.0*300.0f - 100.0f , unlimitedSource.GetStock("o2"));
-            Assert.AreEqual(50.0f , factory.GetStock("co2"));
-            
-            engine.World.Time.Step();
-            Assert.AreEqual(2*50.0f - 25.0f, factory.GetStock("co2"));
 
+            engine.World.Time.Step();
+            Assert.AreEqual(2.0 * 100.0f - 50.0f, limitedSource.GetStock("coal"));
+            Assert.AreEqual(2.0 * 300.0f - 100.0f, unlimitedSource.GetStock("o2"));
+            Assert.AreEqual(50.0f, factory.GetStock("co2"));
+
+            engine.World.Time.Step();
+            Assert.AreEqual(2 * 50.0f - 25.0f, factory.GetStock("co2"));
+        }
+
+        [Test]
+        public void CellsShouldBeAbleToHaveNoJM2()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/empty_cells.yaml");
+            engine.World.Time.Restart();
+            engine.World.Time.Step();
+            engine.World.Time.Step();
+        }
+
+        [Test]
+        public void AKpiCanHaveNoUnit()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/nounit_kpi.yaml", true);
+            IKpi kpi = engine.World.Kpis[0];
+            Assert.IsNull(kpi.Unit);
+            engine.World.Time.Restart();
+            engine.World.Time.Step();
+            engine.World.Time.Step();
+            Assert.AreEqual(2.0f, kpi.GetValue(engine.World));
+        }
+
+        [Test]
+        public void AResourceCanHaveNoUnit()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/nounit_resource.yaml", true);
+            IKpi kpi = engine.World.Kpis[0];
+            ICell cell = engine.World.Map.Cells[0, 0];
+            Assert.IsNull(kpi.Unit);
+            engine.World.Time.Restart();
+            Assert.AreEqual(0.0f, cell.GetStock("tech"));
+            engine.World.Time.Step();
+            Assert.AreEqual(1.0f, cell.GetStock("tech"));
+            engine.World.Time.Step();
+            Assert.AreEqual(2.0f, kpi.GetValue(engine.World));
+            Assert.AreEqual(2.0f, cell.GetStock("tech"));
         }
     }
 }

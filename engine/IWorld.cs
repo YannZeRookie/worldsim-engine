@@ -174,7 +174,7 @@ namespace WorldSim
             /// <summary>
             ///     ID of the Unit used by this Resource. See IUnit
             /// </summary>
-            public IUnit Unit { get; set; }
+            public IUnit? Unit { get; set; }
 
             /// <summary>
             /// Convert a value using this resource name and unit
@@ -213,9 +213,9 @@ namespace WorldSim
             /// <summary>
             ///     Get the value of this KPI at the Current Time
             /// </summary>
-            /// <param name="map">The map to compute the KPI on</param>
+            /// <param name="world">The world to compute the KPI on</param>
             /// <returns>Current Value</returns>
-            public float GetValue(IMap map);
+            public float GetValue(IWorld world);
 
             /// <summary>
             ///     Display a human-readable version of the KIP, with name + value + unit symbol
@@ -223,7 +223,7 @@ namespace WorldSim
             /// <param name="map">The map to compute the KPI on</param>
             /// <param name="padding">Number of padding spaces to reserve to the left of the value</param>
             /// <returns></returns>
-            public string ToString(IMap map, int padding);
+            public string ToString(IWorld world, int padding);
         }
 
         /// <summary>
@@ -412,6 +412,25 @@ namespace WorldSim
             /// </summary>
             /// <returns></returns>
             public string ToString();
+
+            /// <summary>
+            /// Give the cell the possibility to display extra lines of text in a cell
+            /// </summary>
+            /// <param name="extraLine">Line index</param>
+            /// <returns></returns>
+            public string GetExtraLine(int extraLine);
+
+            /// <summary>
+            /// Get the number of extra lines to display for this cell
+            /// </summary>
+            /// <returns></returns>
+            int NbExtraLines();
+
+            /// <summary>
+            /// Allow the cell to add extra width to fit its extra lines
+            /// </summary>
+            /// <returns></returns>
+            int ExtraWidth();
         }
 
         /// <summary>
@@ -433,6 +452,26 @@ namespace WorldSim
             ///     Will be null if it does make sense for this JM2.
             /// </summary>
             public float? Efficiency { get; }
+
+
+            /// <summary>
+            /// Give the JM2 the possibility to display extra lines of text in a cell
+            /// </summary>
+            /// <param name="extraLine">Line index</param>
+            /// <returns></returns>
+            string GetExtraLine(int extraLine);
+
+            /// <summary>
+            /// Get the number of extra lines to display for this JM2
+            /// </summary>
+            /// <returns></returns>
+            public int NbExtraLines();
+
+            /// <summary>
+            /// Allow the JM2 to add extra width to fit its extra lines
+            /// </summary>
+            /// <returns></returns>
+            int ExtraWidth();
         }
     }
 }

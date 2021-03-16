@@ -149,7 +149,7 @@ namespace WorldSim.IO
             foreach (var k in fileData.Kpis)
             {
                 this.World.Kpis.Add(this.World.CreateKpi(k.Name, k.Description, k.Formula,
-                    k.Unit_Id != "" ? this.World.Units[k.Unit_Id] : null));
+                    !string.IsNullOrEmpty(k.Unit_Id) ? this.World.Units[k.Unit_Id] : null));
             }
 
             this.World.Time.StepUnit = fileData.Time.StepUnit switch

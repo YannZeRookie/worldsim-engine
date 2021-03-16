@@ -76,6 +76,21 @@ namespace WorldSim.Engine
             return start + result;
         }
 
+        public string GetExtraLine(int extraLine)
+        {
+            return Jm2?.GetExtraLine(extraLine) ?? "";
+        }
+
+        public int NbExtraLines()
+        {
+            return Jm2?.NbExtraLines() ?? 0;
+        }
+
+        public int ExtraWidth()
+        {
+            return Jm2?.ExtraWidth() ?? 0;
+        }
+
         public void StepPrepare(Time currentTime)
         {
             _output.Clear();

@@ -160,19 +160,7 @@ namespace cli
                 csvWriter.WriteHeader(fields);
             }
 
-            //-- Compute the maximum widths. TODO: move this code higher up
-            int resNamesWidth = 0;
-            int unitNamesWidth = 0;
-            int resWidth = 8;
-            foreach (var resource in engine.World.Resources.Values)
-            {
-                if (resource.Name.Length > resNamesWidth) resNamesWidth = resource.Name.Length;
-                if (resource.Unit.Symbol.Length > unitNamesWidth)
-                    unitNamesWidth = resource.Unit.Symbol.Length;
-            }
-
-            Dictionary<string, int> widths = new Dictionary<string, int>()
-                {{"resNames", resNamesWidth}, {"unitNames", unitNamesWidth}, {"res", resWidth}};
+            IDictionary<string, int> widths = engine.World.ComputeWidths(); // Compute all the maximum widths
 
             (int, int) startPosition = Console.GetCursorPosition();
 
@@ -230,6 +218,7 @@ namespace cli
             return 0;
         }
 
+
         private static void PrintCurrent(Engine engine, int verbosity,
             bool graphic, (int, int) startPosition, IDictionary<string, int> widths, ChoCSVWriter csvWriter)
         {
@@ -245,11 +234,10 @@ namespace cli
             csvRecord.Iteration = engine.World.Time.Iteration;
             csvRecord.Date = engine.World.Time.Current.ToString("yyyy-MM-dd");
             //-- KPIs
-            int kpiMaxWdith = engine.World.GetKpisMaxWidth();
             foreach (var kpi in engine.World.Kpis)
             {
-                Console.WriteLine(kpi.ToString(engine.World.Map, kpiMaxWdith));
-                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue(engine.World.Map));
+                Console.WriteLine(kpi.ToString(engine.World, widths["kpiMaxWidth"]));
+                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue(engine.World));
             }
 
             Console.WriteLine();
@@ -297,18 +285,8 @@ namespace cli
         private static void PrintMapGraphic(IWorld world, IDictionary<string, int> widths)
         {
             int resNamesWidth = widths["resNames"];
-            int unitNamesWidth = widths["unitNames"];
             int resWidth = widths["res"];
-
-            //-- Compute the maximum widths. TODO: move this code higher up
-            foreach (var resource in world.Resources.Values)
-            {
-                if (resource.Name.Length > resNamesWidth) resNamesWidth = resource.Name.Length;
-                if (resource.Unit.Symbol.Length > unitNamesWidth)
-                    unitNamesWidth = resource.Unit.Symbol.Length;
-            }
-
-            int cellWidth = 1 + resNamesWidth + 2 + resWidth + 1 + unitNamesWidth + 2;
+            int cellWidth = widths["cellWidth"];
 
             //-- Now draw the table
             for (int y = 0; y < world.Map.SizeY; y++)
@@ -326,7 +304,7 @@ namespace cli
 
                 Console.WriteLine(Corner(world.Map.SizeX, y, world.Map.SizeX, world.Map.SizeY));
 
-                //-- Cell Stocks
+                //-- Cell Lines (stocks and more)
                 foreach (var resource in world.Resources.Values)
                 {
                     for (int x = 0; x < world.Map.SizeX; x++)
@@ -334,12 +312,26 @@ namespace cli
                         ICell cell = world.Map.Cells[x, y];
                         string col = "\u2502 ";
                         string res = String.Format("{0,-" + resNamesWidth + "}: {1," + resWidth + ":0.0} {2} ",
-                            resource.Name, cell.GetStock(resource.Id), resource.Unit.Symbol);
+                            resource.Name, cell.GetStock(resource.Id), resource.Unit?.Symbol ?? "");
                         int resPaddingLen = cellWidth - 2 - res.Length;
                         string resPadding = (resPaddingLen > 0) ? new String(' ', resPaddingLen) : "";
                         Console.Write(col + res + resPadding);
                     }
 
+                    Console.WriteLine("\u2502");
+                }
+
+                for (int extraLine = 0; extraLine < widths["cellExtraLines"]; extraLine++)
+                {
+                    for (int x = 0; x < world.Map.SizeX; x++)
+                    {
+                        ICell cell = world.Map.Cells[x, y];
+                        string col = "\u2502 ";
+                        string res = cell.GetExtraLine(extraLine);
+                        int resPaddingLen = cellWidth - 2 - res.Length;
+                        string resPadding = (resPaddingLen > 0) ? new String(' ', resPaddingLen) : "";
+                        Console.Write(col + res + resPadding);
+                    }
                     Console.WriteLine("\u2502");
                 }
             }
