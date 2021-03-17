@@ -75,6 +75,43 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
+        public void TestSourceMinMax()
+        {
+            IDictionary<string, object> init = new Dictionary<string, object>()
+            {
+                {"resource_id", "coal"},
+                {"reserve", 1000.0f},
+                {"production", 100.0f},
+                {"levelMin", 200.0f},
+                {"levelMax", 400.0f},
+            };
+            JM2Source jm2 = new Jm2SourceMinMax(init);
+            Assert.AreEqual("sourceMinMax", jm2.Id);
+
+            Dictionary<string, float> output = new Dictionary<string, float>();
+
+            for (int i = 0; i < 4; i++)
+            {
+                jm2.Step(_map, _stocks, _time, 1.0f, output);
+                Assert.AreEqual(100.0f, output["coal"]);
+                _stocks["coal"] += output["coal"];
+            }
+            Assert.AreEqual(400.0f, _stocks["coal"]);
+            jm2.Step(_map, _stocks, _time, 1.0f, output);
+            Assert.AreEqual(0.0f, output["coal"]);  // Max level is reached, production should stop
+
+            _stocks["coal"] -= 150.0f;
+            jm2.Step(_map, _stocks, _time, 1.0f, output);
+            Assert.AreEqual(0.0f, output["coal"]);  // Level is under max but sill above min => still no production
+
+            _stocks["coal"] -= 100.0f;
+            jm2.Step(_map, _stocks, _time, 1.0f, output);
+            _stocks["coal"] += output["coal"];
+            Assert.AreEqual(100.0f, output["coal"]);  // Level is under min => production resumed
+            Assert.AreEqual(250.0f, _stocks["coal"]);
+        }
+
+        [Test]
         public void TestMine()
         {
             IDictionary<string, object> init = new Dictionary<string, object>()

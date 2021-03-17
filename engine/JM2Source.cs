@@ -78,4 +78,70 @@ namespace WorldSim.Engine
             return 20;
         }
     }
+
+    /// <summary>
+    /// A Source with a minimum and a maximum stock level.
+    /// If the Cell's stock reaches the maximum level, production stops.
+    /// If the Cell's stock goes below the minimum level, production resumes.
+    /// </summary>
+    public class Jm2SourceMinMax : JM2Source
+    {
+        private bool _active = false;   // Is production active or not?
+        public Jm2SourceMinMax(IDictionary<string, object> init) : base(init)
+        {
+            Id = "sourceMinMax";
+        }
+
+        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider, IDictionary<string, float> output)
+        {
+            if (stocks[_resourceId] >= Convert.ToSingle(_init["levelMax"]))
+            {
+                _active = false;
+            }
+
+            if (!_active && stocks[_resourceId] < Convert.ToSingle(_init["levelMin"]))
+            {
+                _active = true;
+            }
+
+            if (_active)
+            {
+                base.Step(map, stocks, currentTime, annualDivider, output);
+            }
+            else
+            {
+                output[_resourceId] = 0.0f;
+            }
+        }
+        
+        public override string GetExtraLine(int extraLine)
+        {
+            {
+                switch (extraLine)
+                {
+                    case 0:
+                        return GetExtraLine0();
+                    case 1:
+                        return _active ? " Active " : " Inactive";
+                    case 2:
+                        if (_reserve != null)
+                            return " Reserve: " + _reserve.ToString();
+                        else
+                            return "";
+                }
+            }
+
+            return "";
+        }
+
+        public override int NbExtraLines()
+        {
+            return 2 + (_reserve != null ? 1 : 0);
+        }
+
+        public override int ExtraWidth()
+        {
+            return 20;
+        }
+    }
 }

@@ -135,13 +135,13 @@ namespace WorldSim.IO
             //-- Background
             foreach (var u in fileData.Units)
             {
-                if (string.IsNullOrWhiteSpace(u.Id)) throw new Exception("Unit must had an id");
+                if (string.IsNullOrWhiteSpace(u.Id)) throw new Exception("Unit must have an id");
                 this.World.Units.Add(u.Id, this.World.CreateUnit(u.Id, u.Name, u.Description, u.Symbol));
             }
 
             foreach (var r in fileData.Resources)
             {
-                if (string.IsNullOrWhiteSpace(r.Id)) throw new Exception("Resource must had an id");
+                if (string.IsNullOrWhiteSpace(r.Id)) throw new Exception("Resource must have an id");
                 this.World.Resources.Add(r.Id,
                     this.World.CreateResource(r.Id, r.Name, r.Description, r.Type, string.IsNullOrWhiteSpace(r.Unit_Id) ? null : this.World.Units[r.Unit_Id]));
             }

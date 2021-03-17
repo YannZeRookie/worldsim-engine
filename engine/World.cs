@@ -139,6 +139,8 @@ namespace WorldSim.Engine
             {
                 case "source":
                     return new JM2Source(init);
+                case "sourceMinMax":
+                    return new Jm2SourceMinMax(init);
                 case "sink":
                     return new JM2Sink(init);
                 case "mine":
