@@ -5,6 +5,8 @@
         <RootNamespace>Tests</RootNamespace>
 
         <IsPackable>false</IsPackable>
+
+        <Nullable>annotations</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

@@ -9,12 +9,13 @@ Architecture
 TODO
 ----
 
-- Clean-up of the API (accessors, World factory, etc)
-- Document the API interfaces
+- Limiting factor: in Factories, make sure you consume less of the OTHER resources if one a on limited supply. This should impact allocation too, but it will be harder to code.
 - More defensive code, better error handling, etc. Don't trust the YAML files
 - Still too many casts in World.cs
 - Importer: load the `scenario` block
-- Debug resources with `null` units
+- x Debug resources with `null` units
+- x Document the API interfaces
+- x Clean-up of the API (accessors, World factory, etc)
 - Units should have a conversion table when possible. Define standard units with implicit conversions
 - Bug: interactive mode will fail if `time.end` is not set in file
 

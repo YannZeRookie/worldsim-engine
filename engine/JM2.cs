@@ -19,44 +19,20 @@ namespace WorldSim.Engine
             Efficiency = null;
         }
 
-        public virtual void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
-            IDictionary<string, float> output)
+        public virtual void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
-        }
-
-        /// <summary>
-        /// Generic method to look for resource to consume
-        /// </summary>
-        /// <param name="resourceId"></param>
-        /// <param name="needs"></param>
-        /// <param name="map"></param>
-        /// <param name="stocks"></param>
-        /// <returns></returns>
-        public float ConsumeResource(string resourceId, float needs, Map map, IDictionary<string, float> stocks)
-        {
-            //-- Try local stock first
-            float found = Math.Min(stocks[resourceId], needs);
-            stocks[resourceId] -= found;
-            float notFound = needs - found;
-            if (notFound > 0)
-            {
-                float foundElsewhere = map.FindResource(resourceId, notFound);
-                found += foundElsewhere;
-            }
-
-            return found;
         }
 
         public virtual string GetExtraLine(int extraLine)
         {
             return "";
         }
-        
+
         public string GetExtraLine0()
         {
             return "JM2:";
         }
-
 
         public virtual int NbExtraLines()
         {
@@ -66,6 +42,10 @@ namespace WorldSim.Engine
         public virtual int ExtraWidth()
         {
             return 0;
+        }
+
+        public virtual void DescribeDemand(Time currentTime, IDictionary<string, float> demand)
+        {
         }
     }
 }

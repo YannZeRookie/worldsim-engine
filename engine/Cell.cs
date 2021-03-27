@@ -8,12 +8,28 @@ namespace WorldSim.Engine
     public class Cell : ICell
     {
         private IDictionary<string, float> _output;
+
+        /// <summary>
+        /// Resource demand for the current Iteration
+        /// </summary>
+        private IDictionary<string, float> _demand;
+
+        /// <summary>
+        /// Resources allocations for the current Iteration
+        /// </summary>
+        private IDictionary<string, Allocation> _allocations;
+
         private IDictionary<string, IResource> Resources { get; set; }
         public IDictionary<string, float> Stocks { get; set; }
         private IDictionary<string, float> InitialStocks { get; }
         public Int32 X { get; set; }
         public Int32 Y { get; set; }
         public IJM2 Jm2 { get; set; }
+
+        public IDictionary<string, float> Demand
+        {
+            get => _demand;
+        }
 
         public Cell(Int32 x, Int32 y, IDictionary<string, IResource> resources)
         {
@@ -26,14 +42,22 @@ namespace WorldSim.Engine
             {
                 this.Stocks[r.Key] = 0.0f;
             }
+
             _output = new Dictionary<string, float>();
+            _demand = new Dictionary<string, float>();
+            _allocations = new Dictionary<string, Allocation>();
+        }
+
+        public string Id()
+        {
+            return X + "-" + Y;
         }
 
         public void Restart()
         {
-            foreach (var k in this.Stocks.Keys)
+            foreach (var r in Resources)
             {
-                this.Stocks[k] = InitialStocks.ContainsKey(k) ? InitialStocks[k] : 0.0f;
+                this.Stocks[r.Key] = InitialStocks.ContainsKey(r.Key) ? InitialStocks[r.Key] : 0.0f;
             }
 
             ((JM2) Jm2)?.Restart();
@@ -59,11 +83,18 @@ namespace WorldSim.Engine
             this.InitialStocks[resourceId] = stock;
         }
 
+        public float GetDemandFor(string resourceId)
+        {
+            if (_demand.ContainsKey(resourceId))
+                return _demand[resourceId];
+            return 0.0f;
+        }
+
         public override string ToString()
         {
             string start = String.Format("Cell[{0},{1}]: ", X, Y);
             string result = "";
-            foreach (KeyValuePair<string,IResource> r in Resources)
+            foreach (KeyValuePair<string, IResource> r in Resources)
             {
                 result += r.Value.ValueToString(Stocks[r.Key]) + " ";
             }
@@ -94,15 +125,14 @@ namespace WorldSim.Engine
         public void StepPrepare(Time currentTime)
         {
             _output.Clear();
+            _demand.Clear();
+            _allocations.Clear();
+            ((JM2) Jm2)?.DescribeDemand(currentTime, _demand);
         }
 
         public void StepExecute(Map map, Time currentTime, float annualDivider)
         {
-            JM2 jm2 = (JM2) this.Jm2;
-            if (jm2 != null)
-            {
-                jm2.Step(map, this.Stocks, currentTime, annualDivider, _output);
-            }
+            ((JM2) Jm2)?.Step(this.Stocks, currentTime, annualDivider, _allocations, _output);
         }
 
         public void StepFinalize(Time currentTime)
@@ -111,6 +141,11 @@ namespace WorldSim.Engine
             {
                 this.Stocks[o.Key] += o.Value;
             }
+        }
+
+        public void AddAllocation(string resourceId, Allocation allocation)
+        {
+            _allocations[resourceId] = allocation;
         }
     }
 }

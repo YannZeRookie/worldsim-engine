@@ -278,16 +278,14 @@ lastname: Doe
 age: 35";
             using (var parser = ChoYamlReader<IDictionary<string, object>>.LoadText(yaml))
             {
-                foreach (var e in parser)
-                {
-                    string firstname = (string) e["firstname"]; // John
-                    DateTime creation = DateTime.Parse((string) e["creation"]); // 2020-12-26
-                    int age = (int) e["age"]; // 35
-                    Console.WriteLine(e.Dump());
-                    Assert.AreEqual("John", firstname);
-                    Assert.AreEqual(new DateTime(2020, 12, 26), creation);
-                    Assert.AreEqual(35, age);
-                }
+                IDictionary<string, object> e = parser.First(); // This shows how just to get what we are interested in
+                string firstname = (string) e["firstname"]; // John
+                DateTime creation = DateTime.Parse((string) e["creation"]); // 2020-12-26
+                int age = (int) e["age"]; // 35
+                Console.WriteLine(e.Dump());
+                Assert.AreEqual("John", firstname);
+                Assert.AreEqual(new DateTime(2020, 12, 26), creation);
+                Assert.AreEqual(35, age);
             }
         }
 
@@ -400,7 +398,7 @@ children:
         class PossessionData
         {
             public string Type { get; set; }
-            public IDictionary<string, object> Description  { get; set; }
+            public IDictionary<string, object> Description { get; set; }
         }
 
         [Test]
@@ -421,11 +419,12 @@ possessions:
             {
                 foreach (var e in parser)
                 {
-                    string carColor = (string) e.Possessions[0].Description["color"];   // blue
+                    string carColor = (string) e.Possessions[0].Description["color"]; // blue
                     foreach (var p in e.Possessions)
                     {
                         Console.WriteLine(p.Description.Dump());
                     }
+
                     Assert.AreEqual("blue", carColor);
                 }
             }

@@ -113,13 +113,13 @@ namespace WorldSim.Engine
                 string resourceId = matches.First().Groups[1].Value;
                 return new KpiResourceSum(name, description, formula, unit, resourceId);
             }
-            
+
             //-- Iteration number
             if (formula == "iteration")
             {
                 return new KpiIteration(name, description, formula, unit);
             }
-            
+
 
             throw new Exception("Error: could not understand formula: " + formula);
         }
@@ -161,23 +161,69 @@ namespace WorldSim.Engine
         public void Step(Time currentTime)
         {
             //-- Run all JM2s on all Cells
-            //-- Preparation
+            //-- Preparation: each cell will initialize itself and set-up its demand
             foreach (var cell in this.Map.Cells)
             {
                 ((Cell) cell).StepPrepare(currentTime);
             }
 
-            //-- Execution
+            // Review all demands and allocate resources to each cell
+            AllocateDemand(currentTime);
+
+            //-- Execution: each cell with produce and/or consume
             float annualDivider = this.Time.GetAnnualDivider();
             foreach (var cell in this.Map.Cells)
             {
                 ((Cell) cell).StepExecute((Map) this.Map, currentTime, annualDivider);
             }
 
-            //-- Finalization
+            //-- Finalization: its cell will update its stocks and perform any needed clean-up tasks
             foreach (var cell in this.Map.Cells)
             {
                 ((Cell) cell).StepFinalize(currentTime);
+            }
+        }
+
+        /// <summary>
+        /// Allocate the resources to try to satisfy demand as well as possible
+        /// </summary>
+        /// <param name="currentTime"></param>
+        private void AllocateDemand(Time currentTime)
+        {
+            foreach (var resource in Resources)
+            {
+                AllocateResourceDemand(resource.Value);
+            }
+        }
+
+        private void AllocateResourceDemand(IResource resource)
+        {
+            // NOTE: Basic implementation for now: we allocate evenly
+            // Evaluate the total of the demand
+            float totalDemand = ((Map) Map).TotalDemand(resource.Id);
+            if (totalDemand > 0.0f)
+            {
+                // Construct the allocations for each demanding Cell and assign
+                foreach (var c in this.Map.Cells)
+                {
+                    Cell cell = (Cell) c;
+                    float demand = cell.GetDemandFor(resource.Id);
+                    if (demand > 0.0f)
+                    {
+                        Allocation allocation = new Allocation(resource.Id, cell.Id());
+                        foreach (var mapCell in Map.Cells)
+                        {
+                            float mapStock = mapCell.GetStock(resource.Id);
+                            if (mapStock > 0.0f)
+                            {
+                                float assigned = mapStock * demand / totalDemand;
+                                allocation.Assign(assigned, ((Cell) mapCell).Stocks);
+                            }
+                        }
+
+                        cell.AddAllocation(resource.Id, allocation);
+                    }
+                }
             }
         }
     }

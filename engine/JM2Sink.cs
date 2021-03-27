@@ -25,19 +25,28 @@ namespace WorldSim.Engine
             base.Restart();
         }
 
-        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
-            IDictionary<string, float> output)
+        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
             float consumptionTarget = _consumption / annualDivider;
             float actualTarget = Math.Min(_limit ?? _consumption, _consumption) / annualDivider;
             float consumed = 0.0f;
             float efficiency = 1.0f;
 
-            consumed = ConsumeResource(_resourceId, actualTarget, map, stocks);
+            if (allocations.ContainsKey(_resourceId))
+            {
+                consumed = allocations[_resourceId].Consume(actualTarget);
+            }
             if (consumptionTarget > 0.0f)
                 efficiency = consumed / consumptionTarget;
 
             Efficiency = efficiency;
+        }
+
+        public override void DescribeDemand(Time currentTime, IDictionary<string, float> demand)
+        {
+            base.DescribeDemand(currentTime, demand);
+            demand[_resourceId] = _consumption / currentTime.GetAnnualDivider();
         }
     }
 }

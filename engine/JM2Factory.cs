@@ -23,39 +23,89 @@ namespace WorldSim.Engine
         public override void Restart()
         {
             _opex.Clear();
-            foreach (JObject o in (IEnumerable) _init["opex"])
+            foreach (var ol in (IEnumerable) _init["opex"])
             {
-                string resourceId = (string) ((JValue) o["resource_id"]).Value;
-                _opex[resourceId] = Convert.ToSingle(((JValue) o["consumption"]).Value);
+                //ok with string: IDictionary<object, object> ol0 = (IDictionary<object, object>) ol;
+                //ok with file: IDictionary<string, JToken> ol0 = (IDictionary<string, JToken>) ol;
+                // Frankly the following code sucks! Where is my nice OOD gone? All this because the 
+                // YAML reader seems to use different classes wherever I read from a file or a string
+                if (ol is IDictionary<string, JToken> olj)
+                {
+                    string resourceId = (string) olj["resource_id"];
+                    _opex[resourceId] = Convert.ToSingle(olj["consumption"]);
+                }
+                else if (ol is IDictionary<object, object> olo)
+                {
+                    string resourceId = (string) olo["resource_id"];
+                    _opex[resourceId] = Convert.ToSingle(olo["consumption"]);
+                }
             }
 
             _output.Clear();
-            foreach (JObject o in (IEnumerable) _init["output"])
+            foreach (var ol in (IEnumerable) _init["output"])
             {
-                string resource_id = (string) ((JValue) o["resource_id"]).Value;
-                _output[resource_id] = Convert.ToSingle(((JValue) o["production"]).Value);
+                if (ol is IDictionary<string, JToken> olj)
+                {
+                    string resourceId = (string) olj["resource_id"];
+                    _output[resourceId] = Convert.ToSingle(olj["production"]);
+                }
+                else if (ol is IDictionary<object, object> olo)
+                {
+                    string resourceId = (string) olo["resource_id"];
+                    _output[resourceId] = Convert.ToSingle(olo["production"]);
+                }
             }
 
             base.Restart();
         }
 
-        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
-            IDictionary<string, float> output)
+        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
+            //-- Compute the expected efficiency
             float efficiency = 1.0f;
             foreach (var supply in _opex)
             {
-                float needs = supply.Value / annualDivider;
-                float consumed = ConsumeResource(supply.Key, needs, map, stocks);
-                if (needs > 0.0f)
-                    efficiency = Math.Min(efficiency, consumed / needs); // We are only as strong as our weakest point
+                // Check what was allocated to us and compare to our needs
+                if (efficiency > 0.0f && allocations.ContainsKey(supply.Key))
+                {
+                    float needs = supply.Value / annualDivider;
+                    if (needs > 0.0f)
+                        efficiency =
+                            Math.Min(efficiency,
+                                allocations[supply.Key].Total / needs); // We are only as strong as our weakest point
+                }
+                else
+                {
+                    efficiency = 0.0f;
+                }
             }
 
             Efficiency = efficiency;
 
+            //-- Consume the resources
+            if (efficiency > 0.0f)
+            {
+                foreach (var supply in _opex)
+                {
+                    float needs = supply.Value / annualDivider * efficiency;
+                    allocations[supply.Key].Consume(needs);
+                }
+            }
+
+            //-- Produce the outputs
             foreach (var production in _output)
             {
                 output[production.Key] = production.Value * efficiency / annualDivider;
+            }
+        }
+
+        public override void DescribeDemand(Time currentTime, IDictionary<string, float> demand)
+        {
+            base.DescribeDemand(currentTime, demand);
+            foreach (var supply in _opex)
+            {
+                demand[supply.Key] = supply.Value / currentTime.GetAnnualDivider();
             }
         }
     }

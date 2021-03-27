@@ -290,6 +290,105 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
+        public void TestSimpleFactory()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/factory01.yaml", true);
+            engine.World.Time.Restart();
+            engine.World.Time.Step();
+            Assert.AreEqual(1.0f, engine.World.Map.Cells[1, 0].Jm2.Efficiency);
+            Assert.AreEqual(50.0f, engine.World.Map.Cells[0, 0].GetStock("coal"));
+            Assert.AreEqual(900.0f, engine.World.Map.Cells[0, 0].GetStock("o2"));
+            Assert.AreEqual(150.0f, engine.World.Map.Cells[1, 0].GetStock("co2"));
+        }
+
+        [Test]
+        public void TestSimpleSink()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink01.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell emptyCell = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual(null, emptyCell.Jm2);
+            ICell sink = engine.World.Map.Cells[1, 0];
+            Assert.AreEqual("sink", sink.Jm2.Id);
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(900.0f, emptyCell.GetStock("coal"));
+        }
+
+        [Test]
+        public void TestSimpleSinkTwoStocks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink02.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual(null, emptyCell1.Jm2);
+            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
+            Assert.AreEqual(null, emptyCell2.Jm2);
+            ICell sink = engine.World.Map.Cells[2, 0];
+            Assert.AreEqual("sink", sink.Jm2.Id);
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(0.0f, emptyCell1.GetStock("coal"));
+            Assert.AreEqual(25.0f, emptyCell2.GetStock("coal"));
+        }
+
+        [Test]
+        public void TestSimpleTwoSinks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink03.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell emptyCell = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual(null, emptyCell.Jm2);
+            ICell sink1 = engine.World.Map.Cells[1, 0];
+            Assert.AreEqual("sink", sink1.Jm2.Id);
+            ICell sink2 = engine.World.Map.Cells[2, 0];
+            Assert.AreEqual("sink", sink2.Jm2.Id);
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(0.0f, emptyCell.GetStock("coal"));
+            Assert.AreEqual(0.8f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(0.8f, sink2.Jm2.Efficiency);
+        }
+
+        [Test]
+        public void TestSimpleTwoStocksTwoSinks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink04.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual(null, emptyCell1.Jm2);
+            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
+            Assert.AreEqual(null, emptyCell2.Jm2);
+            ICell sink1 = engine.World.Map.Cells[2, 0];
+            Assert.AreEqual("sink", sink1.Jm2.Id);
+            ICell sink2 = engine.World.Map.Cells[3, 0];
+            Assert.AreEqual("sink", sink2.Jm2.Id);
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(0.0f, emptyCell1.GetStock("coal"));
+            Assert.AreEqual(0.0f, emptyCell2.GetStock("coal"));
+            Assert.AreEqual(0.8f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(0.8f, sink2.Jm2.Efficiency);
+        }
+
+        [Test]
         public void CellsShouldBeAbleToHaveNoJM2()
         {
             Engine engine = new Engine();

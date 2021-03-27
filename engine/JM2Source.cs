@@ -30,8 +30,8 @@ namespace WorldSim.Engine
             base.Restart();
         }
 
-        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider,
-            IDictionary<string, float> output)
+        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
             float productionTarget = _production / annualDivider;
             float produced = 0.0f;
@@ -86,13 +86,15 @@ namespace WorldSim.Engine
     /// </summary>
     public class Jm2SourceMinMax : JM2Source
     {
-        private bool _active = false;   // Is production active or not?
+        private bool _active = false; // Is production active or not?
+
         public Jm2SourceMinMax(IDictionary<string, object> init) : base(init)
         {
             Id = "sourceMinMax";
         }
 
-        public override void Step(Map map, IDictionary<string, float> stocks, Time currentTime, float annualDivider, IDictionary<string, float> output)
+        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
             if (stocks[_resourceId] >= Convert.ToSingle(_init["levelMax"]))
             {
@@ -106,14 +108,14 @@ namespace WorldSim.Engine
 
             if (_active)
             {
-                base.Step(map, stocks, currentTime, annualDivider, output);
+                base.Step(stocks, currentTime, annualDivider, allocations, output);
             }
             else
             {
                 output[_resourceId] = 0.0f;
             }
         }
-        
+
         public override string GetExtraLine(int extraLine)
         {
             {

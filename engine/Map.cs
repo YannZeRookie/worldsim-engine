@@ -35,20 +35,31 @@ namespace WorldSim.Engine
                 ((Cell) cell).Restart();
             }
         }
-
-        public float FindResource(string resourceId, float needs)
+        
+        public float TotalDemand(string resourceId)
         {
-            float found = 0.0f;
-            foreach (var cell in Cells)
+            float total = 0.0f;
+            foreach (var c in Cells)
             {
-                float stock = cell.GetStock(resourceId);
-                float used = Math.Min(needs, stock);
-                cell.SetStock(resourceId, stock - used);
-                found += used;
-                needs -= used;
+                Cell cell = (Cell) c;
+                float demand = cell.GetDemandFor(resourceId);
+                if (demand > 0.0f)
+                {
+                    total += demand;
+                }
             }
 
-            return found;
+            return total;
+        }
+
+        public float TotalStock(string resourceId)
+        {
+            float total = 0.0f;
+            foreach (var c in Cells)
+            {
+                total += c.GetStock(resourceId);
+            }
+            return total;
         }
     }
 }
