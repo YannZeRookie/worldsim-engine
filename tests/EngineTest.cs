@@ -323,7 +323,7 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
-        public void TestSimpleSinkTwoStocks()
+        public void TestSimpleSinkTwoFullStocks()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink02.yaml", true);
@@ -341,6 +341,25 @@ namespace WorldSim.Engine.Tests
 
             Assert.AreEqual(10.0f, emptyCell1.GetStock("coal"));
             Assert.AreEqual(15.0f, emptyCell2.GetStock("coal"));
+        }
+
+        [Test]
+        public void TestSimpleSinkTwoShortStocks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink02B.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
+            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
+            ICell sink1 = engine.World.Map.Cells[2, 0];
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(0.0f, emptyCell1.GetStock("coal"));
+            Assert.AreEqual(0.0f, emptyCell2.GetStock("coal"));
+            Assert.AreEqual(0.9f, sink1.Jm2.Efficiency);
         }
 
         [Test]
