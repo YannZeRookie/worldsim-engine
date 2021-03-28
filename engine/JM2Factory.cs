@@ -59,9 +59,10 @@ namespace WorldSim.Engine
             base.Restart();
         }
 
-        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+        public override void Step(IDictionary<string, float> stocks, Time currentTime,
             IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
+            float annualDivider = currentTime.GetAnnualDivider(); 
             //-- Compute the expected efficiency
             float efficiency = 1.0f;
             foreach (var supply in _opex)

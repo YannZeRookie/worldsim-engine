@@ -25,9 +25,10 @@ namespace WorldSim.Engine
             base.Restart();
         }
 
-        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+        public override void Step(IDictionary<string, float> stocks, Time currentTime,
             IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
+            float annualDivider = currentTime.GetAnnualDivider();
             float consumptionTarget = _consumption / annualDivider;
             float actualTarget = Math.Min(_limit ?? _consumption, _consumption) / annualDivider;
             float consumed = 0.0f;

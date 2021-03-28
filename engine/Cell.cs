@@ -130,9 +130,9 @@ namespace WorldSim.Engine
             ((JM2) Jm2)?.DescribeDemand(currentTime, _demand);
         }
 
-        public void StepExecute(Map map, Time currentTime, float annualDivider)
+        public void StepExecute(Map map, Time currentTime)
         {
-            ((JM2) Jm2)?.Step(this.Stocks, currentTime, annualDivider, _allocations, _output);
+            ((JM2) Jm2)?.Step(this.Stocks, currentTime, _allocations, _output);
         }
 
         public void StepFinalize(Time currentTime)

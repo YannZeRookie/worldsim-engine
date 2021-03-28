@@ -171,10 +171,9 @@ namespace WorldSim.Engine
             AllocateDemand(currentTime);
 
             //-- Execution: each cell with produce and/or consume
-            float annualDivider = this.Time.GetAnnualDivider();
             foreach (var cell in this.Map.Cells)
             {
-                ((Cell) cell).StepExecute((Map) this.Map, currentTime, annualDivider);
+                ((Cell) cell).StepExecute((Map) this.Map, currentTime);
             }
 
             //-- Finalization: its cell will update its stocks and perform any needed clean-up tasks

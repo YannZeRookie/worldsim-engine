@@ -30,9 +30,10 @@ namespace WorldSim.Engine
             _timeInUse = _init.ContainsKey("time_in_use") ? Convert.ToInt32(_init["time_in_use"]) : 1;
         }
 
-        public override void Step(IDictionary<string, float> stocks, Time currentTime, float annualDivider,
+        public override void Step(IDictionary<string, float> stocks, Time currentTime,
             IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
         {
+            float annualDivider = currentTime.GetAnnualDivider();
             float productionTarget = _production / annualDivider;
             float extracted = 0.0f;
             float produced = 0.0f;
