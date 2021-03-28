@@ -26,11 +26,6 @@ namespace WorldSim.Engine
         public Int32 Y { get; set; }
         public IJM2 Jm2 { get; set; }
 
-        public IDictionary<string, float> Demand
-        {
-            get => _demand;
-        }
-
         public Cell(Int32 x, Int32 y, IDictionary<string, IResource> resources)
         {
             this.X = x;
@@ -139,7 +134,10 @@ namespace WorldSim.Engine
         {
             foreach (var o in _output)
             {
-                this.Stocks[o.Key] += o.Value;
+                if (Resources[o.Key].Type == "volatile")
+                    Stocks[o.Key] = o.Value;
+                else
+                    Stocks[o.Key] += o.Value;
             }
         }
 

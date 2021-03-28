@@ -408,7 +408,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(0.8f, sink1.Jm2.Efficiency);
             Assert.AreEqual(0.8f, sink2.Jm2.Efficiency);
         }
-        
+
         /// <summary>
         /// Here we have plenty of initial stock
         /// </summary>
@@ -484,12 +484,11 @@ namespace WorldSim.Engine.Tests
             Assert.NotNull(engine.World);
 
             EnumerateCells(engine.World.Map.Cells.GetEnumerator());
-            
+
             Cell cell1 = new Cell(0, 99, engine.World.Resources);
             Cell cell2 = new Cell(1, 99, engine.World.Resources);
             List<ICell> list = new List<ICell>() {cell1, cell2};
             EnumerateCells(list.GetEnumerator());
-            
         }
 
         private void EnumerateCells(IEnumerator it)
@@ -499,6 +498,24 @@ namespace WorldSim.Engine.Tests
                 ICell cell = (ICell) it.Current;
                 Console.WriteLine(cell.X + "-" + cell.Y);
             }
+        }
+
+        [Test]
+        public void TestVolatileStock()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/volatile01.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            Assert.AreEqual(100.0f, engine.World.Map.TotalStock("stuff"));
+
+            // Volatile resources don't add up from one iteration to the next
+            engine.World.Time.Step();
+            Assert.AreEqual(100.0f, engine.World.Map.TotalStock("stuff"));
+
+            engine.World.Time.Step();
+            Assert.AreEqual(100.0f, engine.World.Map.TotalStock("stuff"));
         }
     }
 }
