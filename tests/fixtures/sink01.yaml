@@ -43,10 +43,10 @@ kpis:
 
 # Time management
 time:
-  stepUnit: year         # Can be "year", "month" or "day". Required
-  stepValue: 1            # Integer. Optional, default is 1. 
-  start: 1800-01-01   # Start date. Required
-  end: 1900-01-01   # End date if simulation has to stop at some point. Optional
+  stepUnit: year
+  stepValue: 1
+  start: 1800-01-01
+  end: 1900-01-01
 
 # Map
 map:

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -98,9 +99,9 @@ namespace WorldSim.Engine
         }
 
         // Resource Factory
-        public IResource CreateResource(string id, string name, string description, string type, IUnit? unit)
+        public IResource CreateResource(string id, string name, string description, string type, IUnit? unit, string distribution)
         {
-            return new Resource(id, name, description, type, unit);
+            return new Resource(id, name, description, type, unit, distribution);
         }
 
         // KPI Factory
@@ -197,11 +198,33 @@ namespace WorldSim.Engine
 
         private void AllocateResourceDemand(IResource resource)
         {
+            switch (resource.Distribution)
+            {
+                case "spread":
+                    AllocateSpreadResourceDemand(resource);
+                    break;
+                default:
+                    throw new Exception("Unknown resource distribution: " + resource.Distribution);
+            }
+        }
+        
+        /// <summary>
+        /// Allocate the resource using a Spread distribution,
+        /// i.e. all stocks are spread evenly across all demands
+        /// across the map on a pro-rata basis of the demands.
+        /// If a cell is asking for X % of the total demand,
+        /// it will allocated with X % of what's available.
+        /// </summary>
+        /// <param name="resource"></param>
+        private void AllocateSpreadResourceDemand(IResource resource)
+        {
             // NOTE: Basic implementation for now: we allocate evenly
             // Evaluate the total of the demand
-            float totalDemand = ((Map) Map).TotalDemand(resource.Id);
+            float totalDemand = Map.TotalDemand(resource.Id);
             if (totalDemand > 0.0f)
             {
+                float totalStock = Map.TotalStock(resource.Id);
+                float damping = (totalStock > totalDemand) ? totalDemand / totalStock : 1.0f;
                 // Construct the allocations for each demanding Cell and assign
                 foreach (var c in this.Map.Cells)
                 {
@@ -215,7 +238,7 @@ namespace WorldSim.Engine
                             float mapStock = mapCell.GetStock(resource.Id);
                             if (mapStock > 0.0f)
                             {
-                                float assigned = mapStock * demand / totalDemand;
+                                float assigned = mapStock * demand / totalDemand * damping;
                                 allocation.Assign(assigned, ((Cell) mapCell).Stocks);
                             }
                         }
@@ -224,6 +247,11 @@ namespace WorldSim.Engine
                     }
                 }
             }
+        }
+
+        private void SpreadAndAllocateDemand(IResource resource, IEnumerator cells)
+        {
+            
         }
     }
 }

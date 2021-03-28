@@ -1,4 +1,4 @@
-# Test of Sinks
+# Test of Sinks: 2 stocks, 2 sinks
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -43,33 +43,38 @@ kpis:
 
 # Time management
 time:
-  stepUnit: year
-  stepValue: 1
-  start: 1800-01-01
-  end: 1900-01-01
+  stepUnit: year         # Can be "year", "month" or "day". Required
+  stepValue: 1            # Integer. Optional, default is 1. 
+  start: 1800-01-01   # Start date. Required
+  end: 1900-01-01   # End date if simulation has to stop at some point. Optional
 
 # Map
 map:
-  sizeX: 3
+  sizeX: 4
   sizeY: 1
   Cells:
     - x: 0
       y: 0
       stocks:        # Initial stocks
         - resource_id: coal
-          stock: 100
+          stock: 300
     - x: 1
       y: 0
-      jm2_id: sink
-      jm2_init:
-        resource_id: coal
-        consumption: 50
+      stocks:        # Initial stocks
+        - resource_id: coal
+          stock: 200
     - x: 2
       y: 0
       jm2_id: sink
       jm2_init:
         resource_id: coal
-        consumption: 75
+        consumption: 100
+    - x: 3
+      y: 0
+      jm2_id: sink
+      jm2_init:
+        resource_id: coal
+        consumption: 150
 
 
 # ----------------------------------------------------------------------------------------------------------------------

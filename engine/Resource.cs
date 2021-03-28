@@ -1,4 +1,5 @@
 using System;
+using ChoETL;
 using WorldSim.API;
 
 namespace WorldSim.Engine
@@ -13,19 +14,21 @@ namespace WorldSim.Engine
             set { _unit = value; }
         }
 
-        public Resource(string id, string name, string description, string type, IUnit? unit)
+        public Resource(string id, string name, string description, string type, IUnit? unit, string distribution)
         {
             this.Id = id;
             this.Name = name;
             this.Description = description;
-            this.Type = type;
+            this.Type = type.IsNullOrEmpty() ? "stock" : type;
             this._unit = unit;
+            this.Distribution = distribution.IsNullOrEmpty() ? "spread" : distribution;
         }
 
         public string Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }
+        public string Distribution { get; set; }
 
         public string ValueToString(float value)
         {

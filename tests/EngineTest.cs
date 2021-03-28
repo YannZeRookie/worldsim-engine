@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using WorldSim.API;
 
@@ -337,8 +339,8 @@ namespace WorldSim.Engine.Tests
 
             engine.World.Time.Step();
 
-            Assert.AreEqual(0.0f, emptyCell1.GetStock("coal"));
-            Assert.AreEqual(25.0f, emptyCell2.GetStock("coal"));
+            Assert.AreEqual(10.0f, emptyCell1.GetStock("coal"));
+            Assert.AreEqual(15.0f, emptyCell2.GetStock("coal"));
         }
 
         [Test]
@@ -364,7 +366,7 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
-        public void TestSimpleTwoStocksTwoSinks()
+        public void TestSimpleTwoShortStocksTwoSinks()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink04.yaml", true);
@@ -386,6 +388,33 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(0.0f, emptyCell2.GetStock("coal"));
             Assert.AreEqual(0.8f, sink1.Jm2.Efficiency);
             Assert.AreEqual(0.8f, sink2.Jm2.Efficiency);
+        }
+        
+        /// <summary>
+        /// Here we have plenty of initial stock
+        /// </summary>
+        [Test]
+        public void TestSimpleTwoFullStocksTwoSinks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink05.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
+            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
+            ICell sink1 = engine.World.Map.Cells[2, 0];
+            ICell sink2 = engine.World.Map.Cells[3, 0];
+            Assert.AreEqual(300.0f, emptyCell1.GetStock("coal"));
+            Assert.AreEqual(200.0f, emptyCell2.GetStock("coal"));
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(250.0f, engine.World.Map.TotalStock("coal"));
+            Assert.AreEqual(150.0f, emptyCell1.GetStock("coal"));
+            Assert.AreEqual(100.0f, emptyCell2.GetStock("coal"));
+            Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
         }
 
         [Test]
@@ -426,6 +455,31 @@ namespace WorldSim.Engine.Tests
             engine.World.Time.Step();
             Assert.AreEqual(2.0f, kpi.GetValue(engine.World));
             Assert.AreEqual(2.0f, cell.GetStock("tech"));
+        }
+
+        [Test]
+        public void IterateOnCells()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/map02.yaml", true);
+            Assert.NotNull(engine.World);
+
+            EnumerateCells(engine.World.Map.Cells.GetEnumerator());
+            
+            Cell cell1 = new Cell(0, 99, engine.World.Resources);
+            Cell cell2 = new Cell(1, 99, engine.World.Resources);
+            List<ICell> list = new List<ICell>() {cell1, cell2};
+            EnumerateCells(list.GetEnumerator());
+            
+        }
+
+        private void EnumerateCells(IEnumerator it)
+        {
+            while (it.MoveNext())
+            {
+                ICell cell = (ICell) it.Current;
+                Console.WriteLine(cell.X + "-" + cell.Y);
+            }
         }
     }
 }

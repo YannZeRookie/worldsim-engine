@@ -89,8 +89,10 @@ namespace WorldSim
             /// <param name="description">A longer description of this Resource</param>
             /// <param name="type">The type of the Resource. "stock" for now</param>
             /// <param name="unit">The Unit used by this Resource</param>
+            /// <param name="distribution">How the Resource is available across the map</param>
             /// <returns>A new Resource that can be added to the World's list of Resources</returns>
-            public IResource CreateResource(string id, string name, string description, string type, IUnit? unit);
+            public IResource CreateResource(string id, string name, string description, string type, IUnit? unit,
+                string distribution);
 
             /// <summary>
             ///     Create a new KPI, i.e. something we are interested in tracking during the simulation
@@ -167,9 +169,20 @@ namespace WorldSim
             public string Description { get; set; }
 
             /// <summary>
-            ///     Type of the Resource. "stock" for now
+            ///     Type of the Resource.
+            ///     - "stock" by default: carries over each sim iteration
+            ///     - "volatile" when recomputed from 0 at each sim iteration
             /// </summary>
             public string Type { get; set; }
+
+            /// <summary>
+            ///     How the resource is available between cells
+            ///     - "spread": the resource is available across the entire map
+            ///     and will be evenly distributed among all demands,
+            ///     on a pro-rata basis.
+            ///     - "
+            /// </summary>
+            public string Distribution { get; set; }
 
             /// <summary>
             ///     ID of the Unit used by this Resource. See IUnit
@@ -354,6 +367,10 @@ namespace WorldSim
             ///     The array of Cells. See ICell interface.
             /// </summary>
             public ICell[,] Cells { get; }
+
+            public float TotalDemand(string resourceId);
+            public float TotalStock(string resourceId);
+
         }
 
         /// <summary>

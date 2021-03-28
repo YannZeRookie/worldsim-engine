@@ -66,15 +66,16 @@ resources:
   - id: coal
     name: Coal
     description: A primary fossile energy that generates lots of CO2
-    type: stock       # Can be "stock" (carries over each sim iteration) or "volatile" (is recomputed at each sim iteration)
-    unit_id: mass-t   # See Physical Units list above
+    type: stock           # Optional, "stock" by default (=carries over each sim iteration). "volatile" when recomputed from 0 at each sim iteration
+    unit_id: mass-t       # See Physical Units list above. Optional
+    distribution: spread  # Optional, "spread" by default. Defines how the resource is distributed
   - id: o2
-    name: O2
+    name: Oxygen
     description: A gazeous molecule used to produce energy and to breathe
     type: stock
     unit_id: mass-t
   - id: co2
-    name: CO2
+    name: Carbon dioxide
     description: A gazeous molecule responsible for the Climate Global Warming
     type: stock
     unit_id: mass-t
