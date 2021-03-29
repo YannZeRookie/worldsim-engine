@@ -1,0 +1,6 @@
+hello: world
+list:
+  - type: car
+    color: blue
+  - type: computer
+    color: gray

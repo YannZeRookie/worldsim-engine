@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using ChoETL;
+using Newtonsoft.Json.Linq;
 
 // Test the YAML importer / exporter with a very basic file
 
@@ -427,6 +428,119 @@ possessions:
 
                     Assert.AreEqual("blue", carColor);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Test the type of classes that the importer builds when doing a generic import 
+        /// </summary>
+        [Test]
+        public void TestClassesDynamicDataFromString()
+        {
+            string yaml = @"
+hello: world
+list:
+    - type: car
+      color: blue
+    - type: computer
+      color: gray
+";
+            using (var parser = ChoYamlReader.LoadText(yaml))
+            {
+                ParseDynamicClasses(parser.First());
+            }
+        }
+
+        [Test]
+        public void TestClassesDynamicDataFromFile()
+        {
+            using (var parser = new ChoYamlReader("../../../fixtures/basic2.yaml"))
+            {
+                ParseDynamicClasses(parser.First());
+            }
+        }
+
+        private void ParseDynamicClasses(dynamic elements)
+        {
+            Assert.IsInstanceOf<IDictionary<string, object>>(elements);
+            var elementsDict =
+                (IDictionary<string, object>) elements; // You have to do this cast if you want to be able to use the dictionary with some methods such as First()
+            Assert.IsInstanceOf<string>(elementsDict.First().Key); // Here the key is a string, which is good
+            Assert.IsInstanceOf<IList<object>>(elements["list"]); // But this still works
+            var list = (IList<object>) elements[
+                "list"]; // You have to do this cast if you want to be able to use the list
+            Assert.IsInstanceOf<IDictionary<object, object>>(list.First());
+            var item = (IDictionary<object, object>) list
+                .First(); // You have to do this cast if you want to be able to use the dictionary
+            var el = item.First();
+            Assert.AreEqual("type",
+                (string) el.Key); // At this level, they key is an object instead of a string - which is too bad because you can easily refer to elements
+            Assert.AreEqual("car", (string) el.Value);
+        }
+
+        /// <summary>
+        /// This is the best way to deal with a dynamic list of dictionaries
+        /// This is better than the method above
+        /// </summary>
+        public class DynamicData
+        {
+            public string Hello { get; set; }
+            public IDictionary<string, object>[] List { get; set; }
+        }
+
+        [Test]
+        public void TestClassesDynamicDataUsingRecords()
+        {
+            string yaml = @"
+hello: world
+list:
+    - type: car
+      color: blue
+    - type: computer
+      color: gray
+";
+            using (var parser = ChoYamlReader<DynamicData>.LoadText(yaml))
+            {
+                var elements = parser.First();
+                Assert.IsInstanceOf<DynamicData>(elements);
+                Assert.AreEqual("world", elements.Hello);
+                var item = elements.List.First();
+                var el = item.First();
+                Assert.AreEqual("type", el.Key);
+                Assert.AreEqual("car", (string) el.Value);
+            }
+        }
+        
+        public class DynamicNestedData
+        {
+            public string Jm2_Id { get; set; }
+            public IDictionary<string, object> Jm2_Init { get; set; }
+        }
+
+
+        [Test]
+        public void TestNestedDynamicClasses()
+        {
+            string yaml = @"
+jm2_id: factory
+jm2_init:
+    opex:
+      - resource_id: coal
+        consumption: 50
+      - resource_id: o2
+        consumption: 100
+    output:
+      - resource_id: co2
+        production: 150
+";
+            using (var parser = ChoYamlReader<DynamicNestedData>.LoadText(yaml))
+            {
+                var elements = parser.First();
+                Assert.IsInstanceOf<DynamicNestedData>(elements);
+                Assert.AreEqual("factory", elements.Jm2_Id);
+                var item = elements.Jm2_Init.First();
+                Assert.AreEqual("opex", item.Key);
+                Assert.IsInstanceOf<JArray>(item.Value);    // I wished it was a List or a system array
             }
         }
     }
