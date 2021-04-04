@@ -87,8 +87,8 @@ resources:
   - id: science
     name: Science Level
     description: An arbitrary value representing science knowledge
-    type: volatile
-    unit_id: null        # This quantity does not have any units
+    type: volatile        # Means that it will be recomputed from scratch at each iteration
+    unit_id: null         # This quantity does not have any units
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Simulation Context

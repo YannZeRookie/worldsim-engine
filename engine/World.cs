@@ -249,9 +249,5 @@ namespace WorldSim.Engine
             }
         }
 
-        private void SpreadAndAllocateDemand(IResource resource, IEnumerator cells)
-        {
-            
-        }
     }
 }
