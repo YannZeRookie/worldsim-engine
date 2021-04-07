@@ -27,7 +27,7 @@ namespace WorldSim.Engine
                 }
             }
         }
-
+        
         public void Restart()
         {
             foreach (var cell in Cells)

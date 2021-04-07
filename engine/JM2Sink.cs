@@ -26,7 +26,7 @@ namespace WorldSim.Engine
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
-            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
+            Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
             float annualDivider = currentTime.GetAnnualDivider();
             float consumptionTarget = _consumption / annualDivider;
@@ -34,10 +34,8 @@ namespace WorldSim.Engine
             float consumed = 0.0f;
             float efficiency = 1.0f;
 
-            if (allocations.ContainsKey(_resourceId))
-            {
-                consumed = allocations[_resourceId].Consume(actualTarget);
-            }
+            consumed = allocator.Consume(_resourceId, cell, actualTarget);
+
             if (consumptionTarget > 0.0f)
                 efficiency = consumed / consumptionTarget;
 

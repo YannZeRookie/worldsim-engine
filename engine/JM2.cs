@@ -20,7 +20,7 @@ namespace WorldSim.Engine
         }
 
         public virtual void Step(IDictionary<string, float> stocks, Time currentTime,
-            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
+            Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
         }
 

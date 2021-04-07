@@ -181,7 +181,7 @@ namespace WorldSim.Engine.Tests
         public void RunSimple02Yaml()
         {
             Engine engine = new Engine();
-            engine.LoadYaml("../../../fixtures/simple02.yaml");
+            engine.LoadYaml("../../../fixtures/simple02.yaml", false);
             engine.World.Time.Restart();
             Assert.AreEqual(0, engine.World.Time.Iteration);
             Assert.AreEqual(new DateTime(1800, 1, 1), engine.World.Time.Current);
@@ -379,9 +379,9 @@ namespace WorldSim.Engine.Tests
 
             engine.World.Time.Step();
 
-            Assert.AreEqual(0.0f, emptyCell.GetStock("coal"));
-            Assert.AreEqual(0.8f, sink1.Jm2.Efficiency);
-            Assert.AreEqual(0.8f, sink2.Jm2.Efficiency);
+            Assert.AreEqual(0.0, Math.Round(emptyCell.GetStock("coal")));
+            Assert.AreEqual(0.8, Math.Round((double) sink1.Jm2.Efficiency, 1));
+            Assert.AreEqual(0.8, Math.Round((double) sink2.Jm2.Efficiency, 1));
         }
 
         [Test]
@@ -432,6 +432,59 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(250.0f, engine.World.Map.TotalStock("coal"));
             Assert.AreEqual(150.0f, emptyCell1.GetStock("coal"));
             Assert.AreEqual(100.0f, emptyCell2.GetStock("coal"));
+            Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
+        }
+
+        [Test]
+        public void TestLocalThreeStocksOneSharedTwoSinks()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink06.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell stock1 = engine.World.Map.Cells[0, 0];
+            ICell stock2 = engine.World.Map.Cells[1, 0];
+            ICell stock3 = engine.World.Map.Cells[2, 0];
+            ICell sink1 = engine.World.Map.Cells[0, 1];
+            ICell sink2 = engine.World.Map.Cells[2, 1];
+            Assert.AreEqual(300.0f, stock1.GetStock("coal"));
+            Assert.AreEqual(200.0f, stock2.GetStock("coal"));
+            Assert.AreEqual(100.0f, stock3.GetStock("coal"));
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(350.0f, engine.World.Map.TotalStock("coal"));
+            Assert.AreEqual(221.0f, Math.Round(stock1.GetStock("coal")));
+            Assert.AreEqual(97.0f, Math.Round(stock2.GetStock("coal")));
+            Assert.AreEqual(32.0f, Math.Round(stock3.GetStock("coal")));
+            Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
+        }
+        [Test]
+        public void TestLocalTwoCellsDistance()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink07.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell stock1 = engine.World.Map.Cells[0, 0];
+            ICell stock2 = engine.World.Map.Cells[2, 0];
+            ICell stock3 = engine.World.Map.Cells[4, 0];
+            ICell sink1 = engine.World.Map.Cells[0, 1];
+            ICell sink2 = engine.World.Map.Cells[4, 1];
+            Assert.AreEqual(300.0f, stock1.GetStock("coal"));
+            Assert.AreEqual(200.0f, stock2.GetStock("coal"));
+            Assert.AreEqual(100.0f, stock3.GetStock("coal"));
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(350.0f, engine.World.Map.TotalStock("coal"));
+            Assert.AreEqual(221.0f, Math.Round(stock1.GetStock("coal")));
+            Assert.AreEqual(97.0f, Math.Round(stock2.GetStock("coal")));
+            Assert.AreEqual(32.0f, Math.Round(stock3.GetStock("coal")));
             Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
             Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
         }

@@ -84,6 +84,8 @@ resources:
     description: Water usable by plants, animals and humans
     type: stock
     unit_id: mass-t
+    distribution: local     # Means that a demanding cell can use only the local stocks (default distance is 1)
+    range: 3                # Defines the distance to reach local stocks. Optional, will be 1 if omitted
   - id: science
     name: Science Level
     description: An arbitrary value representing science knowledge

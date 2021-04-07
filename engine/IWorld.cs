@@ -90,9 +90,10 @@ namespace WorldSim
             /// <param name="type">The type of the Resource. "stock" for now</param>
             /// <param name="unit">The Unit used by this Resource</param>
             /// <param name="distribution">How the Resource is available across the map</param>
+            /// <param name="range">If distribution="local", define the distance under which stocks can be used. 1 by default</param>
             /// <returns>A new Resource that can be added to the World's list of Resources</returns>
             public IResource CreateResource(string id, string name, string description, string type, IUnit? unit,
-                string distribution);
+                string? distribution, int? range);
 
             /// <summary>
             ///     Create a new KPI, i.e. something we are interested in tracking during the simulation

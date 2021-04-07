@@ -31,7 +31,7 @@ namespace WorldSim.Engine
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
-            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
+            Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
             float annualDivider = currentTime.GetAnnualDivider();
             float productionTarget = _production / annualDivider;
@@ -95,7 +95,7 @@ namespace WorldSim.Engine
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
-            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
+            Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
             if (stocks[_resourceId] >= Convert.ToSingle(_init["levelMax"]))
             {
@@ -109,7 +109,7 @@ namespace WorldSim.Engine
 
             if (_active)
             {
-                base.Step(stocks, currentTime, allocations, output);
+                base.Step(stocks, currentTime, allocator, cell, output);
             }
             else
             {

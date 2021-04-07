@@ -15,8 +15,10 @@ namespace WorldSim.Engine.Tests
         private IDictionary<string, float> _stocks;
         private IDictionary<string, float> _output;
         private IDictionary<string, float> _demand;
-        private IDictionary<string, Allocation> _allocations;
         private Time _time;
+        private Map _map;
+        private Cell _cell;
+        private Allocator _allocator;
 
         [SetUp]
         public void Setup()
@@ -26,35 +28,40 @@ namespace WorldSim.Engine.Tests
             _units.Add("mass", unit);
 
             _resources = new Dictionary<string, IResource>();
-            SetupOneResource("coal", "Coal", "Coal is bad", "", unit, "");
-            SetupOneResource("o2", "Oxygen", "Main oxide", "", _units["mass"], "");
-            SetupOneResource("co2", "Carbon Dioxide", "The root of climate warming", "", _units["mass"], "");
+            SetupOneResource("coal", "Coal", "Coal is bad", "", unit, null, null);
+            SetupOneResource("o2", "Oxygen", "Main oxide", "", _units["mass"], null, null);
+            SetupOneResource("co2", "Carbon Dioxide", "The root of climate warming", "", _units["mass"], null, null);
 
-            _stocks = new Dictionary<string, float>()
-            {
-                {"coal", 100.0f},
-                {"o2", 10000.0f},
-                {"co2", 0.0f}
-            };
-            _allocations = new Dictionary<string, Allocation>();
+            _map = new Map(1, 1);
+            _map.Init(_resources);
+            _cell = (Cell) _map.Cells[0, 0];
+            _cell.SetStock("coal", 100.0f);
+            _cell.SetStock("o2", 10000.0f);
+            _cell.SetStock("co2", 0.0f);
+            _stocks = _cell.Stocks;
             _demand = new Dictionary<string, float>();
             _output = new Dictionary<string, float>();
+            _allocator = new Allocator();
 
             _time = new Time(null);
         }
 
-        private void SetupOneResource(string id, string name, string description, string type, IUnit? unit, string distribution)
+        private void SetupOneResource(string id, string name, string description, string type, IUnit? unit,
+            string? distribution, int? range)
         {
-            Resource resource = new Resource(id, name, description, type, unit, distribution);
+            Resource resource = new Resource(id, name, description, type, unit, distribution, range);
             _resources.Add(id, resource);
         }
 
         private void Allocate(string resourceId, float amount)
         {
-            Allocation allocation = new Allocation(resourceId, "");
-            allocation.Assign(amount, _stocks);
-            _allocations[resourceId] = allocation;
+            List<Cell> demands = new List<Cell>() { _cell };
+            List<IDictionary<string, float>> stocks = new List<IDictionary<string, float>>() { _stocks };
+            float[,] allocationTable = new float[1, 1] {{amount}};
+            Allocation allocation = new Allocation(resourceId, demands, stocks,allocationTable);
+            _allocator.AddAllocation(resourceId, allocation);
         }
+
 
         [Test]
         public void TestSource()
@@ -67,7 +74,7 @@ namespace WorldSim.Engine.Tests
             JM2Source jm2 = new JM2Source(init);
             Assert.AreEqual("source", jm2.Id);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
 
             Assert.AreEqual(100.0f, _output["coal"]);
             Assert.AreEqual(1.0f, jm2.Efficiency);
@@ -85,7 +92,7 @@ namespace WorldSim.Engine.Tests
             JM2Source jm2 = new JM2Source(init);
             Assert.AreEqual("source", jm2.Id);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
 
             Assert.AreEqual(50.0f, _output["coal"]);
             Assert.AreEqual(0.5f, jm2.Efficiency);
@@ -108,21 +115,21 @@ namespace WorldSim.Engine.Tests
 
             for (int i = 0; i < 4; i++)
             {
-                jm2.Step(_stocks, _time, _allocations, _output);
+                jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 Assert.AreEqual(100.0f, _output["coal"]);
                 _stocks["coal"] += _output["coal"];
             }
 
             Assert.AreEqual(400.0f, _stocks["coal"]);
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             Assert.AreEqual(0.0f, _output["coal"]); // Max level is reached, production should stop
 
             _stocks["coal"] -= 150.0f;
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             Assert.AreEqual(0.0f, _output["coal"]); // Level is under max but sill above min => still no production
 
             _stocks["coal"] -= 100.0f;
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             _stocks["coal"] += _output["coal"];
             Assert.AreEqual(100.0f, _output["coal"]); // Level is under min => production resumed
             Assert.AreEqual(250.0f, _stocks["coal"]);
@@ -141,7 +148,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("mine", jm2.Id);
 
             Dictionary<string, float> output = new Dictionary<string, float>();
-            jm2.Step(_stocks, _time, _allocations, output);
+            jm2.Step(_stocks, _time, _allocator, _cell, output);
 
             Assert.AreEqual(100.0f, output["coal"]);
             Assert.AreEqual(1.0f, jm2.Efficiency);
@@ -164,14 +171,14 @@ namespace WorldSim.Engine.Tests
 
             for (int i = 0; i < 4; i++)
             {
-                jm2.Step(_stocks, _time, _allocations, _output);
+                jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 _stocks["coal"] += _output["coal"];
                 _time.Step();
             }
 
             Assert.AreEqual(600.0f, jm2.Reserve());
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             _stocks["coal"] += _output["coal"];
             _time.Step();
             Assert.AreEqual(100.0f, _output["coal"]);
@@ -180,7 +187,7 @@ namespace WorldSim.Engine.Tests
 
             for (int i = 6; i < 12; i++)
             {
-                jm2.Step(_stocks, _time, _allocations, _output);
+                jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 _stocks["coal"] += _output["coal"];
                 _time.Step();
             }
@@ -188,7 +195,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(40.0f, jm2.Reserve());
             Assert.AreEqual(100.0f, _output["coal"]);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             _stocks["coal"] += _output["coal"];
             _time.Step();
             Assert.AreEqual(0.0f, jm2.Reserve());
@@ -196,20 +203,20 @@ namespace WorldSim.Engine.Tests
 
             for (int i = 13; i < 16; i++)
             {
-                jm2.Step(_stocks, _time, _allocations, _output);
+                jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 _stocks["coal"] += _output["coal"];
                 _time.Step();
                 Assert.AreEqual(0.0f, jm2.Reserve());
                 Assert.AreEqual(20.0f, _output["coal"]);
             }
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             _stocks["coal"] += _output["coal"];
             _time.Step();
             Assert.AreEqual(0.0f, jm2.Reserve());
             Assert.AreEqual(12.0f, _output["coal"]);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             _stocks["coal"] += _output["coal"];
             _time.Step();
             Assert.AreEqual(0.0f, jm2.Reserve());
@@ -226,22 +233,19 @@ namespace WorldSim.Engine.Tests
             };
             JM2Sink jm2 = new JM2Sink(init);
             Assert.AreEqual("sink", jm2.Id);
-
-            Allocation allocation = new Allocation("coal", "");
-            allocation.Assign(100.0f, _stocks);
-            _allocations["coal"] = allocation;
+            Allocate("coal", 100.0f);
 
             jm2.DescribeDemand(_time, _demand);
             Assert.AreEqual(75.0f, _demand["coal"]);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
 
             Assert.AreEqual(25.0f, _stocks["coal"]);
             Assert.AreEqual(1.0f, jm2.Efficiency);
 
             // One more time: reach 0 stock
             // Note that we allocate more than what is available, it's OK, the code is robust enough
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
             Assert.AreEqual(0.0f, _stocks["coal"]);
             Assert.AreEqual(25.0f / 75.0f, jm2.Efficiency);
         }
@@ -261,7 +265,7 @@ namespace WorldSim.Engine.Tests
             jm2.DescribeDemand(_time, _demand);
             Assert.AreEqual(100.0f, _demand["coal"]);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
 
             Assert.AreEqual(50.0f, _stocks["coal"]);
             Assert.AreEqual(0.5f, jm2.Efficiency);
@@ -280,8 +284,8 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("sink", jm2.Id);
             Allocate("coal", 50.0f);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
-            
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
+
             Assert.AreEqual(50.0f, _stocks["coal"]); // Because we reached the limit
             Assert.AreEqual(0.5f, jm2.Efficiency);
         }
@@ -305,7 +309,7 @@ output:
             Allocate("coal", 50.0f);
             Allocate("o2", 1000.0f);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
 
             Assert.AreEqual(1833.0f, _output["co2"]);
             Assert.AreEqual(50.0f, _stocks["coal"]);
@@ -332,7 +336,7 @@ output:
             Allocate("coal", 25.0f);    // We assign less than requested
             Allocate("o2", 1000.0f);
 
-            jm2.Step(_stocks, _time, _allocations, _output);
+            jm2.Step(_stocks, _time, _allocator, _cell, _output);
 
             Assert.AreEqual(900.0f, _output["co2"]);
             Assert.AreEqual(75.0f, _stocks["coal"]);

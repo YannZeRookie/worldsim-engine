@@ -14,11 +14,6 @@ namespace WorldSim.Engine
         /// </summary>
         private IDictionary<string, float> _demand;
 
-        /// <summary>
-        /// Resources allocations for the current Iteration
-        /// </summary>
-        private IDictionary<string, Allocation> _allocations;
-
         private IDictionary<string, IResource> Resources { get; set; }
         public IDictionary<string, float> Stocks { get; set; }
         private IDictionary<string, float> InitialStocks { get; }
@@ -40,12 +35,16 @@ namespace WorldSim.Engine
 
             _output = new Dictionary<string, float>();
             _demand = new Dictionary<string, float>();
-            _allocations = new Dictionary<string, Allocation>();
         }
 
         public string Id()
         {
             return X + "-" + Y;
+        }
+
+        public int DistanceTo(Cell cell)
+        {
+            return Math.Max(Math.Abs(cell.X - this.X), Math.Abs(cell.Y - this.Y));
         }
 
         public void Restart()
@@ -121,13 +120,12 @@ namespace WorldSim.Engine
         {
             _output.Clear();
             _demand.Clear();
-            _allocations.Clear();
             ((JM2) Jm2)?.DescribeDemand(currentTime, _demand);
         }
 
-        public void StepExecute(Map map, Time currentTime)
+        public void StepExecute(Map map, Time currentTime, Allocator allocator)
         {
-            ((JM2) Jm2)?.Step(this.Stocks, currentTime, _allocations, _output);
+            ((JM2) Jm2)?.Step(this.Stocks, currentTime, allocator, this, _output);
         }
 
         public void StepFinalize(Time currentTime)
@@ -139,11 +137,6 @@ namespace WorldSim.Engine
                 else
                     Stocks[o.Key] += o.Value;
             }
-        }
-
-        public void AddAllocation(string resourceId, Allocation allocation)
-        {
-            _allocations[resourceId] = allocation;
         }
     }
 }

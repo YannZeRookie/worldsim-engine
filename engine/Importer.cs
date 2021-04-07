@@ -21,8 +21,9 @@ namespace WorldSim.IO
         public string Name { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }
-        public string Unit_Id { get; set; }
-        public string Distribution { get; set; }
+        public string? Unit_Id { get; set; }
+        public string? Distribution { get; set; }
+        public int? Range { get; set; }
     }
 
     public class KpiFileData
@@ -146,7 +147,7 @@ namespace WorldSim.IO
                 this.World.Resources.Add(r.Id,
                     this.World.CreateResource(r.Id, r.Name, r.Description, r.Type,
                         string.IsNullOrWhiteSpace(r.Unit_Id) ? null : this.World.Units[r.Unit_Id],
-                    r.Distribution));
+                    r.Distribution, r.Range));
             }
 
             foreach (var k in fileData.Kpis)

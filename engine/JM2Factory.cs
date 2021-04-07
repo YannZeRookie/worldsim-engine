@@ -60,7 +60,7 @@ namespace WorldSim.Engine
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
-            IDictionary<string, Allocation> allocations, IDictionary<string, float> output)
+            Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
             float annualDivider = currentTime.GetAnnualDivider(); 
             //-- Compute the expected efficiency
@@ -68,13 +68,13 @@ namespace WorldSim.Engine
             foreach (var supply in _opex)
             {
                 // Check what was allocated to us and compare to our needs
-                if (efficiency > 0.0f && allocations.ContainsKey(supply.Key))
+                if (efficiency > 0.0f)
                 {
                     float needs = supply.Value / annualDivider;
                     if (needs > 0.0f)
                         efficiency =
                             Math.Min(efficiency,
-                                allocations[supply.Key].Total / needs); // We are only as strong as our weakest point
+                                allocator.GetAllocation(supply.Key, cell) / needs); // We are only as strong as our weakest point
                 }
                 else
                 {
@@ -90,7 +90,7 @@ namespace WorldSim.Engine
                 foreach (var supply in _opex)
                 {
                     float needs = supply.Value / annualDivider * efficiency;
-                    allocations[supply.Key].Consume(needs);
+                    allocator.Consume(supply.Key, cell, needs);
                 }
             }
 

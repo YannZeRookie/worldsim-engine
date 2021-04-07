@@ -99,9 +99,10 @@ namespace WorldSim.Engine
         }
 
         // Resource Factory
-        public IResource CreateResource(string id, string name, string description, string type, IUnit? unit, string distribution)
+        public IResource CreateResource(string id, string name, string description, string type, IUnit? unit,
+            string? distribution, int? range)
         {
-            return new Resource(id, name, description, type, unit, distribution);
+            return new Resource(id, name, description, type, unit, distribution, range);
         }
 
         // KPI Factory
@@ -169,85 +170,19 @@ namespace WorldSim.Engine
             }
 
             // Review all demands and allocate resources to each cell
-            AllocateDemand(currentTime);
+            Allocator allocator = Allocator.Allocate(currentTime, Resources, (Map) Map);
 
-            //-- Execution: each cell with produce and/or consume
+            //-- Execution: each cell with produce and/or consume stocks
             foreach (var cell in this.Map.Cells)
             {
-                ((Cell) cell).StepExecute((Map) this.Map, currentTime);
+                ((Cell) cell).StepExecute((Map) this.Map, currentTime, allocator);
             }
 
-            //-- Finalization: its cell will update its stocks and perform any needed clean-up tasks
+            //-- Finalization: its cell will update its stocks with productions and perform any needed clean-up tasks
             foreach (var cell in this.Map.Cells)
             {
                 ((Cell) cell).StepFinalize(currentTime);
             }
         }
-
-        /// <summary>
-        /// Allocate the resources to try to satisfy demand as well as possible
-        /// </summary>
-        /// <param name="currentTime"></param>
-        private void AllocateDemand(Time currentTime)
-        {
-            foreach (var resource in Resources)
-            {
-                AllocateResourceDemand(resource.Value);
-            }
-        }
-
-        private void AllocateResourceDemand(IResource resource)
-        {
-            switch (resource.Distribution)
-            {
-                case "spread":
-                    AllocateSpreadResourceDemand(resource);
-                    break;
-                default:
-                    throw new Exception("Unknown resource distribution: " + resource.Distribution);
-            }
-        }
-        
-        /// <summary>
-        /// Allocate the resource using a Spread distribution,
-        /// i.e. all stocks are spread evenly across all demands
-        /// across the map on a pro-rata basis of the demands.
-        /// If a cell is asking for X % of the total demand,
-        /// it will allocated with X % of what's available.
-        /// </summary>
-        /// <param name="resource"></param>
-        private void AllocateSpreadResourceDemand(IResource resource)
-        {
-            // NOTE: Basic implementation for now: we allocate evenly
-            // Evaluate the total of the demand
-            float totalDemand = Map.TotalDemand(resource.Id);
-            if (totalDemand > 0.0f)
-            {
-                float totalStock = Map.TotalStock(resource.Id);
-                float damping = (totalStock > totalDemand) ? totalDemand / totalStock : 1.0f;
-                // Construct the allocations for each demanding Cell and assign
-                foreach (var c in this.Map.Cells)
-                {
-                    Cell cell = (Cell) c;
-                    float demand = cell.GetDemandFor(resource.Id);
-                    if (demand > 0.0f)
-                    {
-                        Allocation allocation = new Allocation(resource.Id, cell.Id());
-                        foreach (var mapCell in Map.Cells)
-                        {
-                            float mapStock = mapCell.GetStock(resource.Id);
-                            if (mapStock > 0.0f)
-                            {
-                                float assigned = mapStock * demand / totalDemand * damping;
-                                allocation.Assign(assigned, ((Cell) mapCell).Stocks);
-                            }
-                        }
-
-                        cell.AddAllocation(resource.Id, allocation);
-                    }
-                }
-            }
-        }
-
     }
 }
