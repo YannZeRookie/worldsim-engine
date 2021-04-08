@@ -1,4 +1,4 @@
-# Test of Sinks: 3 LOCAL Stocks with one shared, 2 Sinks, range of distribution set to 2
+# Test of Sinks: 3 LOCAL Stocks with one shared, 2 Sinks, attenuation distribution
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -9,7 +9,7 @@
 format: WorldSim
 type: scenario
 version: "0.2"
-modDate: 2021-04-08T14:00+02:00
+modDate: 2021-04-08T12:00+01:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -26,15 +26,16 @@ units:
     description: Mass - Metric Tons
     symbol: T
 
-# Resources or the physical quantities used by JM2s in this file. All fields required
+# Resources or the physical quantities used by JM2s in this file
 resources:
   - id: coal
     name: Coal
     description: A primary fossile energy that generates lots of CO2
     type: stock
     unit_id: mass-t
-    distribution: local   # A demanding cell can use only local stocks...
-    range: 2              # ...up to a distance of 2 cells or less 
+    distribution: attenuation   # Stocks availability decrease with distance...
+    range: 2                    # ...by being at a distance of 2 cells...
+    attenuation: 0.5            # ...multiplied by this attenuation factor (it's linear by default)
 
 # List of KPIs to track
 kpis:
@@ -45,14 +46,14 @@ kpis:
 
 # Time management
 time:
-  stepUnit: year         # Can be "year", "month" or "day". Required
-  stepValue: 1            # Integer. Optional, default is 1. 
-  start: 1800-01-01   # Start date. Required
-  end: 1900-01-01   # End date if simulation has to stop at some point. Optional
+  stepUnit: year
+  stepValue: 1 
+  start: 1800-01-01
+  end: 1900-01-01
 
 # Map
 map:
-  sizeX: 5
+  sizeX: 4
   sizeY: 2
   Cells:
     - x: 0
@@ -65,7 +66,7 @@ map:
       stocks:        # Initial stocks
         - resource_id: coal
           stock: 200
-    - x: 4
+    - x: 3
       y: 0
       stocks:        # Initial stocks
         - resource_id: coal
@@ -76,7 +77,7 @@ map:
       jm2_init:
         resource_id: coal
         consumption: 100
-    - x: 4
+    - x: 3
       y: 1
       jm2_id: sink
       jm2_init:

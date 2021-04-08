@@ -100,9 +100,9 @@ namespace WorldSim.Engine
 
         // Resource Factory
         public IResource CreateResource(string id, string name, string description, string type, IUnit? unit,
-            string? distribution, int? range)
+            string? distribution, int? range, float? attenuation)
         {
-            return new Resource(id, name, description, type, unit, distribution, range);
+            return new Resource(id, name, description, type, unit, distribution, range, attenuation);
         }
 
         // KPI Factory

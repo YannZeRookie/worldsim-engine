@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NuGet.Frameworks;
 using NUnit.Framework;
 
 namespace CSharpTest
@@ -52,6 +53,20 @@ namespace CSharpTest
             Assert.AreEqual(1, holder.List.Count);
             list.Add("World");
             Assert.AreEqual(2, holder.List.Count);
+        }
+
+        [Test]
+        public void TestNullableFloats()
+        {
+            float? a = null;
+            float? b = null;
+            float? c = a / b;
+            Assert.IsNull(c);
+            float? d = 1.0f / b;
+            Assert.IsNull(d);
+            float? r = 0.0f;
+            float? e = a / r;
+            Assert.IsNull(e);
         }
     }
 

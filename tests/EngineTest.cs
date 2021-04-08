@@ -462,6 +462,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
             Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
         }
+        
         [Test]
         public void TestLocalTwoCellsDistance()
         {
@@ -485,6 +486,36 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(221.0f, Math.Round(stock1.GetStock("coal")));
             Assert.AreEqual(97.0f, Math.Round(stock2.GetStock("coal")));
             Assert.AreEqual(32.0f, Math.Round(stock3.GetStock("coal")));
+            Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
+        }
+        
+        /// <summary>
+        /// Test of the attenuation algorithm
+        /// </summary>
+        [Test]
+        public void TestSinksAttenuation()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink08.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell stock1 = engine.World.Map.Cells[0, 0];
+            ICell stock2 = engine.World.Map.Cells[2, 0];
+            ICell stock3 = engine.World.Map.Cells[3, 0];
+            ICell sink1 = engine.World.Map.Cells[0, 1];
+            ICell sink2 = engine.World.Map.Cells[3, 1];
+            Assert.AreEqual(300.0f, stock1.GetStock("coal"));
+            Assert.AreEqual(200.0f, stock2.GetStock("coal"));
+            Assert.AreEqual(100.0f, stock3.GetStock("coal"));
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(350.0f, Math.Round(engine.World.Map.TotalStock("coal")));
+            Assert.AreEqual(199.0f, Math.Round(stock1.GetStock("coal")));
+            Assert.AreEqual(102.0f, Math.Round(stock2.GetStock("coal")));
+            Assert.AreEqual(49.0f, Math.Round(stock3.GetStock("coal")));
             Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
             Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
         }

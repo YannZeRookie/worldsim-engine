@@ -28,9 +28,9 @@ namespace WorldSim.Engine.Tests
             _units.Add("mass", unit);
 
             _resources = new Dictionary<string, IResource>();
-            SetupOneResource("coal", "Coal", "Coal is bad", "", unit, null, null);
-            SetupOneResource("o2", "Oxygen", "Main oxide", "", _units["mass"], null, null);
-            SetupOneResource("co2", "Carbon Dioxide", "The root of climate warming", "", _units["mass"], null, null);
+            SetupOneResource("coal", "Coal", "Coal is bad", "", unit, null, null, null);
+            SetupOneResource("o2", "Oxygen", "Main oxide", "", _units["mass"], null, null, null);
+            SetupOneResource("co2", "Carbon Dioxide", "The root of climate warming", "", _units["mass"], null, null, null);
 
             _map = new Map(1, 1);
             _map.Init(_resources);
@@ -47,9 +47,9 @@ namespace WorldSim.Engine.Tests
         }
 
         private void SetupOneResource(string id, string name, string description, string type, IUnit? unit,
-            string? distribution, int? range)
+            string? distribution, int? range, float? attenuation)
         {
-            Resource resource = new Resource(id, name, description, type, unit, distribution, range);
+            Resource resource = new Resource(id, name, description, type, unit, distribution, range, attenuation);
             _resources.Add(id, resource);
         }
 

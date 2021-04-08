@@ -106,7 +106,7 @@ namespace WorldSim.Engine
                 float demand_sum = 0.0f;
                 for (int j = 0; j < stocks.Count; j++)
                 {
-                    float val = repartition[i, j] * stocks[j][resource.Id];
+                    float val = repartition[i, j] * stocks[j][resource.Id] * cluster[i, j];
                     available[i, j] = val;
                     demand_sum += val;
                 }
