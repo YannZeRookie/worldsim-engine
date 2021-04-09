@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NuGet.Frameworks;
@@ -205,6 +206,93 @@ namespace CSharpTest
         public ListHolder(IList<string> l)
         {
             this.List = l;
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    // Understanding interfaces vs static methods vs factories vs implementations
+    //---------------------------------------------------------------------------
+
+    public interface IPerson
+    {
+        string Name();
+
+        public static IPerson CreateCitizen()
+        {
+            return new Citizen();
+        }
+    }
+
+    class Citizen : IPerson
+    {
+        public string Name()
+        {
+            return "John Doe";
+        }
+    }
+
+    class Nation : IList<Citizen>
+    {
+        private readonly IList<Citizen> _list = new List<Citizen>();
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable) _list).GetEnumerator();
+        }
+
+        public IEnumerator<Citizen> GetEnumerator()
+        {
+            return _list.GetEnumerator();
+        }
+
+        public void Add(Citizen item)
+        {
+            _list.Add(item);
+        }
+
+        public void Clear()
+        {
+            _list.Clear();
+        }
+
+        public bool Contains(Citizen item)
+        {
+            return _list.Contains(item);
+        }
+
+        public void CopyTo(Citizen[] array, int arrayIndex)
+        {
+            _list.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(Citizen item)
+        {
+            return _list.Remove(item);
+        }
+
+        public int Count => _list.Count;
+
+        public bool IsReadOnly => _list.IsReadOnly;
+
+        public int IndexOf(Citizen item)
+        {
+            return _list.IndexOf(item);
+        }
+
+        public void Insert(int index, Citizen item)
+        {
+            _list.Insert(index, item);
+        }
+
+        public void RemoveAt(int index)
+        {
+            _list.RemoveAt(index);
+        }
+
+        public Citizen this[int index]
+        {
+            get => _list[index];
+            set => _list[index] = value;
         }
     }
 }

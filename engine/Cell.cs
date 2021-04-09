@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ChoETL;
 using WorldSim.API;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public class Cell : ICell
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using WorldSim.API;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public abstract class JM2 : IJM2
     {

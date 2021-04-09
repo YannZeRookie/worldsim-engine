@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using WorldSim.API;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public class Allocator
     {

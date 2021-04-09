@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public class JM2Source : JM2
     {

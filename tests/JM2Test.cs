@@ -4,6 +4,7 @@ using System.Linq;
 using ChoETL;
 using NUnit.Framework;
 using WorldSim.API;
+using WorldSim.Model;
 
 namespace WorldSim.Engine.Tests
 {

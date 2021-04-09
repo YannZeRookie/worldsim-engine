@@ -1,7 +1,7 @@
 using System;
 using WorldSim.API;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public class Time : ITime
     {

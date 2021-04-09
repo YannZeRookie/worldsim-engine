@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public class JM2Factory : JM2
     {

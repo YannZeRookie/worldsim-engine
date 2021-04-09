@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using WorldSim.API;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public abstract class Kpi : IKpi
     {

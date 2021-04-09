@@ -173,7 +173,7 @@ namespace WorldSim.Engine.Tests
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple02.yaml");
             ICell cell = engine.World.Map.Cells[1, 0];
-            JM2Factory jm2Factory = (JM2Factory) cell.Jm2;
+            IJM2 jm2Factory = cell.Jm2;
             Assert.IsNotNull(jm2Factory);
         }
 
@@ -251,7 +251,7 @@ namespace WorldSim.Engine.Tests
             engine.LoadYaml("../../../fixtures/initial_stocks.yaml", true);
             Assert.NotNull(engine.World);
 
-            engine.World.Restart();
+            engine.World.Time.Restart();
             ICell cell = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(900.0f, cell.GetStock("coal"));
 
@@ -559,31 +559,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(2.0f, kpi.GetValue(engine.World));
             Assert.AreEqual(2.0f, cell.GetStock("tech"));
         }
-
-        [Test]
-        public void IterateOnCells()
-        {
-            Engine engine = new Engine();
-            engine.LoadYaml("../../../fixtures/map02.yaml", true);
-            Assert.NotNull(engine.World);
-
-            EnumerateCells(engine.World.Map.Cells.GetEnumerator());
-
-            Cell cell1 = new Cell(0, 99, engine.World.Resources);
-            Cell cell2 = new Cell(1, 99, engine.World.Resources);
-            List<ICell> list = new List<ICell>() {cell1, cell2};
-            EnumerateCells(list.GetEnumerator());
-        }
-
-        private void EnumerateCells(IEnumerator it)
-        {
-            while (it.MoveNext())
-            {
-                ICell cell = (ICell) it.Current;
-                Console.WriteLine(cell.X + "-" + cell.Y);
-            }
-        }
-
+        
         [Test]
         public void TestVolatileStock()
         {

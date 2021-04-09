@@ -2,7 +2,7 @@ using System;
 using ChoETL;
 using WorldSim.API;
 
-namespace WorldSim.Engine
+namespace WorldSim.Model
 {
     public class Resource : IResource
     {

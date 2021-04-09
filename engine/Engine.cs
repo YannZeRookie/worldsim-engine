@@ -1,18 +1,24 @@
 using System;
+using WorldSim.API;
 using WorldSim.IO;
+using WorldSim.Model;
 
 namespace WorldSim.Engine
 {
     public class Engine
     {
-        public World World { get; }
+        private World _world;
+
+        public IWorld World => _world;
+
         public TimeSpan LoadDelay { get; set; }
         public TimeSpan CurrentStateDelay { get; set; }
 
         public Engine()
         {
-            this.World = new World();
+            _world = new World();
         }
+
 
         /// <summary>
         /// Load a YAML file into the World
@@ -24,7 +30,7 @@ namespace WorldSim.Engine
         /// <returns>The `currentTime` that was indicated in the file, or the Start Time by default.</returns>
         public DateTime LoadYaml(string fileName, bool dontRun = false)
         {
-            Importer importer = new Importer(this.World, fileName);
+            Importer importer = new Importer(_world, fileName);
             DateTime currentTime = importer.LoadYaml(dontRun);
             LoadDelay = importer.LoadDelay;
             CurrentStateDelay = importer.CurrentStateDelay;

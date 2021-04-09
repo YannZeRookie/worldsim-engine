@@ -6,7 +6,7 @@ namespace WorldSim
     namespace API
     {
         /// <summary>
-        ///     The <c>IWorld</c> interface represents the entire world. It id divided in 3 parts:
+        ///     The <c>IWorld</c> interface represents the entire world. It is divided in 3 parts:
         ///     <list type="bullet">
         ///         <item>
         ///             <term>The Metadata part, which contains general information .</term>
@@ -121,6 +121,13 @@ namespace WorldSim
             /// <param name="init">Dictionary of initialization parameters for the JM2. This is very specific to each type of JM2.</param>
             /// <returns>A new JM2 that can be assigned to a Cell</returns>
             public IJM2 CreateJM2(string jm2Id, IDictionary<string, object> init);
+
+            /// <summary>
+            /// Compute the various widths and other parameters that will be used for display formatting purposes
+            /// </summary>
+            /// <returns>List of various dimensions</returns>
+            public IDictionary<string, int> ComputeWidths();
+
         }
 
         /// <summary>
