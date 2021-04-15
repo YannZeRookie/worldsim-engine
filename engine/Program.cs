@@ -100,6 +100,7 @@ namespace cli
 
             DateTime currentTime = engine.LoadYaml(fileName, true);
             Console.WriteLine("Loaded file in {0} ms", engine.LoadDelay.Milliseconds);
+            engine.World.Time.Restart();
 
             DateTime reachDate = toDate ?? currentTime;
 

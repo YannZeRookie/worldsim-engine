@@ -1,4 +1,4 @@
-# Test of Sinks: 3 Stocks with one shared, 2 Sinks, attenuation distribution
+# Test of Sinks: Nearest distribution, cascade test
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -9,7 +9,7 @@
 format: WorldSim
 type: scenario
 version: "0.2"
-modDate: 2021-04-08T12:00+01:00
+modDate: 2021-04-14T16:00+02:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -33,9 +33,7 @@ resources:
     description: A primary fossile energy that generates lots of CO2
     type: stock
     unit_id: mass-t
-    distribution: attenuation   # Stocks availability decrease with distance...
-    range: 2                    # ...by being at a distance of 2 cells...
-    attenuation: 0.5            # ...multiplied by this attenuation factor (it's linear by default)
+    distribution: nearest   # Demanding cells try to get as much as possible from nearest stocks
 
 # List of KPIs to track
 kpis:
@@ -53,40 +51,29 @@ time:
 
 # Map
 map:
-  sizeX: 4
-  sizeY: 2
+  sizeX: 3
+  sizeY: 1
   Cells:
-    - x: 0
+    - x: 0    # D1
       y: 0
-      stocks:        # Initial stocks
-        - resource_id: coal
-          stock: 300
-    - x: 2
+      jm2_id: sink
+      jm2_init:
+        resource_id: coal
+        consumption: 75
+    - x: 1    # S1
       y: 0
-      stocks:        # Initial stocks
-        - resource_id: coal
-          stock: 200
-    - x: 3
-      y: 0
-      stocks:        # Initial stocks
+      stocks:
         - resource_id: coal
           stock: 100
-    - x: 0
-      y: 1
-      jm2_id: sink
-      jm2_init:
-        resource_id: coal
-        consumption: 100
-    - x: 3
-      y: 1
-      jm2_id: sink
-      jm2_init:
-        resource_id: coal
-        consumption: 150
+    - x: 2    # S2
+      y: 0
+      stocks:
+        - resource_id: coal
+          stock: 100
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Current Simulation State
 # ----------------------------------------------------------------------------------------------------------------------
 
-currentTime: 1810-01-01
+currentTime: 1800-01-01

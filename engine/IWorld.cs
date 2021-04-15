@@ -127,7 +127,6 @@ namespace WorldSim
             /// </summary>
             /// <returns>List of various dimensions</returns>
             public IDictionary<string, int> ComputeWidths();
-
         }
 
         /// <summary>
@@ -198,6 +197,20 @@ namespace WorldSim
             ///     ID of the Unit used by this Resource. See IUnit
             /// </summary>
             public IUnit? Unit { get; set; }
+
+            /// <summary>
+            /// If Distribution == "local": distance radius of available stocks
+            /// If Distribution == "attenuation": distance where attenuation is Attenuation
+            /// Ignored for other types of Distributions.
+            /// Default is 1
+            /// </summary>
+            public int Range { get; set; }
+
+            /// <summary>
+            /// If If Distribution == "attenuation": attenuation value at Range
+            /// Ignored for other types of Distributions.
+            /// </summary>
+            public float Attenuation { get; set; }
 
             /// <summary>
             /// Convert a value using this resource name and unit
@@ -380,7 +393,6 @@ namespace WorldSim
 
             public float TotalDemand(string resourceId);
             public float TotalStock(string resourceId);
-
         }
 
         /// <summary>
