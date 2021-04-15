@@ -207,7 +207,7 @@ namespace WorldSim.Model
             {
                 for (int j = 0; j < stocks.Count; j++)
                 {
-                    repartition[i, j] = cluster[i, j] * demands[i].GetDemandFor(resource.Id) / ds[j];
+                    repartition[i, j] = ds[j] != 0.0f ? cluster[i, j] * demands[i].GetDemandFor(resource.Id) / ds[j] : 0.0f;
                 }
             }
 
