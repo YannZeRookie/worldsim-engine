@@ -91,6 +91,21 @@ resources:
     description: An arbitrary value representing science knowledge
     type: volatile        # Means that it will be recomputed from scratch at each iteration
     unit_id: null         # This quantity does not have any units
+  - id: stone
+    name: Stone
+    description: Construction material
+    type: stock
+    distribution: attenuation   # Means that stocks will be less available as distance increases (for transportation costs reasons for example)
+    range: 4
+    attenuation: 0.5            # range=4 and attenuation=0.5 means that stocks at a distance of 4 can be used only at 50%. These two values define the linear decrease factor 
+    unit_id: mass-t
+  - id: weird
+    name: Weird
+    description: A weird resource that is here only for documentation purposes of its distribution mode
+    distribution: radius        # Means that stocks can be used only if they are located exactly at range from the demand. Not sure who would use this, but it works
+    range: 3
+    unit_id: mass-t
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Simulation Context

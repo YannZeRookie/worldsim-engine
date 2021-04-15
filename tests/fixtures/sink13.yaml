@@ -1,0 +1,85 @@
+# Test of Sinks: Radius distribution
+# Licence: MIT
+# Ogee Foundation https://www.ogeefoundation.org/
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Header
+# ----------------------------------------------------------------------------------------------------------------------
+
+format: WorldSim
+type: scenario
+version: "0.2"
+modDate: 2021-04-15T17:00+02:00
+author:
+  name: Yann Corno
+  email: yann@ogeefoundation.org
+  github: https://github.com/YannZeRookie
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Simulation Background
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Physical Units used in this file. All fields required
+units:
+  - id: mass-t
+    name: Mass
+    description: Mass - Metric Tons
+    symbol: T
+
+# Resources or the physical quantities used by JM2s in this file
+resources:
+  - id: coal
+    name: Coal
+    description: A primary fossile energy that generates lots of CO2
+    type: stock
+    unit_id: mass-t
+    distribution: radius   # Demanding cells try to get from stocks located at exactly range distance
+    range: 2
+
+# List of KPIs to track
+kpis:
+  - name: Available Coal
+    description: Total extracted and usable Coal
+    formula: sum(coal)
+    unit_id: mass-t
+
+# Time management
+time:
+  stepUnit: year
+  stepValue: 1 
+  start: 1800-01-01
+  end: 1900-01-01
+
+# Map
+map:
+  sizeX: 5
+  sizeY: 1
+  Cells:
+    - x: 0    # S1
+      y: 0
+      stocks:
+        - resource_id: coal
+          stock: 100
+    - x: 1    # S2 - will be ignored
+      y: 0
+      stocks:
+        - resource_id: coal
+          stock: 100
+    - x: 2    # D1
+      y: 0
+      jm2_id: sink
+      jm2_init:
+        resource_id: coal
+        consumption: 200
+    - x: 4    # S2
+      y: 0
+      stocks:
+        - resource_id: coal
+          stock: 200
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Current Simulation State
+# ----------------------------------------------------------------------------------------------------------------------
+
+currentTime: 1800-01-01

@@ -41,6 +41,8 @@ namespace WorldSim.Model
             {
                 case "spread":
                     return 1.0f;
+                case "radius":
+                    return resCell.DistanceTo(demandCell) == Range ? 1.0f : 0.0f;
                 case "local":
                     return resCell.DistanceTo(demandCell) <= Range ? 1.0f : 0.0f;
                 case "attenuation":

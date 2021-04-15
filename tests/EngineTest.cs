@@ -671,6 +671,34 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual((float) (50.0 / 75.0), sink1.Jm2.Efficiency);
         }
 
+        /// <summary>
+        /// Radius Distribution test
+        /// </summary>
+        [Test]
+        public void TestRadius()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink13.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell stock1 = engine.World.Map.Cells[0, 0];
+            ICell stock2 = engine.World.Map.Cells[1, 0];
+            ICell stock3 = engine.World.Map.Cells[4, 0];
+            ICell sink1 = engine.World.Map.Cells[2, 0];
+            Assert.AreEqual(100.0f, stock1.GetStock("coal"));
+            Assert.AreEqual(100.0f, stock2.GetStock("coal"));
+            Assert.AreEqual(200.0f, stock3.GetStock("coal"));
+            Assert.AreEqual("sink", sink1.Jm2.Id);
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(33.0f, Math.Round(stock1.GetStock("coal")));
+            Assert.AreEqual(100.0f, stock2.GetStock("coal")); // No change
+            Assert.AreEqual(67.0f, Math.Round(stock3.GetStock("coal")));
+            Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
+        }
+
         [Test]
         public void CellsShouldBeAbleToHaveNoJM2()
         {
