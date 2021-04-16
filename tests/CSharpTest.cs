@@ -69,6 +69,21 @@ namespace CSharpTest
             float? e = a / r;
             Assert.IsNull(e);
         }
+
+        [Test]
+        public void TestEnumerableArray()
+        {
+            // This works with a 1 dimension array
+            TestItem[] a1 = new TestItem[2];
+            Assert.IsInstanceOf<IEnumerable<TestItem>>(a1);
+            // But it won't work with a two-dimensional array!
+            TestItem[,] a2 = new TestItem[2, 2];
+            // This works:
+            Assert.IsInstanceOf<IEnumerable>(a2);
+            // This does not:
+            //Assert.IsInstanceOf<IEnumerable<TestItem>>(a2);
+            // See See https://stackoverflow.com/questions/275073/
+        }
     }
 
     public interface ITestItem
