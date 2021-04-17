@@ -386,6 +386,19 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
+        public void TwoStocksTwoSinks()
+        {
+            List<float> demands = new List<float>() {100, 150};
+            List<float> stocks = new List<float>() {300, 200};
+            float[,] cluster = new float[,] {{1, 1}, {1, 1}};
+            float[,] allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
+            Assert.AreEqual(60.0f, Math.Round(allocationTable[0, 0]));
+            Assert.AreEqual(40.0f, Math.Round(allocationTable[0, 1]));
+            Assert.AreEqual(90.0f, Math.Round(allocationTable[1, 0]));
+            Assert.AreEqual(60.0f, Math.Round(allocationTable[1, 1]));
+        }
+
+        [Test]
         public void TestSimpleTwoShortStocksTwoSinks()
         {
             Engine engine = new Engine();
