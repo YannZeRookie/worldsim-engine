@@ -399,6 +399,36 @@ namespace WorldSim.Engine.Tests
         }
 
         [Test]
+        public void ThreeStocksOneSharedTwoSinks()
+        {
+            List<float> demands = new List<float>() {100, 150};
+            List<float> stocks = new List<float>() {300, 200, 100};
+            float[,] cluster = new float[,] {{1, 1, 0}, {0, 1, 1}};
+            float[,] allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
+            Assert.AreEqual(79.0f, Math.Round(allocationTable[0, 0]));
+            Assert.AreEqual(21.0f, Math.Round(allocationTable[0, 1]));
+            Assert.AreEqual(0.0f, Math.Round(allocationTable[0, 2]));
+            Assert.AreEqual(0.0f, Math.Round(allocationTable[1, 0]));
+            Assert.AreEqual(82.0f, Math.Round(allocationTable[1, 1]));
+            Assert.AreEqual(68.0f, Math.Round(allocationTable[1, 2]));
+        }
+
+        [Test]
+        public void ThreeShortStocksOneSharedTwoSinks()
+        {
+            List<float> demands = new List<float>() {200, 300};
+            List<float> stocks = new List<float>() {100, 200, 150};
+            float[,] cluster = new float[,] {{1, 1, 0}, {0, 1, 1}};
+            float[,] allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
+            Assert.AreEqual(100.0f, Math.Round(allocationTable[0, 0]));
+            Assert.AreEqual(80.0f, Math.Round(allocationTable[0, 1]));
+            Assert.AreEqual(0.0f, Math.Round(allocationTable[0, 2]));
+            Assert.AreEqual(0.0f, Math.Round(allocationTable[1, 0]));
+            Assert.AreEqual(120.0f, Math.Round(allocationTable[1, 1]));
+            Assert.AreEqual(150.0f, Math.Round(allocationTable[1, 2]));
+        }
+
+        [Test]
         public void TestSimpleTwoShortStocksTwoSinks()
         {
             Engine engine = new Engine();
