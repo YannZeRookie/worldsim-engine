@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="alglib.net" Version="3.17.0" />
         <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.5" />
         <PackageReference Include="ChoETL.NETStandard" Version="1.2.1.5" />
         <PackageReference Include="ChoETL.Yaml" Version="1.0.0.7" />
