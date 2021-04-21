@@ -131,7 +131,7 @@ namespace WorldSim.Model
             //-- Done: we now know for each demand how much of each stock we'll allocate
             return new Allocation(resource.Id, context.DemandCells, context.Stocks, allocationTable);
         }
-        
+
         public static float[,] SolomonSpread(float[,] cluster, float[] stockValues, float[] demandValues)
         {
             //-- Step 2: compute the total of Demand in front of each Stock
@@ -245,54 +245,6 @@ namespace WorldSim.Model
                     {
                         allocationTable[i, j] += allocation[i, j];
                         allocatedDemand += allocation[i, j];
-                    }
-                }
-            }
-
-            //-- Done: we now know for each demand how much of each stock we'll allocate
-            return new Allocation(resource.Id, context.DemandCells, context.Stocks, allocationTable);
-        }
-
-        public static Allocation AllocateAsHarpagonOld(Time currentTime, Resource resource, IEnumerable cells, int dmax)
-        {
-            //-- Inits
-            float allocatedDemand = 0.0f;
-            AllocationContext context = new AllocationContext();
-            context.Build(resource, cells);
-
-            float[,] allocationTable = new float[context.DemandCells.Count, context.Stocks.Count];
-
-            //-- For each distance from 0 to dmax, and as long as there are unsatisfied Demands
-            for (int distance = 0; (distance < dmax) && (allocatedDemand < context.TotalDemand); distance++)
-            {
-                //-- For each non-fully allocated Stock which have one or more yet-unsatisfied Demands at this distance
-                for (int j = 0; j < context.StockCells.Count; j++)
-                {
-                    Cell stockCell = context.StockCells[j];
-                    float remainingStock = context.Stocks[j][resource.Id] - AlreadyAllocatedStock(j, allocationTable);
-                    if (remainingStock > 0.0f)
-                    {
-                        List<int> foundDemands = new List<int>();
-                        for (int i = 0; i < context.DemandCells.Count; i++)
-                        {
-                            if ((context.DemandCells[i].DistanceTo(stockCell) == distance) &&
-                                (AlreadyAllocatedDemand(i, allocationTable) < context.DemandValues[i]))
-                            {
-                                foundDemands.Add(i);
-                            }
-                        }
-
-                        //-- For each demand at this distance
-                        foreach (int i in foundDemands)
-                        {
-                            //-- Allocate to this demand what's left of the stock / foundDemands.Count
-                            // TODO: Some fair sharing could still happens at this level if a Stock is shared among several Demands.
-                            float unsatisfiedDemand =
-                                context.DemandValues[i] - AlreadyAllocatedDemand(i, allocationTable);
-                            float allocated = Math.Min(remainingStock / foundDemands.Count, unsatisfiedDemand);
-                            allocationTable[i, j] += allocated;
-                            allocatedDemand += allocated;
-                        }
                     }
                 }
             }
