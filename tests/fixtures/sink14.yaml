@@ -1,4 +1,4 @@
-# Test of Sinks: Nearest distribution, split case
+# Test of Sinks: Nearest distribution, more sophisticated example
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -9,7 +9,7 @@
 format: WorldSim
 type: scenario
 version: "0.2"
-modDate: 2021-04-14T15:00+02:00
+modDate: 2021-04-21T17:00+02:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -33,7 +33,8 @@ resources:
     description: A primary fossile energy that generates lots of CO2
     type: stock
     unit_id: mass-t
-    distribution: nearest   # Demanding cells try to get as much as possible from nearest stocks
+    distribution: nearest   # Demanding cells try to get from stocks located at exactly range distance
+    range: 2
 
 # List of KPIs to track
 kpis:
@@ -51,30 +52,40 @@ time:
 
 # Map
 map:
-  sizeX: 3
-  sizeY: 1
+  sizeX: 4
+  sizeY: 4
   Cells:
-    - x: 0    # D1
+    - x: 3    # D1
       y: 0
       jm2_id: sink
       jm2_init:
         resource_id: coal
         consumption: 300
-    - x: 1    # S1
-      y: 0
+    - x: 2    # S1
+      y: 1
       stocks:
         - resource_id: coal
-          stock: 300
-    - x: 2    # D2
-      y: 0
+          stock: 200
+    - x: 0    # S2
+      y: 2
+      stocks:
+        - resource_id: coal
+          stock: 100
+    - x: 0    # D2
+      y: 3
       jm2_id: sink
       jm2_init:
         resource_id: coal
-        consumption: 600
+        consumption: 200
+    - x: 3    # S2
+      y: 3
+      stocks:
+        - resource_id: coal
+          stock: 300
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Current Simulation State
 # ----------------------------------------------------------------------------------------------------------------------
 
-currentTime: 1810-01-01
+currentTime: 1800-01-01

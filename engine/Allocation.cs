@@ -116,30 +116,30 @@ namespace WorldSim.Model
             context.Build(resource, cells);
 
             //-- Step 1: build the Clusters table
-            float[,] cluster = new float[context.Demands.Count, context.Stocks.Count];
-            for (int i = 0; i < context.Demands.Count; i++)
+            float[,] cluster = new float[context.DemandCells.Count, context.Stocks.Count];
+            for (int i = 0; i < context.DemandCells.Count; i++)
             {
                 for (int j = 0; j < context.Stocks.Count; j++)
                 {
-                    cluster[i, j] = resource.ResourceToDemandConnection(context.StockCells[j], context.Demands[i]);
+                    cluster[i, j] = resource.ResourceToDemandConnection(context.StockCells[j], context.DemandCells[i]);
                 }
             }
 
             //-- Steps 2, 3, 4 and 5:
             float[,] allocationTable = SolomonSpread(cluster, context.StockValues, context.DemandValues);
-            
-            //-- Done: we now know for each demand how much of each stock we'll allocate
-            return new Allocation(resource.Id, context.Demands, context.Stocks, allocationTable);
-        }
 
-        public static float[,] SolomonSpread(float[,] cluster, List<float> stockValues, List<float> demandValues)
+            //-- Done: we now know for each demand how much of each stock we'll allocate
+            return new Allocation(resource.Id, context.DemandCells, context.Stocks, allocationTable);
+        }
+        
+        public static float[,] SolomonSpread(float[,] cluster, float[] stockValues, float[] demandValues)
         {
             //-- Step 2: compute the total of Demand in front of each Stock
-            float[] ds = new float[stockValues.Count];
-            for (int j = 0; j < stockValues.Count; j++)
+            float[] ds = new float[stockValues.Length];
+            for (int j = 0; j < stockValues.Length; j++)
             {
                 ds[j] = 0.0f;
-                for (int i = 0; i < demandValues.Count; i++)
+                for (int i = 0; i < demandValues.Length; i++)
                 {
                     {
                         ds[j] += cluster[i, j] * demandValues[i];
@@ -148,10 +148,10 @@ namespace WorldSim.Model
             }
 
             //-- Step 3: compute the Cluster repartition factor of the Demand
-            float[,] repartition = new float[demandValues.Count, stockValues.Count];
-            for (int i = 0; i < demandValues.Count; i++)
+            float[,] repartition = new float[demandValues.Length, stockValues.Length];
+            for (int i = 0; i < demandValues.Length; i++)
             {
-                for (int j = 0; j < stockValues.Count; j++)
+                for (int j = 0; j < stockValues.Length; j++)
                 {
                     repartition[i, j] =
                         ds[j] != 0.0f ? cluster[i, j] * demandValues[i] / ds[j] : 0.0f;
@@ -159,12 +159,12 @@ namespace WorldSim.Model
             }
 
             //-- Step 4: compute the Stocks available for each Demand, and deduct corrective factors if we have too much
-            float[,] available = new float[demandValues.Count, stockValues.Count];
-            float[] fc = new float[demandValues.Count];
-            for (int i = 0; i < demandValues.Count; i++)
+            float[,] available = new float[demandValues.Length, stockValues.Length];
+            float[] fc = new float[demandValues.Length];
+            for (int i = 0; i < demandValues.Length; i++)
             {
                 float demandSum = 0.0f;
-                for (int j = 0; j < stockValues.Count; j++)
+                for (int j = 0; j < stockValues.Length; j++)
                 {
                     float val = repartition[i, j] * stockValues[j] * cluster[i, j];
                     available[i, j] = val;
@@ -178,10 +178,10 @@ namespace WorldSim.Model
             }
 
             //-- Step 5: compute the Allocation table
-            float[,] allocationTable = new float[demandValues.Count, stockValues.Count];
-            for (int i = 0; i < demandValues.Count; i++)
+            float[,] allocationTable = new float[demandValues.Length, stockValues.Length];
+            for (int i = 0; i < demandValues.Length; i++)
             {
-                for (int j = 0; j < stockValues.Count; j++)
+                for (int j = 0; j < stockValues.Length; j++)
                 {
                     allocationTable[i, j] = available[i, j] * fc[i];
                 }
@@ -201,12 +201,66 @@ namespace WorldSim.Model
         /// <returns>Allocation</returns>
         public static Allocation AllocateAsHarpagon(Time currentTime, Resource resource, IEnumerable cells, int dmax)
         {
+            float allocatedDemand = 0.0f;
+            AllocationContext context = new AllocationContext();
+            context.Build(resource, cells);
+            float[,] allocationTable = new float[context.DemandCells.Count, context.Stocks.Count];
+
+            //-- For each distance from 0 to dmax, and as long as there are unsatisfied Demands
+            for (int distance = 0; (distance < dmax) && (allocatedDemand < context.TotalDemand); distance++)
+            {
+                //-- Build a filtered list of demands and stocks, deducting what was already allocated
+                float[] demands = new float[context.DemandValues.Length];
+                for (int i = 0; i < demands.Length; i++)
+                {
+                    demands[i] = Math.Max(0.0f, context.DemandValues[i] - AlreadyAllocatedDemand(i, allocationTable));
+                }
+
+                float[] stocks = new float[context.StockValues.Length];
+                for (int j = 0; j < context.StockValues.Length; j++)
+                {
+                    stocks[j] = Math.Max(0.0f, context.StockValues[j] - AlreadyAllocatedStock(j, allocationTable));
+                }
+
+                //-- Extract a filtered cluster
+                float[,] cluster = new float[context.DemandCells.Count, context.StockCells.Count];
+                for (int i = 0; i < context.DemandCells.Count; i++)
+                {
+                    for (int j = 0; j < context.StockCells.Count; j++)
+                    {
+                        if ((context.DemandCells[i].DistanceTo(context.StockCells[j]) == distance) &&
+                            (demands[i] > 0.0f) && (stocks[j] > 0.0f))
+                        {
+                            cluster[i, j] = 1.0f;
+                        }
+                    }
+                }
+
+                //-- Perform a Solomon spread on this (filtered) cluster of (filtered) demands and stocks
+                float[,] allocation = SolomonSpread(cluster, stocks, demands);
+                //-- Now add it to the global allocation
+                for (int i = 0; i < context.DemandCells.Count; i++)
+                {
+                    for (int j = 0; j < context.Stocks.Count; j++)
+                    {
+                        allocationTable[i, j] += allocation[i, j];
+                        allocatedDemand += allocation[i, j];
+                    }
+                }
+            }
+
+            //-- Done: we now know for each demand how much of each stock we'll allocate
+            return new Allocation(resource.Id, context.DemandCells, context.Stocks, allocationTable);
+        }
+
+        public static Allocation AllocateAsHarpagonOld(Time currentTime, Resource resource, IEnumerable cells, int dmax)
+        {
             //-- Inits
             float allocatedDemand = 0.0f;
             AllocationContext context = new AllocationContext();
             context.Build(resource, cells);
 
-            float[,] allocationTable = new float[context.Demands.Count, context.Stocks.Count];
+            float[,] allocationTable = new float[context.DemandCells.Count, context.Stocks.Count];
 
             //-- For each distance from 0 to dmax, and as long as there are unsatisfied Demands
             for (int distance = 0; (distance < dmax) && (allocatedDemand < context.TotalDemand); distance++)
@@ -219,9 +273,9 @@ namespace WorldSim.Model
                     if (remainingStock > 0.0f)
                     {
                         List<int> foundDemands = new List<int>();
-                        for (int i = 0; i < context.Demands.Count; i++)
+                        for (int i = 0; i < context.DemandCells.Count; i++)
                         {
-                            if ((context.Demands[i].DistanceTo(stockCell) == distance) &&
+                            if ((context.DemandCells[i].DistanceTo(stockCell) == distance) &&
                                 (AlreadyAllocatedDemand(i, allocationTable) < context.DemandValues[i]))
                             {
                                 foundDemands.Add(i);
@@ -244,12 +298,12 @@ namespace WorldSim.Model
             }
 
             //-- Done: we now know for each demand how much of each stock we'll allocate
-            return new Allocation(resource.Id, context.Demands, context.Stocks, allocationTable);
+            return new Allocation(resource.Id, context.DemandCells, context.Stocks, allocationTable);
         } //AllocateAsHarpagon
 
         private static float AlreadyAllocatedDemand(int i, float[,] allocationTable)
         {
-            //-- Sum what's has already bern allocated for a Demand
+            //-- Sum what's has already been allocated for a Demand
             float allocated = 0.0f;
             for (int j = 0; j <= allocationTable.GetUpperBound(1); j++)
             {
@@ -263,7 +317,7 @@ namespace WorldSim.Model
         {
             //-- Sum what's has already been allocated for a Stock
             float allocated = 0.0f;
-            for (int i = 0; i < allocationTable.GetUpperBound(0); i++)
+            for (int i = 0; i <= allocationTable.GetUpperBound(0); i++)
             {
                 allocated += allocationTable[i, j];
             }
@@ -326,9 +380,9 @@ namespace WorldSim.Model
     {
         public List<IDictionary<string, float>> Stocks { get; }
         public List<Cell> StockCells { get; }
-        public List<float> StockValues { get; }
-        public List<Cell> Demands { get; }
-        public List<float> DemandValues { get; }
+        public float[] StockValues { get; private set; }
+        public List<Cell> DemandCells { get; }
+        public float[] DemandValues { get; private set; }
         public float TotalStock { get; private set; }
         public float TotalDemand { get; private set; }
 
@@ -336,9 +390,9 @@ namespace WorldSim.Model
         {
             Stocks = new List<IDictionary<string, float>>();
             StockCells = new List<Cell>();
-            StockValues = new List<float>();
-            Demands = new List<Cell>();
-            DemandValues = new List<float>();
+            StockValues = null!;
+            DemandCells = new List<Cell>();
+            DemandValues = null!;
             TotalStock = 0.0f;
             TotalDemand = 0.0f;
         }
@@ -353,17 +407,27 @@ namespace WorldSim.Model
                 {
                     StockCells.Add(cell);
                     Stocks.Add(cell.Stocks);
-                    StockValues.Add(stock);
                     TotalStock += stock;
                 }
 
                 float demand = cell.GetDemandFor(resource.Id);
                 if (demand > 0.0f)
                 {
-                    Demands.Add(cell);
+                    DemandCells.Add(cell);
                     TotalDemand += demand;
-                    DemandValues.Add(demand);
                 }
+            }
+
+            StockValues = new float[StockCells.Count];
+            for (int j = 0; j < StockCells.Count; j++)
+            {
+                StockValues[j] = StockCells[j].GetStock(resource.Id);
+            }
+
+            DemandValues = new float[DemandCells.Count];
+            for (int i = 0; i < DemandCells.Count; i++)
+            {
+                DemandValues[i] = DemandCells[i].GetDemandFor(resource.Id);
             }
         }
     }

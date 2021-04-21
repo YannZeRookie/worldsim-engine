@@ -11,8 +11,9 @@ namespace ALGLIB
     /// Code to test the ALGLIB library
     /// See https://www.alglib.net/
     /// NuGet package: https://www.nuget.org/packages/alglib.net/
-    /// Box and linearly constrained optimization: https://www.alglib.net/optimization/boundandlinearlyconstrained.php
+    /// About box and linearly constrained optimization (our interest here): https://www.alglib.net/optimization/boundandlinearlyconstrained.php
     /// minbleic sub package: https://www.alglib.net/translator/man/manual.csharp.html#unit_minbleic
+    /// About optimization: http://www.alglib.net/optimization/
     /// </summary>
     [TestFixture]
     public class ALGLIBTest
