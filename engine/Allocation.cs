@@ -34,8 +34,9 @@ namespace WorldSim.Model
                 switch (resource.Distribution)
                 {
                     case "first":
+                    case "nearest":
                         allocation = Allocation.AllocateAsHarpagon(currentTime, resource, map.Cells,
-                            Math.Max(map.SizeX, map.SizeY));
+                            Math.Max(map.SizeX, map.SizeY), resource.Distribution);
                         break;
                     default:
                         allocation = Allocation.AllocateAsSolomon(currentTime, resource, map.Cells);
@@ -198,13 +199,24 @@ namespace WorldSim.Model
         /// <param name="currentTime">Current simulation Time</param>
         /// <param name="resource"></param>
         /// <param name="cells">List of Cells</param>
+        /// <param name="dmax">Maximum distance for this list of Cells</param>
+        /// <param name="distribution">Distribution mode</param>
         /// <returns>Allocation</returns>
-        public static Allocation AllocateAsHarpagon(Time currentTime, Resource resource, IEnumerable cells, int dmax)
+        public static Allocation AllocateAsHarpagon(Time currentTime, Resource resource, IEnumerable cells, int dmax, string distribution)
         {
             float allocatedDemand = 0.0f;
             AllocationContext context = new AllocationContext();
             context.Build(resource, cells);
             float[,] allocationTable = new float[context.DemandCells.Count, context.Stocks.Count];
+            int[] demandDistances;
+            if (distribution == "nearest")
+            {
+                demandDistances = new int[context.DemandCells.Count];
+            }
+            else
+            {
+                demandDistances = new int[] { };
+            }
 
             //-- For each distance from 0 to dmax, and as long as there are unsatisfied Demands
             for (int distance = 0; (distance < dmax) && (allocatedDemand < context.TotalDemand); distance++)
@@ -226,13 +238,32 @@ namespace WorldSim.Model
                 float[,] cluster = new float[context.DemandCells.Count, context.StockCells.Count];
                 for (int i = 0; i < context.DemandCells.Count; i++)
                 {
-                    for (int j = 0; j < context.StockCells.Count; j++)
+                    int filterDistance;
+                    if (distribution == "nearest")
                     {
-                        if ((context.DemandCells[i].DistanceTo(context.StockCells[j]) == distance) &&
-                            (demands[i] > 0.0f) && (stocks[j] > 0.0f))
+                        filterDistance = NearestDistance(demandDistances[i], dmax, context.DemandCells[i], context.StockCells);
+                        demandDistances[i] = filterDistance; // Keep a copy for each Demand
+                    }
+                    else
+                    {
+                        filterDistance = distance;
+                    }
+
+                    if (filterDistance >= 0)
+                    {
+                        for (int j = 0; j < context.StockCells.Count; j++)
                         {
-                            cluster[i, j] = 1.0f;
+                            if ((context.DemandCells[i].DistanceTo(context.StockCells[j]) == filterDistance) &&
+                                (demands[i] > 0.0f) && (stocks[j] > 0.0f))
+                            {
+                                cluster[i, j] = 1.0f;
+                            }
                         }
+                    }
+
+                    if (distribution == "nearest")
+                    {
+                        demandDistances[i]++;
                     }
                 }
 
@@ -275,6 +306,21 @@ namespace WorldSim.Model
             }
 
             return allocated;
+        }
+
+        private static int NearestDistance(int minDistance, int maxDistance, Cell demand, IList<Cell> stocks)
+        {
+            for (int distance = minDistance; distance < maxDistance; distance++)
+            {
+                foreach (Cell stock in stocks)
+                {
+                    if (demand.DistanceTo(stock) == distance)
+                    {
+                        return distance;
+                    }
+                }
+            }
+            return -1;
         }
 
         /// <summary>

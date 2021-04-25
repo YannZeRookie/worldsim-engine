@@ -763,6 +763,71 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
+        /// Test of the Nearest distribution algorithm
+        /// Simple case, one sink is further but it still gets 50% of the source
+        /// </summary>
+        [Test]
+        public void TestSinksNearest()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink15.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell stock1 = engine.World.Map.Cells[1, 0];
+            ICell sink1 = engine.World.Map.Cells[0, 0];
+            ICell sink2 = engine.World.Map.Cells[3, 0];
+            Assert.AreEqual(100.0f, stock1.GetStock("coal"));
+            Assert.AreEqual("sink", sink1.Jm2.Id);
+            Assert.AreEqual("sink", sink2.Jm2.Id);
+
+            foreach (var cell in engine.World.Map.Cells)
+            {
+                ((Cell) cell).StepPrepare((Time) engine.World.Time);
+            }
+
+            Allocator allocator =
+                Allocator.Allocate((Time) engine.World.Time, engine.World.Resources, (Map) engine.World.Map);
+            Allocation allocation = allocator.Allocations["coal"];
+            // D1 demand:
+            Assert.AreEqual(50.0f, allocation.AllocationTable[0, 0]);
+            // D2 demand:
+            Assert.AreEqual(50.0f, allocation.AllocationTable[1, 0]);
+        }
+        
+        /// <summary>
+        /// Test of the Nearest distribution algorithm
+        /// Unfair case: one Sink grabs a shared source
+        /// </summary>
+        [Test]
+        public void TestSinksUnfairNearest()
+        {
+            Engine engine = new Engine();
+            engine.LoadYaml("../../../fixtures/sink16.yaml", true);
+            Assert.NotNull(engine.World);
+            engine.World.Time.Restart();
+
+            ICell stock1 = engine.World.Map.Cells[0, 0];
+            ICell stock2= engine.World.Map.Cells[2, 0];
+            ICell stock3 = engine.World.Map.Cells[7, 0];
+            ICell sink1 = engine.World.Map.Cells[1, 0];
+            ICell sink2 = engine.World.Map.Cells[4, 0];
+            Assert.AreEqual(100.0f, stock1.GetStock("coal"));
+            Assert.AreEqual(100.0f, stock1.GetStock("coal"));
+            Assert.AreEqual(100.0f, stock1.GetStock("coal"));
+            Assert.AreEqual("sink", sink1.Jm2.Id);
+            Assert.AreEqual("sink", sink2.Jm2.Id);
+
+            engine.World.Time.Step();
+
+            Assert.AreEqual(33.0f, Math.Round(stock1.GetStock("coal")));
+            Assert.AreEqual(17.0f, Math.Round(stock2.GetStock("coal")));
+            Assert.AreEqual(50.0f, Math.Round(stock3.GetStock("coal")));
+            Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
+            Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
+        }
+        
+        /// <summary>
         /// Radius Distribution test
         /// </summary>
         [Test]
