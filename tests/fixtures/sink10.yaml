@@ -33,7 +33,7 @@ resources:
     description: A primary fossile energy that generates lots of CO2
     type: stock
     unit_id: mass-t
-    distribution: nearest   # Demanding cells try to get as much as possible from nearest stocks
+    distribution: first   # Demanding cells try to get as much as possible from first stocks they find near them
 
 # List of KPIs to track
 kpis:

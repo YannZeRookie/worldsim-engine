@@ -1,4 +1,4 @@
-# Test of Sinks: Nearest distribution, more sophisticated example
+# Test of Sinks: First distribution, more sophisticated example
 # Licence: MIT
 # Ogee Foundation https://www.ogeefoundation.org/
 
@@ -33,7 +33,7 @@ resources:
     description: A primary fossile energy that generates lots of CO2
     type: stock
     unit_id: mass-t
-    distribution: nearest   # Demanding cells try to get from stocks located at exactly range distance
+    distribution: first   # Demanding cells try to get as much as possible from first stocks they find near them
     range: 2
 
 # List of KPIs to track

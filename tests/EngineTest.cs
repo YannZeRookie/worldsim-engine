@@ -565,10 +565,10 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Test of the nearest algorithm
+        /// Test of the First distribution algorithm
         /// </summary>
         [Test]
-        public void TestSinksNearest()
+        public void TestSinksFirst()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink09.yaml", true);
@@ -641,10 +641,10 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Nearest distribution, split case
+        /// First distribution, split case
         /// </summary>
         [Test]
-        public void TestSplitNearest()
+        public void TestSplitFirst()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink11.yaml", true);
@@ -678,10 +678,10 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Nearest distribution, sophisticated 2D case
+        /// First distribution, sophisticated 2D case
         /// </summary>
         [Test]
-        public void TestSophisticatedNearest()
+        public void TestSophisticatedFirst()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink14.yaml", true);
@@ -726,10 +726,10 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Nearest Cascade test
+        /// First Cascade test
         /// </summary>
         [Test]
-        public void TestNearestCascade()
+        public void TestFirstCascade()
         {
             Engine engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink12.yaml", true);

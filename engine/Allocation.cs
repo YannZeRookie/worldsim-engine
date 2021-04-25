@@ -33,7 +33,7 @@ namespace WorldSim.Model
                 Resource resource = (Resource) r.Value;
                 switch (resource.Distribution)
                 {
-                    case "nearest":
+                    case "first":
                         allocation = Allocation.AllocateAsHarpagon(currentTime, resource, map.Cells,
                             Math.Max(map.SizeX, map.SizeY));
                         break;
@@ -191,7 +191,7 @@ namespace WorldSim.Model
         }
 
         /// <summary>
-        /// Allocates stocks using a nearest algorithm, i.e. a Demand tries to get
+        /// Allocates stocks using a first algorithm, i.e. a Demand tries to get
         /// as much as possible from the closest stock, and move further only if
         /// still not satisfied.
         /// </summary>

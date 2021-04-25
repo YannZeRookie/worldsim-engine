@@ -30,6 +30,6 @@ Command line samples
     -vv -csv -t 1815-01-01 /Users/yann/dev/worldsim-engine/tests/fixtures/map02.yaml
     -vv -i -g -t 1815-01-01 /Users/yann/dev/worldsim-engine/tests/fixtures/source02.yaml
 
-    Nearest Cascade demo:
+    First Cascade demo:
     -vv -i -g /Users/yann/dev/worldsim-engine/tests/fixtures/sink12.yaml
 
