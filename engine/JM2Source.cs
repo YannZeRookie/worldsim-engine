@@ -24,8 +24,13 @@ namespace WorldSim.Model
 
         public override void Restart()
         {
-            _resourceId = _init["resource_id"] as string;
-            _reserve = _init.ContainsKey("reserve") ? Convert.ToSingle(_init["reserve"]) : null;
+            _resourceId = _init["resource_id"] as string ?? string.Empty;
+            _reserve = null;
+            if (_init.ContainsKey("reserve"))
+            {
+                _reserve = Convert.ToSingle(_init["reserve"]);
+            }
+
             _production = Convert.ToSingle(_init["production"]);
             base.Restart();
         }

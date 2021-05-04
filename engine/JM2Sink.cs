@@ -20,7 +20,11 @@ namespace WorldSim.Model
         public override void Restart()
         {
             _resourceId = _init["resource_id"] as string;
-            _limit = _init.ContainsKey("limit") ? Convert.ToSingle(_init["limit"]) : null;
+            _limit = null;
+            if (_init.ContainsKey("limit"))
+            {
+                _limit = Convert.ToSingle(_init["limit"]);
+            }
             _consumption = Convert.ToSingle(_init["consumption"]);
             base.Restart();
         }

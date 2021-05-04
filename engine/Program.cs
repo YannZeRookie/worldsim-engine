@@ -55,8 +55,18 @@ namespace cli
                 else
                 {
                     if (fileNames.Count < 1) throw new Exception("Missing file name");
-                    DateTime? fromDate = fromDateOption.IsEmpty() ? null : DateTime.Parse(fromDateOption);
-                    DateTime? toDate = toDateOption.IsEmpty() ? null : DateTime.Parse(toDateOption);
+                    DateTime? fromDate = null;
+                    if (!fromDateOption.IsEmpty())
+                    {
+                        fromDate = DateTime.Parse(fromDateOption);
+                    }
+
+                    DateTime? toDate = null;
+                    if (!toDateOption.IsEmpty())
+                    {
+                        toDate = DateTime.Parse(toDateOption);
+                    }
+
                     if (graphic) Console.Clear();
                     // Now run
                     foreach (var fileName in fileNames)
@@ -333,6 +343,7 @@ namespace cli
                         string resPadding = (resPaddingLen > 0) ? new String(' ', resPaddingLen) : "";
                         Console.Write(col + res + resPadding);
                     }
+
                     Console.WriteLine("\u2502");
                 }
             }

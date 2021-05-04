@@ -107,6 +107,20 @@ namespace WorldSim.Model
             }
         }
 
+        public bool Reached(DateTime to)
+        {
+            return Current >= to;
+        }
+
+        public bool ReachedIteration(int to)
+        {
+            return Iteration >= to;
+        }
+
+        public bool Done()
+        {
+            return Reached(End);
+        }
 
         public void RunTo(DateTime targetDate)
         {

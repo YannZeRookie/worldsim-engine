@@ -346,29 +346,20 @@ namespace WorldSim
             /// </summary>
             /// <param name="to">Target date to compare against</param>
             /// <returns>true if the Current time is past the target date</returns>
-            public bool Reached(DateTime to)
-            {
-                return Current >= to;
-            }
+            public bool Reached(DateTime to);
 
             /// <summary>
             ///     Helper method to test the current iteration against a target iteration index
             /// </summary>
             /// <param name="to"></param>
             /// <returns>true if the Current iteration index is past the target index</returns>
-            public bool ReachedIteration(int to)
-            {
-                return Iteration >= to;
-            }
+            public bool ReachedIteration(int to);
 
             /// <summary>
             ///     Helper method testing if the Current time is past the End time, i.e. if the simulation is finished
             /// </summary>
             /// <returns></returns>
-            public bool Done()
-            {
-                return Reached(End);
-            }
+            public bool Done();
         }
 
         /// <summary>
