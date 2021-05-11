@@ -1,102 +1,66 @@
 using System;
 using System.Collections.Generic;
-using ChoETL;
 using WorldSim.API;
 
 namespace WorldSim.Model
 {
     public class Cell : ICell
     {
-        private IDictionary<string, float> _output;
-
         /// <summary>
-        /// Resource demand for the current Iteration
+        ///     Resource demand for the current Iteration
         /// </summary>
-        private IDictionary<string, float> _demand;
+        private readonly IDictionary<string, float> _demand;
 
-        private IDictionary<string, IResource> Resources { get; set; }
-        public IDictionary<string, float> Stocks { get; set; }
-        private IDictionary<string, float> InitialStocks { get; }
-        public Int32 X { get; set; }
-        public Int32 Y { get; set; }
-        public IJM2 Jm2 { get; set; }
+        private readonly IDictionary<string, float> _output;
 
-        public Cell(Int32 x, Int32 y, IDictionary<string, IResource> resources)
+        public Cell(int x, int y, IDictionary<string, IResource> resources)
         {
-            this.X = x;
-            this.Y = y;
-            this.Resources = resources;
-            this.InitialStocks = new Dictionary<string, float>();
-            this.Stocks = new Dictionary<string, float>();
-            foreach (var r in resources)
-            {
-                this.Stocks[r.Key] = 0.0f;
-            }
+            X = x;
+            Y = y;
+            Resources = resources;
+            InitialStocks = new Dictionary<string, float>();
+            Stocks = new Dictionary<string, float>();
+            foreach (var r in resources) Stocks[r.Key] = 0.0f;
 
             _output = new Dictionary<string, float>();
             _demand = new Dictionary<string, float>();
         }
 
-        public string Id()
-        {
-            return X + "-" + Y;
-        }
-
-        public int DistanceTo(Cell cell)
-        {
-            return Math.Max(Math.Abs(cell.X - this.X), Math.Abs(cell.Y - this.Y));
-        }
-
-        public void Restart()
-        {
-            foreach (var r in Resources)
-            {
-                this.Stocks[r.Key] = InitialStocks.ContainsKey(r.Key) ? InitialStocks[r.Key] : 0.0f;
-            }
-
-            ((JM2) Jm2)?.Restart();
-        }
+        private IDictionary<string, IResource> Resources { get; }
+        public IDictionary<string, float> Stocks { get; set; }
+        private IDictionary<string, float> InitialStocks { get; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public IJM2 Jm2 { get; set; }
 
         public float GetStock(string resourceId)
         {
-            return this.Stocks[resourceId];
+            return Stocks[resourceId];
         }
 
         public void SetStock(string resourceId, float stock)
         {
-            this.Stocks[resourceId] = stock;
+            Stocks[resourceId] = stock;
         }
 
         public float GetInitialStock(string resourceId)
         {
-            return this.InitialStocks[resourceId];
+            return InitialStocks[resourceId];
         }
 
         public void SetInitialStock(string resourceId, float stock)
         {
-            this.InitialStocks[resourceId] = stock;
-        }
-
-        public float GetDemandFor(string resourceId)
-        {
-            if (_demand.ContainsKey(resourceId))
-                return _demand[resourceId];
-            return 0.0f;
+            InitialStocks[resourceId] = stock;
         }
 
         public override string ToString()
         {
-            string start = String.Format("Cell[{0},{1}]: ", X, Y);
-            string result = "";
-            foreach (KeyValuePair<string, IResource> r in Resources)
-            {
-                result += r.Value.ValueToString(Stocks[r.Key]) + " ";
-            }
+            var start = string.Format("Cell[{0},{1}]: ", X, Y);
+            var result = "";
+            foreach (var r in Resources) result += r.Value.ValueToString(Stocks[r.Key]) + " ";
 
-            if (!this.Jm2.IsNull() && !this.Jm2.Efficiency.IsNull())
-            {
-                result += String.Format(" Efficiency: {0,3:0}%", this.Jm2.Efficiency * 100.0f);
-            }
+            if (Jm2 != null && Jm2.Efficiency != null)
+                result += string.Format(" Efficiency: {0,3:0}%", Jm2.Efficiency * 100.0f);
 
             return start + result;
         }
@@ -116,6 +80,30 @@ namespace WorldSim.Model
             return Jm2?.ExtraWidth() ?? 0;
         }
 
+        public string Id()
+        {
+            return X + "-" + Y;
+        }
+
+        public int DistanceTo(Cell cell)
+        {
+            return Math.Max(Math.Abs(cell.X - X), Math.Abs(cell.Y - Y));
+        }
+
+        public void Restart()
+        {
+            foreach (var r in Resources) Stocks[r.Key] = InitialStocks.ContainsKey(r.Key) ? InitialStocks[r.Key] : 0.0f;
+
+            ((JM2) Jm2)?.Restart();
+        }
+
+        public float GetDemandFor(string resourceId)
+        {
+            if (_demand.ContainsKey(resourceId))
+                return _demand[resourceId];
+            return 0.0f;
+        }
+
         public void StepPrepare(Time currentTime)
         {
             _output.Clear();
@@ -125,18 +113,16 @@ namespace WorldSim.Model
 
         public void StepExecute(Map map, Time currentTime, Allocator allocator)
         {
-            ((JM2) Jm2)?.Step(this.Stocks, currentTime, allocator, this, _output);
+            ((JM2) Jm2)?.Step(Stocks, currentTime, allocator, this, _output);
         }
 
         public void StepFinalize(Time currentTime)
         {
             foreach (var o in _output)
-            {
                 if (Resources[o.Key].Type == "volatile")
                     Stocks[o.Key] = o.Value;
                 else
                     Stocks[o.Key] += o.Value;
-            }
         }
     }
 }
