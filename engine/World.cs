@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using WorldSim.API;
 
@@ -13,10 +11,10 @@ namespace WorldSim.Model
 
         public World()
         {
-            this.Units = new Dictionary<string, IUnit>();
-            this.Resources = new Dictionary<string, IResource>();
-            this.Kpis = new List<IKpi>();
-            this.Time = new Time(this);
+            Units = new Dictionary<string, IUnit>();
+            Resources = new Dictionary<string, IResource>();
+            Kpis = new List<IKpi>();
+            Time = new Time(this);
         }
 
         //-- Metadata
@@ -32,36 +30,17 @@ namespace WorldSim.Model
         public List<IKpi> Kpis { get; set; }
         public ITime Time { get; set; }
 
-        public IMap Map
-        {
-            get => _map;
-        }
-
-        //-- Background utilities
-        /// <summary>
-        /// Compute the maximum text width of all KPIs
-        /// </summary>
-        /// <returns></returns>
-        public int GetKpisMaxWidth()
-        {
-            int maxWidth = 0;
-            foreach (var kpi in Kpis)
-            {
-                maxWidth = Math.Max(maxWidth, kpi.Name.Length);
-            }
-
-            return maxWidth;
-        }
+        public IMap Map => _map;
 
         /// <summary>
-        /// Compute the various widths and other parameters that will be used for display formating
+        ///     Compute the various widths and other parameters that will be used for display formating
         /// </summary>
         /// <returns>List of various dimensions</returns>
         public IDictionary<string, int> ComputeWidths()
         {
-            int resNamesWidth = 0;
-            int unitNamesWidth = 0;
-            int resWidth = 8;
+            var resNamesWidth = 0;
+            var unitNamesWidth = 0;
+            var resWidth = 8;
             foreach (var resource in Resources.Values)
             {
                 if (resource.Name.Length > resNamesWidth) resNamesWidth = resource.Name.Length;
@@ -69,17 +48,17 @@ namespace WorldSim.Model
                     unitNamesWidth = resource.Unit.Symbol.Length;
             }
 
-            int cellExtraLines = 0;
-            int cellExtraWidth = 0;
-            foreach (ICell cell in _map.Cells)
+            var cellExtraLines = 0;
+            var cellExtraWidth = 0;
+            foreach (var cell in _map.Cells)
             {
-                int extraLines = cell.NbExtraLines();
+                var extraLines = cell.NbExtraLines();
                 if (extraLines > cellExtraLines) cellExtraLines = extraLines;
-                int extraWidth = cell.ExtraWidth();
+                var extraWidth = cell.ExtraWidth();
                 if (extraWidth > cellExtraWidth) cellExtraWidth = extraWidth;
             }
 
-            return new Dictionary<string, int>()
+            return new Dictionary<string, int>
             {
                 {"resNames", resNamesWidth}, // Maximum width of Resource names
                 {"unitNames", unitNamesWidth}, // Maximum width of Resource units
@@ -109,29 +88,26 @@ namespace WorldSim.Model
         public IKpi CreateKpi(string name, string description, string formula, IUnit? unit)
         {
             //-- Resource Sum
-            MatchCollection matches = new Regex(@"^sum\((\w+)\)$").Matches(formula);
+            var matches = new Regex(@"^sum\((\w+)\)$").Matches(formula);
             if (matches.Count == 1)
             {
-                string resourceId = matches.First().Groups[1].Value;
+                var resourceId = matches[0].Groups[1].Value;
                 return new KpiResourceSum(name, description, formula, unit, resourceId);
             }
 
             //-- Iteration number
-            if (formula == "iteration")
-            {
-                return new KpiIteration(name, description, formula, unit);
-            }
+            if (formula == "iteration") return new KpiIteration(name, description, formula, unit);
 
 
             throw new Exception("Error: could not understand formula: " + formula);
         }
 
         // Map Factory
-        public void CreateMap(Int32 sizeX, Int32 sizeY)
+        public void CreateMap(int sizeX, int sizeY)
         {
-            Map map = new Map(sizeX, sizeY);
-            map.Init(this.Resources);
-            this._map = map;
+            var map = new Map(sizeX, sizeY);
+            map.Init(Resources);
+            _map = map;
         }
 
         // JM2 Factory
@@ -154,6 +130,19 @@ namespace WorldSim.Model
             }
         }
 
+        //-- Background utilities
+        /// <summary>
+        ///     Compute the maximum text width of all KPIs
+        /// </summary>
+        /// <returns></returns>
+        public int GetKpisMaxWidth()
+        {
+            var maxWidth = 0;
+            foreach (var kpi in Kpis) maxWidth = Math.Max(maxWidth, kpi.Name.Length);
+
+            return maxWidth;
+        }
+
         //-- Running time
         public void Restart()
         {
@@ -164,25 +153,16 @@ namespace WorldSim.Model
         {
             //-- Run all JM2s on all Cells
             //-- Preparation: each cell will initialize itself and set-up its demand
-            foreach (var cell in this.Map.Cells)
-            {
-                ((Cell) cell).StepPrepare(currentTime);
-            }
+            foreach (var cell in Map.Cells) ((Cell) cell).StepPrepare(currentTime);
 
             // Review all demands and allocate resources to each cell
-            Allocator allocator = Allocator.Allocate(currentTime, Resources, (Map) Map);
+            var allocator = Allocator.Allocate(currentTime, Resources, (Map) Map);
 
             //-- Execution: each cell with produce and/or consume stocks
-            foreach (var cell in this.Map.Cells)
-            {
-                ((Cell) cell).StepExecute((Map) this.Map, currentTime, allocator);
-            }
+            foreach (var cell in Map.Cells) ((Cell) cell).StepExecute((Map) Map, currentTime, allocator);
 
             //-- Finalization: its cell will update its stocks with productions and perform any needed clean-up tasks
-            foreach (var cell in this.Map.Cells)
-            {
-                ((Cell) cell).StepFinalize(currentTime);
-            }
+            foreach (var cell in Map.Cells) ((Cell) cell).StepFinalize(currentTime);
         }
     }
 }

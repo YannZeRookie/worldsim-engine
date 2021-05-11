@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using ChoETL;
 using WorldSim.API;
 
@@ -38,15 +37,15 @@ namespace WorldSim.IO
     public class TimeFileData
     {
         public string StepUnit { get; set; }
-        public Int32 StepValue { get; set; }
+        public int StepValue { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
     }
 
     public class MapFileData
     {
-        public Int32 SizeX { get; set; }
-        public Int32 SizeY { get; set; }
+        public int SizeX { get; set; }
+        public int SizeY { get; set; }
         public CellFileData[] Cells { get; set; }
     }
 
@@ -58,8 +57,8 @@ namespace WorldSim.IO
 
     public class CellFileData
     {
-        public Int32 X { get; set; }
-        public Int32 Y { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
         public StockFileData[] Stocks { get; set; }
         public string Jm2_Id { get; set; }
         public Dictionary<string, object> Jm2_Init { get; set; }
@@ -88,25 +87,26 @@ namespace WorldSim.IO
 
     public class Importer
     {
-        protected IWorld World;
         protected string FileName;
-        public TimeSpan LoadDelay { get; set; }
-        public TimeSpan CurrentStateDelay { get; set; }
+        protected IWorld World;
 
         public Importer(IWorld world, string fileName)
         {
-            this.World = world;
-            this.FileName = fileName;
+            World = world;
+            FileName = fileName;
         }
+
+        public TimeSpan LoadDelay { get; set; }
+        public TimeSpan CurrentStateDelay { get; set; }
 
         public DateTime LoadYaml(bool dontRun = false)
         {
             DateTime currentTime;
-            Stopwatch stopWatch = new Stopwatch();
+            var stopWatch = new Stopwatch();
             stopWatch.Start();
-            using (var r = new ChoYamlReader<YamlFileData>(this.FileName))
+            using (var r = new ChoYamlReader<YamlFileData>(FileName))
             {
-                YamlFileData fileData = r.First();
+                var fileData = r.Read();
                 currentTime = ProcessFileData(fileData, dontRun);
             }
 
@@ -119,83 +119,65 @@ namespace WorldSim.IO
         {
             DateTime currentTime;
             //-- Header
-            if (!String.IsNullOrWhiteSpace(fileData.Type))
-            {
-                this.World.Type = fileData.Type;
-            }
+            if (!string.IsNullOrWhiteSpace(fileData.Type)) World.Type = fileData.Type;
 
-            if (!String.IsNullOrWhiteSpace(fileData.Version))
-            {
-                this.World.Version = fileData.Version;
-            }
+            if (!string.IsNullOrWhiteSpace(fileData.Version)) World.Version = fileData.Version;
 
-            if (!fileData.ModDate.Equals(new DateTime(0)))
-            {
-                this.World.ModDate = fileData.ModDate;
-            }
+            if (!fileData.ModDate.Equals(new DateTime(0))) World.ModDate = fileData.ModDate;
 
-            this.World.Author = fileData.Author;
+            World.Author = fileData.Author;
             //-- Background
             foreach (var u in fileData.Units)
             {
                 if (string.IsNullOrWhiteSpace(u.Id)) throw new Exception("Unit must have an id");
-                this.World.Units.Add(u.Id, this.World.CreateUnit(u.Id, u.Name, u.Description, u.Symbol));
+                World.Units.Add(u.Id, World.CreateUnit(u.Id, u.Name, u.Description, u.Symbol));
             }
 
             foreach (var r in fileData.Resources)
             {
                 if (string.IsNullOrWhiteSpace(r.Id)) throw new Exception("Resource must have an id");
-                this.World.Resources.Add(r.Id,
-                    this.World.CreateResource(r.Id, r.Name, r.Description, r.Type,
-                        string.IsNullOrWhiteSpace(r.Unit_Id) ? null : this.World.Units[r.Unit_Id],
+                World.Resources.Add(r.Id,
+                    World.CreateResource(r.Id, r.Name, r.Description, r.Type,
+                        string.IsNullOrWhiteSpace(r.Unit_Id) ? null : World.Units[r.Unit_Id],
                         r.Distribution, r.Range, r.Attenuation));
             }
 
             foreach (var k in fileData.Kpis)
-            {
-                this.World.Kpis.Add(this.World.CreateKpi(k.Name, k.Description, k.Formula,
-                    !string.IsNullOrEmpty(k.Unit_Id) ? this.World.Units[k.Unit_Id] : null));
-            }
+                World.Kpis.Add(World.CreateKpi(k.Name, k.Description, k.Formula,
+                    !string.IsNullOrEmpty(k.Unit_Id) ? World.Units[k.Unit_Id] : null));
 
-            this.World.Time.StepUnit = fileData.Time.StepUnit switch
+            World.Time.StepUnit = fileData.Time.StepUnit switch
             {
                 "month" => TimeStep.month,
                 "day" => TimeStep.day,
                 _ => TimeStep.year
             };
-            this.World.Time.StepValue = fileData.Time.StepValue;
-            this.World.Time.Start = fileData.Time.Start;
-            this.World.Time.End = fileData.Time.End;
+            World.Time.StepValue = fileData.Time.StepValue;
+            World.Time.Start = fileData.Time.Start;
+            World.Time.End = fileData.Time.End;
 
-            this.World.CreateMap(fileData.Map.SizeX, fileData.Map.SizeY);
+            World.CreateMap(fileData.Map.SizeX, fileData.Map.SizeY);
             foreach (var cell in fileData.Map.Cells)
             {
                 if (cell.Stocks != null)
-                {
                     foreach (var stock in cell.Stocks)
-                    {
-                        this.World.Map.Cells[cell.X, cell.Y].SetInitialStock(stock.Resource_Id, stock.Stock);
-                    }
-                }
+                        World.Map.Cells[cell.X, cell.Y].SetInitialStock(stock.Resource_Id, stock.Stock);
 
                 if (!string.IsNullOrWhiteSpace(cell.Jm2_Id))
                 {
-                    IJM2 jm2 = this.World.CreateJM2(cell.Jm2_Id, cell.Jm2_Init);
-                    this.World.Map.Cells[cell.X, cell.Y].Jm2 = jm2;
+                    var jm2 = World.CreateJM2(cell.Jm2_Id, cell.Jm2_Init);
+                    World.Map.Cells[cell.X, cell.Y].Jm2 = jm2;
                 }
             }
 
             //-- Current Simulation State
-            Stopwatch stopWatch = new Stopwatch();
+            var stopWatch = new Stopwatch();
             stopWatch.Start();
-            currentTime = this.World.Time.Current;
+            currentTime = World.Time.Current;
             if (fileData.CurrentTime.Ticks != DateTime.MinValue.Ticks)
             {
                 currentTime = fileData.CurrentTime;
-                if (!dontRun)
-                {
-                    this.World.Time.Current = fileData.CurrentTime;
-                }
+                if (!dontRun) World.Time.Current = fileData.CurrentTime;
             }
 
             stopWatch.Stop();
