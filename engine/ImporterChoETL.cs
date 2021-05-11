@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
+using ChoETL;
 using WorldSim.API;
-using YamlDotNet.RepresentationModel;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
-namespace WorldSim.IO
+namespace WorldSim.IOChoETL
 {
     public class UnitFileData
     {
@@ -75,6 +71,7 @@ namespace WorldSim.IO
         public string Type { get; set; }
         public string Version { get; set; }
         public DateTime ModDate { get; set; }
+
         public Dictionary<string, string> Author { get; set; }
 
         //-- Background
@@ -107,13 +104,9 @@ namespace WorldSim.IO
             DateTime currentTime;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-
-            using (var fileReader = new StreamReader(FileName))
+            using (var r = new ChoYamlReader<YamlFileData>(FileName))
             {
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(new UnderscoredNamingConvention())
-                    .Build();
-                var fileData = deserializer.Deserialize<YamlFileData>(fileReader);
+                var fileData = r.Read();
                 currentTime = ProcessFileData(fileData, dontRun);
             }
 
@@ -121,53 +114,6 @@ namespace WorldSim.IO
             LoadDelay = stopWatch.Elapsed;
             return currentTime;
         }
-
-        protected string ReadStringIfExists(IDictionary<YamlNode, YamlNode> fileData, string key)
-        {
-            if (fileData.ContainsKey(key))
-            {
-                var element = fileData[key];
-                if (element.NodeType == YamlNodeType.Scalar) return ((YamlScalarNode) element).Value;
-            }
-
-            return "";
-        }
-
-        protected DateTime ReadDateIfExists(IDictionary<YamlNode, YamlNode> fileData, string key)
-        {
-            if (fileData.ContainsKey(key))
-            {
-                var element = fileData[key];
-                if (element.NodeType == YamlNodeType.Scalar)
-                    // Parse the ISO-8601 format
-                    return DateTime.Parse(((YamlScalarNode) element).Value, CultureInfo.InvariantCulture,
-                        DateTimeStyles.None);
-            }
-
-            return new DateTime(0);
-        }
-
-        protected Dictionary<string, string> ReadStringDictIfExists(IDictionary<YamlNode, YamlNode> fileData,
-            string key)
-        {
-            var result = new Dictionary<string, string>();
-
-            if (fileData.ContainsKey(key))
-            {
-                var element = fileData[key];
-                if (element.NodeType == YamlNodeType.Mapping)
-                    foreach (var child in ((YamlMappingNode) element).Children)
-                    {
-                        var name = child.Key.NodeType == YamlNodeType.Scalar ? ((YamlScalarNode) child.Key).Value : "";
-                        if (name != "")
-                        {
-                        }
-                    }
-            }
-
-            return result;
-        }
-
 
         protected DateTime ProcessFileData(YamlFileData fileData, bool dontRun = false)
         {
@@ -180,7 +126,6 @@ namespace WorldSim.IO
             if (!fileData.ModDate.Equals(new DateTime(0))) World.ModDate = fileData.ModDate;
 
             World.Author = fileData.Author;
-
             //-- Background
             foreach (var u in fileData.Units)
             {

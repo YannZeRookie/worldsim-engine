@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using ChoETL;
 using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 
-// Test the YAML importer / exporter with a very basic file
+// Test the ChoETL YAML importer / exporter with a very basic file
 
 namespace ChoETLBasicTests
 {
@@ -17,9 +17,9 @@ namespace ChoETLBasicTests
 
         public Location(string city, string state, string country)
         {
-            this.City = city;
-            this.State = state;
-            this.Country = country;
+            City = city;
+            State = state;
+            Country = country;
         }
 
         [ChoYamlRecordField] public string City { get; set; }
@@ -29,40 +29,34 @@ namespace ChoETLBasicTests
 
     public class Birth
     {
-        private Location _birthLocation;
-        private DateTime _date;
+        private readonly Location _birthLocation;
 
         public Birth()
         {
-            this._birthLocation = new Location();
+            _birthLocation = new Location();
         }
 
-        [ChoYamlRecordField]
-        public DateTime Date
-        {
-            get => _date;
-            set => _date = value;
-        }
+        [ChoYamlRecordField] public DateTime Date { get; set; }
 
         [ChoYamlRecordField]
         public string City
         {
-            get => this._birthLocation.City;
-            set => this._birthLocation.City = value;
+            get => _birthLocation.City;
+            set => _birthLocation.City = value;
         }
 
         [ChoYamlRecordField]
         public string State
         {
-            get => this._birthLocation.State;
-            set => this._birthLocation.State = value;
+            get => _birthLocation.State;
+            set => _birthLocation.State = value;
         }
 
         [ChoYamlRecordField]
         public string Country
         {
-            get => this._birthLocation.Country;
-            set => this._birthLocation.Country = value;
+            get => _birthLocation.Country;
+            set => _birthLocation.Country = value;
         }
     }
 
@@ -113,7 +107,7 @@ namespace ChoETLBasicTests
     }
 
     [TestFixture]
-    public class BasicYamlTests
+    public class BasicChoETLYamlTests
     {
         [SetUp]
         public void Setup()
@@ -124,13 +118,10 @@ namespace ChoETLBasicTests
         public void ReadPeople()
         {
             var parser = new ChoYamlReader<Person>("../../../fixtures/basic.yaml");
-            List<Person> els = new List<Person>();
-            foreach (var e in parser.WithYamlPath("$.people[*]"))
-            {
-                els.Add(e);
-            }
+            var els = new List<Person>();
+            foreach (var e in parser.WithYamlPath("$.people[*]")) els.Add(e);
 
-            Person p = els[0];
+            var p = els[0];
             Assert.AreEqual(2, els.Count);
             Assert.AreEqual(1, els[0].Id);
             Assert.AreEqual("Tom", els[0].Name);
@@ -143,7 +134,7 @@ namespace ChoETLBasicTests
         public void TestSubNodes()
         {
             {
-                string yaml = @"
+                var yaml = @"
 users:
     - name: 1
       teamname: Tom
@@ -175,7 +166,7 @@ users:
         [Test]
         public void TestTwoLists()
         {
-            string yaml = @"
+            var yaml = @"
 creation: 2020-12-26
 author: YannZeRookie
 people:
@@ -234,14 +225,11 @@ cities:
         {
             using (var parser = new ChoYamlReader("../../../fixtures/basic.yaml"))
             {
-                foreach (var e in parser)
-                {
-                    Console.WriteLine(e.Dump());
-                }
+                foreach (var e in parser) Console.WriteLine(e.Dump());
             }
         }
 
-        class PersonData
+        private class PersonData
         {
             public DateTime Creation { get; set; }
             public string Firstname { get; set; }
@@ -252,7 +240,7 @@ cities:
         [Test]
         public void ReadEntireFile1()
         {
-            string yaml = @"
+            var yaml = @"
 creation: 2020-12-26
 firstname: John
 lastname: Doe
@@ -272,17 +260,17 @@ age: 35";
         [Test]
         public void ReadEntireFileAnonymous()
         {
-            string yaml = @"
+            var yaml = @"
 creation: 2020-12-26
 firstname: John
 lastname: Doe
 age: 35";
             using (var parser = ChoYamlReader<IDictionary<string, object>>.LoadText(yaml))
             {
-                IDictionary<string, object> e = parser.First(); // This shows how just to get what we are interested in
-                string firstname = (string) e["firstname"]; // John
-                DateTime creation = DateTime.Parse((string) e["creation"]); // 2020-12-26
-                int age = (int) e["age"]; // 35
+                var e = parser.First(); // This shows how just to get what we are interested in
+                var firstname = (string) e["firstname"]; // John
+                var creation = DateTime.Parse((string) e["creation"]); // 2020-12-26
+                var age = (int) e["age"]; // 35
                 Console.WriteLine(e.Dump());
                 Assert.AreEqual("John", firstname);
                 Assert.AreEqual(new DateTime(2020, 12, 26), creation);
@@ -290,14 +278,14 @@ age: 35";
             }
         }
 
-        class ChildData
+        private class ChildData
         {
             public string Firstname { get; set; }
             public string Lastname { get; set; }
             public DateTime Dob { get; set; }
         }
 
-        class AddressData
+        private class AddressData
         {
             public string Street { get; set; }
             public string City { get; set; }
@@ -306,7 +294,7 @@ age: 35";
             public string Country { get; set; }
         }
 
-        class ParentData
+        private class ParentData
         {
             public DateTime Creation { get; set; }
             public string Firstname { get; set; }
@@ -319,7 +307,7 @@ age: 35";
         [Test]
         public void ReadEntireFile2()
         {
-            string yaml = @"
+            var yaml = @"
 creation: 2020-12-26
 firstname: John
 lastname: Doe
@@ -362,7 +350,7 @@ addresses:
         }
 
 
-        class ChildrenData
+        private class ChildrenData
         {
             public IList<object> Children { get; set; }
         }
@@ -370,7 +358,7 @@ addresses:
         [Test]
         public void ReadAnonymousLists()
         {
-            string yaml = @"
+            var yaml = @"
 children:
 - firstname: Emmanuel
   lastname: Doe
@@ -383,20 +371,20 @@ children:
             {
                 foreach (var e in parser)
                 {
-                    IDictionary<object, object> firstChild = (IDictionary<object, object>) e.Children[0];
-                    string firstname = (string) firstChild["firstname"]; // Emmanuel
+                    var firstChild = (IDictionary<object, object>) e.Children[0];
+                    var firstname = (string) firstChild["firstname"]; // Emmanuel
                     Console.WriteLine(e.Dump());
                     Assert.AreEqual("Emmanuel", firstname);
                 }
             }
         }
 
-        class OwnerData
+        private class OwnerData
         {
             public PossessionData[] Possessions { get; set; }
         }
 
-        class PossessionData
+        private class PossessionData
         {
             public string Type { get; set; }
             public IDictionary<string, object> Description { get; set; }
@@ -405,7 +393,7 @@ children:
         [Test]
         public void ReadDynamicData()
         {
-            string yaml = @"
+            var yaml = @"
 possessions:
 - type: car
   description:
@@ -420,11 +408,8 @@ possessions:
             {
                 foreach (var e in parser)
                 {
-                    string carColor = (string) e.Possessions[0].Description["color"]; // blue
-                    foreach (var p in e.Possessions)
-                    {
-                        Console.WriteLine(p.Description.Dump());
-                    }
+                    var carColor = (string) e.Possessions[0].Description["color"]; // blue
+                    foreach (var p in e.Possessions) Console.WriteLine(p.Description.Dump());
 
                     Assert.AreEqual("blue", carColor);
                 }
@@ -432,12 +417,12 @@ possessions:
         }
 
         /// <summary>
-        /// Test the type of classes that the importer builds when doing a generic import 
+        ///     Test the type of classes that the importer builds when doing a generic import
         /// </summary>
         [Test]
         public void TestClassesDynamicDataFromString()
         {
-            string yaml = @"
+            var yaml = @"
 hello: world
 list:
     - type: car
@@ -479,8 +464,8 @@ list:
         }
 
         /// <summary>
-        /// This is the best way to deal with a dynamic list of dictionaries
-        /// This is better than the method above
+        ///     This is the best way to deal with a dynamic list of dictionaries
+        ///     This is better than the method above
         /// </summary>
         public class DynamicData
         {
@@ -491,7 +476,7 @@ list:
         [Test]
         public void TestClassesDynamicDataUsingRecords()
         {
-            string yaml = @"
+            var yaml = @"
 hello: world
 list:
     - type: car
@@ -510,7 +495,7 @@ list:
                 Assert.AreEqual("car", (string) el.Value);
             }
         }
-        
+
         public class DynamicNestedData
         {
             public string Jm2_Id { get; set; }
@@ -521,7 +506,7 @@ list:
         [Test]
         public void TestNestedDynamicClasses()
         {
-            string yaml = @"
+            var yaml = @"
 jm2_id: factory
 jm2_init:
     opex:
@@ -540,7 +525,7 @@ jm2_init:
                 Assert.AreEqual("factory", elements.Jm2_Id);
                 var item = elements.Jm2_Init.First();
                 Assert.AreEqual("opex", item.Key);
-                Assert.IsInstanceOf<JArray>(item.Value);    // I wished it was a List or a system array
+                Assert.IsInstanceOf<JArray>(item.Value); // I wished it was a List or a system array
             }
         }
     }
