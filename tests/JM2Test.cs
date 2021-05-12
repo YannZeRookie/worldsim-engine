@@ -1,37 +1,27 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using ChoETL;
 using NUnit.Framework;
 using WorldSim.API;
 using WorldSim.Model;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace WorldSim.Engine.Tests
 {
     [TestFixture]
     public class JM2Tests
     {
-        private IDictionary<string, IUnit> _units;
-        private IDictionary<string, IResource> _resources;
-        private IDictionary<string, float> _stocks;
-        private IDictionary<string, float> _output;
-        private IDictionary<string, float> _demand;
-        private Time _time;
-        private Map _map;
-        private Cell _cell;
-        private Allocator _allocator;
-
         [SetUp]
         public void Setup()
         {
-            Unit unit = new Unit("mass", "Mass", "Metric Tons", "T");
+            var unit = new Unit("mass", "Mass", "Metric Tons", "T");
             _units = new Dictionary<string, IUnit>();
             _units.Add("mass", unit);
 
             _resources = new Dictionary<string, IResource>();
             SetupOneResource("coal", "Coal", "Coal is bad", "", unit, null, null, null);
             SetupOneResource("o2", "Oxygen", "Main oxide", "", _units["mass"], null, null, null);
-            SetupOneResource("co2", "Carbon Dioxide", "The root of climate warming", "", _units["mass"], null, null, null);
+            SetupOneResource("co2", "Carbon Dioxide", "The root of climate warming", "", _units["mass"], null, null,
+                null);
 
             _map = new Map(1, 1);
             _map.Init(_resources);
@@ -47,19 +37,29 @@ namespace WorldSim.Engine.Tests
             _time = new Time(null);
         }
 
+        private IDictionary<string, IUnit> _units;
+        private IDictionary<string, IResource> _resources;
+        private IDictionary<string, float> _stocks;
+        private IDictionary<string, float> _output;
+        private IDictionary<string, float> _demand;
+        private Time _time;
+        private Map _map;
+        private Cell _cell;
+        private Allocator _allocator;
+
         private void SetupOneResource(string id, string name, string description, string type, IUnit? unit,
             string? distribution, int? range, float? attenuation)
         {
-            Resource resource = new Resource(id, name, description, type, unit, distribution, range, attenuation);
+            var resource = new Resource(id, name, description, type, unit, distribution, range, attenuation);
             _resources.Add(id, resource);
         }
 
         private void Allocate(string resourceId, float amount)
         {
-            List<Cell> demands = new List<Cell>() { _cell };
-            List<IDictionary<string, float>> stocks = new List<IDictionary<string, float>>() { _stocks };
-            float[,] allocationTable = new float[1, 1] {{amount}};
-            Allocation allocation = new Allocation(resourceId, demands, stocks,allocationTable);
+            var demands = new List<Cell> {_cell};
+            var stocks = new List<IDictionary<string, float>> {_stocks};
+            var allocationTable = new float[1, 1] {{amount}};
+            var allocation = new Allocation(resourceId, demands, stocks, allocationTable);
             _allocator.AddAllocation(resourceId, allocation);
         }
 
@@ -67,12 +67,12 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSource()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"production", 100.0f}
             };
-            JM2Source jm2 = new JM2Source(init);
+            var jm2 = new JM2Source(init);
             Assert.AreEqual("source", jm2.Id);
 
             jm2.Step(_stocks, _time, _allocator, _cell, _output);
@@ -84,13 +84,13 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSourceWithReserve()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"reserve", 50.0f},
                 {"production", 100.0f}
             };
-            JM2Source jm2 = new JM2Source(init);
+            var jm2 = new JM2Source(init);
             Assert.AreEqual("source", jm2.Id);
 
             jm2.Step(_stocks, _time, _allocator, _cell, _output);
@@ -102,19 +102,19 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSourceMinMax()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"reserve", 1000.0f},
                 {"production", 100.0f},
                 {"levelMin", 200.0f},
-                {"levelMax", 400.0f},
+                {"levelMax", 400.0f}
             };
             JM2Source jm2 = new Jm2SourceMinMax(init);
             Assert.AreEqual("sourceMinMax", jm2.Id);
             _stocks["coal"] = 0.0f;
 
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
                 jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 Assert.AreEqual(100.0f, _output["coal"]);
@@ -139,16 +139,16 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestMine()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"reserve", 200.0f},
                 {"production", 100.0f}
             };
-            JM2Mine jm2 = new JM2Mine(init);
+            var jm2 = new JM2Mine(init);
             Assert.AreEqual("mine", jm2.Id);
 
-            Dictionary<string, float> output = new Dictionary<string, float>();
+            var output = new Dictionary<string, float>();
             jm2.Step(_stocks, _time, _allocator, _cell, output);
 
             Assert.AreEqual(100.0f, output["coal"]);
@@ -158,7 +158,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestRecyclingMine()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"reserve", 1000.0f},
@@ -170,7 +170,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("recycling_mine", jm2.Id);
             _stocks["coal"] = 0.0f;
 
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
                 jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 _stocks["coal"] += _output["coal"];
@@ -186,7 +186,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(520.0f, jm2.Reserve());
             Assert.AreEqual(500.0f, _stocks["coal"]);
 
-            for (int i = 6; i < 12; i++)
+            for (var i = 6; i < 12; i++)
             {
                 jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 _stocks["coal"] += _output["coal"];
@@ -202,7 +202,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(0.0f, jm2.Reserve());
             Assert.AreEqual(60.0f, _output["coal"]);
 
-            for (int i = 13; i < 16; i++)
+            for (var i = 13; i < 16; i++)
             {
                 jm2.Step(_stocks, _time, _allocator, _cell, _output);
                 _stocks["coal"] += _output["coal"];
@@ -227,12 +227,12 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSink()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"consumption", 75.0f}
             };
-            JM2Sink jm2 = new JM2Sink(init);
+            var jm2 = new JM2Sink(init);
             Assert.AreEqual("sink", jm2.Id);
             Allocate("coal", 100.0f);
 
@@ -254,12 +254,12 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSinkWithLowAllocation()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"consumption", 100.0f}
             };
-            JM2Sink jm2 = new JM2Sink(init);
+            var jm2 = new JM2Sink(init);
             Assert.AreEqual("sink", jm2.Id);
             Allocate("coal", 50.0f);
 
@@ -275,13 +275,13 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSinkWithLimit()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>()
+            IDictionary<string, object> init = new Dictionary<string, object>
             {
                 {"resource_id", "coal"},
                 {"limit", 50},
                 {"consumption", 100.0f}
             };
-            JM2Sink jm2 = new JM2Sink(init);
+            var jm2 = new JM2Sink(init);
             Assert.AreEqual("sink", jm2.Id);
             Allocate("coal", 50.0f);
 
@@ -291,10 +291,14 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(0.5f, jm2.Efficiency);
         }
 
+        private class YamlInitData : Dictionary<string, object>
+        {
+        }
+
         [Test]
         public void TestFactory()
         {
-            string yaml = @"
+            var yaml = @"
 opex:
   - resource_id: coal
     consumption: 50
@@ -304,8 +308,12 @@ output:
   - resource_id: co2
     production: 1833
 ";
-            var parser = ChoYamlReader<Dictionary<string, object>>.LoadText(yaml);
-            JM2Factory jm2 = new JM2Factory(parser.First());
+            var parser = new DeserializerBuilder()
+                .WithNamingConvention(new UnderscoredNamingConvention())
+                .Build();
+            var p = parser.Deserialize<YamlInitData>(yaml);
+
+            var jm2 = new JM2Factory(p);
             Assert.AreEqual("factory", jm2.Id);
             Allocate("coal", 50.0f);
             Allocate("o2", 1000.0f);
@@ -321,7 +329,7 @@ output:
         [Test]
         public void TestLimitedFactory()
         {
-            string yaml = @"
+            var yaml = @"
 opex:
   - resource_id: coal
     consumption: 50
@@ -331,10 +339,13 @@ output:
   - resource_id: co2
     production: 1800
 ";
-            var parser = ChoYamlReader<Dictionary<string, object>>.LoadText(yaml);
-            JM2Factory jm2 = new JM2Factory(parser.First());
+            var parser = new DeserializerBuilder()
+                .WithNamingConvention(new UnderscoredNamingConvention())
+                .Build();
+            var p = parser.Deserialize<YamlInitData>(yaml);
+            var jm2 = new JM2Factory(p);
             Assert.AreEqual("factory", jm2.Id);
-            Allocate("coal", 25.0f);    // We assign less than requested
+            Allocate("coal", 25.0f); // We assign less than requested
             Allocate("o2", 1000.0f);
 
             jm2.Step(_stocks, _time, _allocator, _cell, _output);

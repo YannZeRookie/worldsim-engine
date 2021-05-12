@@ -12,6 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="ChoETL" Version="1.2.1.16" />
+      <PackageReference Include="Mono.Options" Version="6.6.0.161" />
       <PackageReference Include="YamlDotNet" Version="6.1.2" />
     </ItemGroup>
 
