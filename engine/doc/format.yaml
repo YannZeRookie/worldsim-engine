@@ -26,7 +26,7 @@ type: scenario
 # Version of the WorldSim engine that this file is intended for. See doc about semantic versioning. Required
 version: "0.1"
 # Date of the last update of the file (ISO-8601). Optional
-modDate: 2021-01-02T10:57:43+01:00
+mod_date: 2021-01-02T10:57:43+01:00
 # Author. Optional and all sub-fields optional. Additional fields can be added freely (Twitter nickname, website, etc.)
 author:
   name: Yann Corno
@@ -130,8 +130,8 @@ kpis:
 
 # Time management
 time:
-  stepUnit: year      # Can be "year", "month" or "day". Required
-  stepValue: 1        # Integer. Optional, default is 1. 
+  step_unit: year      # Can be "year", "month" or "day". Required
+  step_value: 1        # Integer. Optional, default is 1. 
   start: 1800-01-01   # Start date. Required
   end: 2200-01-01     # End date if simulation has to stop at some point. Optional
 
@@ -148,9 +148,9 @@ scenario:
 
 # Map
 map:
-  sizeX: 2                  # Number of cells in X
-  sizeY: 2                  # Number of cells in Y
-  Cells:
+  size_x: 2                  # Number of cells in X
+  size_y: 2                  # Number of cells in Y
+  cells:
     - x: 0                  # X coordinate of the cell
       y: 0                  # Y coordinate of the cell
       jm2_id: mine          # ID of the JM2 placed on this map cell. Here: a mine. Having a JM2 on a Cell is optional
@@ -196,7 +196,7 @@ map:
 # Current Time. Optional
 # The simulation data will be fast-forwarded to this date when opened
 # If not supplied, the Current Time will be time.start by default
-currentTime: 1965-01-01
+current_time: 1965-01-01
 
 # Actions & Timelines
 # TODO

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace WorldSim.Model
@@ -21,41 +22,30 @@ namespace WorldSim.Model
         public override void Restart()
         {
             _opex.Clear();
-            /* TODO
-            foreach (var ol in (IEnumerable) _init["opex"])
+            if (_init.ContainsKey("opex"))
             {
-                //ok with string: IDictionary<object, object> ol0 = (IDictionary<object, object>) ol;
-                //ok with file: IDictionary<string, JToken> ol0 = (IDictionary<string, JToken>) ol;
-                // Frankly the following code sucks! Where is my nice OOD gone? All this because the 
-                // YAML reader seems to use different classes wherever I read from a file or a string
-                if (ol is IDictionary<string, JToken> olj)
+                foreach (var ol in (IList) _init["opex"])
                 {
-                    string resourceId = (string) olj["resource_id"];
-                    _opex[resourceId] = Convert.ToSingle(olj["consumption"]);
-                }
-                else if (ol is IDictionary<object, object> olo)
-                {
-                    string resourceId = (string) olo["resource_id"];
-                    _opex[resourceId] = Convert.ToSingle(olo["consumption"]);
+                    if (ol is IDictionary<object, object> olo)
+                    {
+                        string resourceId = (string) olo["resource_id"];
+                        _opex[resourceId] = Convert.ToSingle(olo["consumption"]);
+                    }
                 }
             }
-*/
+
             _output.Clear();
-            /* TODO
-            foreach (var ol in (IEnumerable) _init["output"])
+            if (_init.ContainsKey("output"))
             {
-                if (ol is IDictionary<string, JToken> olj)
+                foreach (var ol in (IList) _init["output"])
                 {
-                    string resourceId = (string) olj["resource_id"];
-                    _output[resourceId] = Convert.ToSingle(olj["production"]);
-                }
-                else if (ol is IDictionary<object, object> olo)
-                {
-                    string resourceId = (string) olo["resource_id"];
-                    _output[resourceId] = Convert.ToSingle(olo["production"]);
+                    if (ol is IDictionary<object, object> olo)
+                    {
+                        string resourceId = (string) olo["resource_id"];
+                        _output[resourceId] = Convert.ToSingle(olo["production"]);
+                    }
                 }
             }
-            */
 
             base.Restart();
         }

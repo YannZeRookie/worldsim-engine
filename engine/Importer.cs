@@ -46,6 +46,13 @@ namespace WorldSim.IO
         public DateTime End { get; set; }
     }
 
+    public class ScenarioData
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string[] Targets  { get; set; }
+    }
+
     public class MapFileData
     {
         public int SizeX { get; set; }
@@ -82,6 +89,7 @@ namespace WorldSim.IO
         public ResourceFileData[] Resources { get; set; }
         public KpiFileData[] Kpis { get; set; }
         public TimeFileData Time { get; set; }
+        public ScenarioData Scenario  { get; set; }
         public MapFileData Map { get; set; }
 
         //-- Current Time
@@ -122,52 +130,6 @@ namespace WorldSim.IO
             return currentTime;
         }
 
-        protected string ReadStringIfExists(IDictionary<YamlNode, YamlNode> fileData, string key)
-        {
-            if (fileData.ContainsKey(key))
-            {
-                var element = fileData[key];
-                if (element.NodeType == YamlNodeType.Scalar) return ((YamlScalarNode) element).Value;
-            }
-
-            return "";
-        }
-
-        protected DateTime ReadDateIfExists(IDictionary<YamlNode, YamlNode> fileData, string key)
-        {
-            if (fileData.ContainsKey(key))
-            {
-                var element = fileData[key];
-                if (element.NodeType == YamlNodeType.Scalar)
-                    // Parse the ISO-8601 format
-                    return DateTime.Parse(((YamlScalarNode) element).Value, CultureInfo.InvariantCulture,
-                        DateTimeStyles.None);
-            }
-
-            return new DateTime(0);
-        }
-
-        protected Dictionary<string, string> ReadStringDictIfExists(IDictionary<YamlNode, YamlNode> fileData,
-            string key)
-        {
-            var result = new Dictionary<string, string>();
-
-            if (fileData.ContainsKey(key))
-            {
-                var element = fileData[key];
-                if (element.NodeType == YamlNodeType.Mapping)
-                    foreach (var child in ((YamlMappingNode) element).Children)
-                    {
-                        var name = child.Key.NodeType == YamlNodeType.Scalar ? ((YamlScalarNode) child.Key).Value : "";
-                        if (name != "")
-                        {
-                        }
-                    }
-            }
-
-            return result;
-        }
-
 
         protected DateTime ProcessFileData(YamlFileData fileData, bool dontRun = false)
         {
@@ -184,8 +146,11 @@ namespace WorldSim.IO
             //-- Background
             foreach (var u in fileData.Units)
             {
-                if (string.IsNullOrWhiteSpace(u.Id)) throw new Exception("Unit must have an id");
-                World.Units.Add(u.Id, World.CreateUnit(u.Id, u.Name, u.Description, u.Symbol));
+                if (u != null)
+                {
+                    if (string.IsNullOrWhiteSpace(u.Id)) throw new Exception("Unit must have an id");
+                    World.Units.Add(u.Id, World.CreateUnit(u.Id, u.Name, u.Description, u.Symbol));
+                }
             }
 
             foreach (var r in fileData.Resources)

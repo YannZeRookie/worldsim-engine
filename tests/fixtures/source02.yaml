@@ -9,7 +9,7 @@
 format: WorldSim
 type: scenario
 version: "0.2"
-modDate: 2021-03-17T16:00+01:00
+mod_date: 2021-03-17T16:00+01:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -43,16 +43,16 @@ kpis:
 
 # Time management
 time:
-  stepUnit: year         # Can be "year", "month" or "day". Required
-  stepValue: 1            # Integer. Optional, default is 1. 
+  step_unit: year         # Can be "year", "month" or "day". Required
+  step_value: 1            # Integer. Optional, default is 1. 
   start: 1800-01-01   # Start date. Required
   end: 1900-01-01   # End date if simulation has to stop at some point. Optional
 
 # Map
 map:
-  sizeX: 2
-  sizeY: 1
-  Cells:
+  size_x: 2
+  size_y: 1
+  cells:
     - x: 0
       y: 0
       jm2_id : sourceMinMax      # A Source with Minimum and Maximum levels
@@ -73,4 +73,4 @@ map:
 # Current Simulation State
 # ----------------------------------------------------------------------------------------------------------------------
 
-currentTime: 1850-01-01
+current_time: 1850-01-01

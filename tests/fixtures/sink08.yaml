@@ -9,7 +9,7 @@
 format: WorldSim
 type: scenario
 version: "0.2"
-modDate: 2021-04-08T12:00+01:00
+mod_date: 2021-04-08T12:00+01:00
 author:
   name: Yann Corno
   email: yann@ogeefoundation.org
@@ -46,16 +46,16 @@ kpis:
 
 # Time management
 time:
-  stepUnit: year
-  stepValue: 1 
+  step_unit: year
+  step_value: 1 
   start: 1800-01-01
   end: 1900-01-01
 
 # Map
 map:
-  sizeX: 4
-  sizeY: 2
-  Cells:
+  size_x: 4
+  size_y: 2
+  cells:
     - x: 0
       y: 0
       stocks:        # Initial stocks
@@ -89,4 +89,4 @@ map:
 # Current Simulation State
 # ----------------------------------------------------------------------------------------------------------------------
 
-currentTime: 1810-01-01
+current_time: 1810-01-01
