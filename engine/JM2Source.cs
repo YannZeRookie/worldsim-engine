@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace WorldSim.Model
 {
@@ -28,10 +29,10 @@ namespace WorldSim.Model
             _reserve = null;
             if (_init.ContainsKey("reserve"))
             {
-                _reserve = Convert.ToSingle(_init["reserve"]);
+                _reserve = Convert.ToSingle(_init["reserve"], CultureInfo.InvariantCulture);
             }
 
-            _production = Convert.ToSingle(_init["production"]);
+            _production = Convert.ToSingle(_init["production"], CultureInfo.InvariantCulture);
             base.Restart();
         }
 
@@ -43,7 +44,7 @@ namespace WorldSim.Model
             float produced = 0.0f;
             if (_reserve != null)
             {
-                float reserve = (float) _reserve;
+                float reserve = (float)_reserve;
                 produced = Math.Min(reserve, productionTarget);
                 Efficiency = (produced < reserve) ? 1.0f : (reserve > 0.0f ? produced / productionTarget : 0.0f);
                 _reserve -= produced;
