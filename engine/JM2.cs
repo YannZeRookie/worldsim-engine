@@ -5,12 +5,15 @@ namespace WorldSim.Model
 {
     public abstract class JM2 : IJM2
     {
-        public JM2()
+        public JM2(IDictionary<string, object> init)
         {
+            _init = init;
             Efficiency = null;
         }
 
         public string Id { get; set; }
+        protected IDictionary<string, object> _init;
+        public IDictionary<string, object> Init { get => _init; }
         public float? Efficiency { get; set; }
 
         public virtual string GetExtraLine(int extraLine)

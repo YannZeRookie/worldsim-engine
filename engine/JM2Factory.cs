@@ -1,19 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace WorldSim.Model
 {
     public class JM2Factory : JM2
     {
-        private IDictionary<string, object> _init;
         private readonly Dictionary<string, float> _opex;
         private readonly Dictionary<string, float> _output;
 
-        public JM2Factory(IDictionary<string, object> init)
+        public JM2Factory(IDictionary<string, object> init) : base(init)
         {
             Id = "factory";
-            _init = init;
             _opex = new Dictionary<string, float>();
             _output = new Dictionary<string, float>();
             Restart();
@@ -29,7 +28,7 @@ namespace WorldSim.Model
                     if (ol is IDictionary<object, object> olo)
                     {
                         string resourceId = (string) olo["resource_id"];
-                        _opex[resourceId] = Convert.ToSingle(olo["consumption"]);
+                        _opex[resourceId] = Convert.ToSingle(olo["consumption"], CultureInfo.InvariantCulture);
                     }
                 }
             }
@@ -42,7 +41,7 @@ namespace WorldSim.Model
                     if (ol is IDictionary<object, object> olo)
                     {
                         string resourceId = (string) olo["resource_id"];
-                        _output[resourceId] = Convert.ToSingle(olo["production"]);
+                        _output[resourceId] = Convert.ToSingle(olo["production"], CultureInfo.InvariantCulture);
                     }
                 }
             }

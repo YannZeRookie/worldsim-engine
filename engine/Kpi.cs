@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using WorldSim.API;
 
 namespace WorldSim.Model
@@ -57,7 +58,7 @@ namespace WorldSim.Model
 
         public override float GetValue(IWorld world)
         {
-            return Convert.ToSingle(world.Time.Iteration);
+            return Convert.ToSingle(world.Time.Iteration, CultureInfo.InvariantCulture);
         }
     }
 }

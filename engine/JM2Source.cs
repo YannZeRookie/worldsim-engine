@@ -9,12 +9,10 @@ namespace WorldSim.Model
         protected string _resourceId;
         protected float? _reserve;
         protected float _production;
-        protected IDictionary<string, object> _init;
 
-        public JM2Source(IDictionary<string, object> init) : base()
+        public JM2Source(IDictionary<string, object> init) : base(init)
         {
             Id = "source";
-            _init = init;
             Restart();
         }
 
@@ -103,12 +101,12 @@ namespace WorldSim.Model
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
             Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
-            if (stocks[_resourceId] >= Convert.ToSingle(_init["levelMax"]))
+            if (stocks[_resourceId] >= Convert.ToSingle(_init["levelMax"], CultureInfo.InvariantCulture))
             {
                 _active = false;
             }
 
-            if (!_active && stocks[_resourceId] < Convert.ToSingle(_init["levelMin"]))
+            if (!_active && stocks[_resourceId] < Convert.ToSingle(_init["levelMin"], CultureInfo.InvariantCulture))
             {
                 _active = true;
             }

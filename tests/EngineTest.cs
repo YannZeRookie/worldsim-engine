@@ -176,6 +176,10 @@ namespace WorldSim.Engine.Tests
             ICell cell = engine.World.Map.Cells[1, 0];
             IJM2 jm2Factory = cell.Jm2;
             Assert.IsNotNull(jm2Factory);
+            IDictionary<string, object> init = jm2Factory.Init;
+            IList opex = (IList) init["opex"];
+            IDictionary<object, object> olo = (IDictionary<object, object>) opex[0];
+            Assert.AreEqual("coal",(string) olo["resource_id"]);
         }
 
         [Test]

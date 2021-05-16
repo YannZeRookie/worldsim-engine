@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace WorldSim.Model
 {
@@ -8,12 +9,10 @@ namespace WorldSim.Model
         private string _resourceId;
         private float? _limit;
         private float _consumption;
-        private IDictionary<string, object> _init;
 
-        public JM2Sink(IDictionary<string, object> init) : base()
+        public JM2Sink(IDictionary<string, object> init) : base(init)
         {
             Id = "sink";
-            _init = init;
             Restart();
         }
 
@@ -23,9 +22,9 @@ namespace WorldSim.Model
             _limit = null;
             if (_init.ContainsKey("limit"))
             {
-                _limit = Convert.ToSingle(_init["limit"]);
+                _limit = Convert.ToSingle(_init["limit"], CultureInfo.InvariantCulture);
             }
-            _consumption = Convert.ToSingle(_init["consumption"]);
+            _consumption = Convert.ToSingle(_init["consumption"], CultureInfo.InvariantCulture);
             base.Restart();
         }
 
