@@ -85,7 +85,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("Coal Stock", kpi.Name);
             engine.World.Time.Restart();
             engine.World.Time.Step();
-            Assert.AreEqual(1000.0f, kpi.GetValue(engine.World));
+            Assert.AreEqual(1000.0f, kpi.GetValue());
         }
 
         [Test]
@@ -879,7 +879,7 @@ namespace WorldSim.Engine.Tests
             engine.World.Time.Restart();
             engine.World.Time.Step();
             engine.World.Time.Step();
-            Assert.AreEqual(2.0f, kpi.GetValue(engine.World));
+            Assert.AreEqual(2.0f, kpi.GetValue());
         }
 
         [Test]
@@ -895,7 +895,7 @@ namespace WorldSim.Engine.Tests
             engine.World.Time.Step();
             Assert.AreEqual(1.0f, cell.GetStock("tech"));
             engine.World.Time.Step();
-            Assert.AreEqual(2.0f, kpi.GetValue(engine.World));
+            Assert.AreEqual(2.0f, kpi.GetValue());
             Assert.AreEqual(2.0f, cell.GetStock("tech"));
         }
 

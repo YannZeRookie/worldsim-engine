@@ -247,8 +247,8 @@ namespace cli
             //-- KPIs
             foreach (var kpi in engine.World.Kpis)
             {
-                Console.WriteLine(kpi.ToString(engine.World, widths["kpiMaxWidth"]));
-                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue(engine.World));
+                Console.WriteLine(kpi.ToString(widths["kpiMaxWidth"]));
+                ((IDictionary<String, Object>) csvRecord).Add(kpi.Name, kpi.GetValue());
             }
 
             Console.WriteLine();

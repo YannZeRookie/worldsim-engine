@@ -249,17 +249,15 @@ namespace WorldSim
             /// <summary>
             ///     Get the value of this KPI at the Current Time
             /// </summary>
-            /// <param name="world">The world to compute the KPI on</param>
             /// <returns>Current Value</returns>
-            public float GetValue(IWorld world);
+            public float GetValue();
 
             /// <summary>
             ///     Display a human-readable version of the KIP, with name + value + unit symbol
             /// </summary>
-            /// <param name="map">The map to compute the KPI on</param>
             /// <param name="padding">Number of padding spaces to reserve to the left of the value</param>
             /// <returns></returns>
-            public string ToString(IWorld world, int padding);
+            public string ToString(int padding);
         }
 
         /// <summary>

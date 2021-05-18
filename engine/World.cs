@@ -92,12 +92,11 @@ namespace WorldSim.Model
             if (matches.Count == 1)
             {
                 var resourceId = matches[0].Groups[1].Value;
-                return new KpiResourceSum(name, description, formula, unit, resourceId);
+                return new KpiResourceSum(this, name, description, formula, unit, resourceId);
             }
 
             //-- Iteration number
-            if (formula == "iteration") return new KpiIteration(name, description, formula, unit);
-
+            if (formula == "iteration") return new KpiIteration(this, name, description, formula, unit);
 
             throw new Exception("Error: could not understand formula: " + formula);
         }
