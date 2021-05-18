@@ -56,8 +56,7 @@ map:
     - x: 0
       y: 0
       stocks:        # Initial stocks
-        - resource_id: coal
-          stock: 100
+        coal: 100
     - x: 1
       y: 0
       jm2_id: sink

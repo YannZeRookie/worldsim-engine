@@ -174,9 +174,8 @@ map:
         consumption: 200    # Annual consumption
     - x: 1
       y: 1
-      stocks:                 # You can define a list of initial stocks in any Cell. Optional.  Format is resource_id: quantity
-        - resource_id: coal     # Resource ID. Required
-          stock: 900            # Value of initial stock. Required
+      stocks:                 # You can define a list of initial stocks in any Cell. Optional. Format is resource_id: quantity
+        coal: 900
       jm2_id: factory         # A factory
       jm2_init:
         opex:                 # List of Operational Expenses, i.e. supplies needed for production. Format is resource_id: quantity

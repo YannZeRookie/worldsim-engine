@@ -56,8 +56,7 @@ map:
     - x: 0
       y: 0
       stocks:             # Initial stocks
-        - resource_id: stuff
-          stock: 100
+        stuff: 100
       jm2_id: source      # A unlimited Source
       jm2_init:
         resource_id: stuff

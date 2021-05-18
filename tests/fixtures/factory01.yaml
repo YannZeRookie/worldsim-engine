@@ -74,10 +74,8 @@ map:
     - x: 0
       y: 0
       stocks:                   # Initial stocks
-        - resource_id: coal
-          stock: 100
-        - resource_id: o2
-          stock: 1000
+        coal: 100
+        o2: 1000
     - x: 1
       y: 0
       jm2_id: factory

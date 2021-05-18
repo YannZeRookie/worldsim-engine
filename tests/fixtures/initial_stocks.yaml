@@ -70,8 +70,7 @@ map:
   - x: 0
     y: 0 
     stocks:           # List of initial stocks in this Cell
-      - resource_id: coal   # Resource ID. Required
-        stock: 900          # Value of initial stock. Required
+      coal: 900
   - x: 1
     y: 0
     jm2_id: factory

@@ -63,8 +63,7 @@ map:
     - x: 1    # S1
       y: 0
       stocks:
-        - resource_id: coal
-          stock: 100
+        coal: 100
     - x: 3    # D2 (further but will still get his 50% share)
       y: 0
       jm2_id: sink

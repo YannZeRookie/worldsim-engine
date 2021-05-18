@@ -60,17 +60,15 @@ namespace WorldSim.IO
         public CellFileData[] Cells { get; set; }
     }
 
-    public class StockFileData
+    public class StockFileData : Dictionary<string, float>
     {
-        public string Resource_Id { get; set; }
-        public float Stock { get; set; }
     }
 
     public class CellFileData
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public StockFileData[] Stocks { get; set; }
+        public StockFileData Stocks { get; set; }
         public string Jm2_Id { get; set; }
         public Dictionary<string, object> Jm2_Init { get; set; }
     }
@@ -181,7 +179,7 @@ namespace WorldSim.IO
             {
                 if (cell.Stocks != null)
                     foreach (var stock in cell.Stocks)
-                        World.Map.Cells[cell.X, cell.Y].SetInitialStock(stock.Resource_Id, stock.Stock);
+                        World.Map.Cells[cell.X, cell.Y].SetInitialStock(stock.Key, stock.Value);
 
                 if (!string.IsNullOrWhiteSpace(cell.Jm2_Id))
                 {
