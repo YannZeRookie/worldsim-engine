@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using WorldSim.API;
 
 namespace WorldSim.Model
 {
@@ -10,7 +10,7 @@ namespace WorldSim.Model
         protected float? _reserve;
         protected float _production;
 
-        public JM2Source(IDictionary<string, object> init) : base(init)
+        public JM2Source(DataDictionary init) : base(init)
         {
             Id = "source";
             Restart();
@@ -23,14 +23,14 @@ namespace WorldSim.Model
 
         public override void Restart()
         {
-            _resourceId = _init["resource_id"] as string ?? string.Empty;
+            _resourceId = _init["resource_id"].StringValue();
             _reserve = null;
             if (_init.ContainsKey("reserve"))
             {
-                _reserve = Convert.ToSingle(_init["reserve"], CultureInfo.InvariantCulture);
+                _reserve = _init["reserve"].FloatValue();
             }
 
-            _production = Convert.ToSingle(_init["production"], CultureInfo.InvariantCulture);
+            _production = _init["production"].FloatValue();
             base.Restart();
         }
 
@@ -93,7 +93,7 @@ namespace WorldSim.Model
     {
         private bool _active = false; // Is production active or not?
 
-        public Jm2SourceMinMax(IDictionary<string, object> init) : base(init)
+        public Jm2SourceMinMax(DataDictionary init) : base(init)
         {
             Id = "sourceMinMax";
         }
@@ -101,12 +101,12 @@ namespace WorldSim.Model
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
             Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
-            if (stocks[_resourceId] >= Convert.ToSingle(_init["levelMax"], CultureInfo.InvariantCulture))
+            if (stocks[_resourceId] >= _init["levelMax"].FloatValue())
             {
                 _active = false;
             }
 
-            if (!_active && stocks[_resourceId] < Convert.ToSingle(_init["levelMin"], CultureInfo.InvariantCulture))
+            if (!_active && stocks[_resourceId] < _init["levelMin"].FloatValue())
             {
                 _active = true;
             }

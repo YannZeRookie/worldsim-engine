@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using WorldSim.API;
 
 namespace WorldSim.Model
 {
     public class JM2Mine : JM2Source
     {
-        public JM2Mine(IDictionary<string, object> init) : base(init)
+        public JM2Mine(DataDictionary init) : base(init)
         {
             Id = "mine";
         }
@@ -18,7 +18,7 @@ namespace WorldSim.Model
         private Int32 _timeInUse = 1;
         private Dictionary<Int32, float> _history;
 
-        public JM2RecyclingMine(IDictionary<string, object> init) : base(init)
+        public JM2RecyclingMine(DataDictionary init) : base(init)
         {
             Id = "recycling_mine";
             _history = new Dictionary<Int32, float>();
@@ -27,8 +27,8 @@ namespace WorldSim.Model
         public override void Restart()
         {
             base.Restart();
-            _recycling = _init.ContainsKey("recycling") ? Convert.ToSingle(_init["recycling"], CultureInfo.InvariantCulture) : 0.0f;
-            _timeInUse = _init.ContainsKey("time_in_use") ? Convert.ToInt32(_init["time_in_use"], CultureInfo.InvariantCulture) : 1;
+            _recycling = _init.ContainsKey("recycling") ? _init["recycling"].FloatValue() : 0.0f;
+            _timeInUse = _init.ContainsKey("time_in_use") ? Convert.ToInt32(_init["time_in_use"].StringValue()) : 1;
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,

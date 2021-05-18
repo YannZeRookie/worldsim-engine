@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using WorldSim.API;
-using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -70,7 +68,7 @@ namespace WorldSim.IO
         public int Y { get; set; }
         public StockFileData Stocks { get; set; }
         public string Jm2_Id { get; set; }
-        public Dictionary<string, object> Jm2_Init { get; set; }
+        public Dictionary<object, object> Jm2_Init { get; set; }
     }
 
     public class YamlFileData
@@ -183,7 +181,7 @@ namespace WorldSim.IO
 
                 if (!string.IsNullOrWhiteSpace(cell.Jm2_Id))
                 {
-                    var jm2 = World.CreateJM2(cell.Jm2_Id, cell.Jm2_Init);
+                    var jm2 = World.CreateJM2(cell.Jm2_Id, DataDictionary.ConvertGenericData(cell.Jm2_Init));
                     World.Map.Cells[cell.X, cell.Y].Jm2 = jm2;
                 }
             }

@@ -120,7 +120,7 @@ namespace WorldSim
             /// <param name="jm2Id">ID of the JM2 to create. Must correspond to something implemented in the Engine</param>
             /// <param name="init">Dictionary of initialization parameters for the JM2. This is very specific to each type of JM2.</param>
             /// <returns>A new JM2 that can be assigned to a Cell</returns>
-            public IJM2 CreateJM2(string jm2Id, IDictionary<string, object> init);
+            public IJM2 CreateJM2(string jm2Id, DataDictionary init);
 
             /// <summary>
             /// Compute the various widths and other parameters that will be used for display formatting purposes
@@ -477,12 +477,12 @@ namespace WorldSim
             /// <summary>
             ///     Get the initialization values of the JM2
             /// </summary>
-            public IDictionary<string, object> Init { get; }
+            public DataDictionary Init { get; }
 
             /// <summary>
             ///     Get the values of the JM2
             /// </summary>
-            public IDictionary<string, object> Values { get; }
+            public DataDictionary Values { get; }
 
             /// <summary>
             ///     The efficiency of the JM2 the last time is was run.

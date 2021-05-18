@@ -67,7 +67,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSource()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"production", 100.0f}
@@ -84,7 +84,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSourceWithReserve()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"reserve", 50.0f},
@@ -102,7 +102,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSourceMinMax()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"reserve", 1000.0f},
@@ -139,7 +139,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestMine()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"reserve", 200.0f},
@@ -158,7 +158,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestRecyclingMine()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"reserve", 1000.0f},
@@ -227,7 +227,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSink()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"consumption", 75.0f}
@@ -254,7 +254,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSinkWithLowAllocation()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"consumption", 100.0f}
@@ -275,7 +275,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSinkWithLimit()
         {
-            IDictionary<string, object> init = new Dictionary<string, object>
+            DataDictionary init = new DataDictionary
             {
                 {"resource_id", "coal"},
                 {"limit", 50},
@@ -291,7 +291,7 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(0.5f, jm2.Efficiency);
         }
 
-        private class YamlInitData : Dictionary<string, object>
+        private class YamlInitData : Dictionary<object, object>
         {
         }
 
@@ -310,7 +310,7 @@ output:
                 .Build();
             var p = parser.Deserialize<YamlInitData>(yaml);
 
-            var jm2 = new JM2Factory(p);
+            var jm2 = new JM2Factory(DataDictionary.ConvertGenericData(p));
             Assert.AreEqual("factory", jm2.Id);
             Allocate("coal", 50.0f);
             Allocate("o2", 1000.0f);
@@ -337,7 +337,7 @@ output:
                 .WithNamingConvention(new UnderscoredNamingConvention())
                 .Build();
             var p = parser.Deserialize<YamlInitData>(yaml);
-            var jm2 = new JM2Factory(p);
+            var jm2 = new JM2Factory(DataDictionary.ConvertGenericData(p));
             Assert.AreEqual("factory", jm2.Id);
             Allocate("coal", 25.0f); // We assign less than requested
             Allocate("o2", 1000.0f);

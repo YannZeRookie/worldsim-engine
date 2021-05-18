@@ -176,10 +176,10 @@ namespace WorldSim.Engine.Tests
             ICell cell = engine.World.Map.Cells[1, 0];
             IJM2 jm2Factory = cell.Jm2;
             Assert.IsNotNull(jm2Factory);
-            IDictionary<string, object> init = jm2Factory.Init;
-            IDictionary<object, object> opex = (IDictionary<object, object>) init["opex"];
+            DataDictionary init = jm2Factory.Init;
+            DataDictionary opex = (DataDictionary) init["opex"];
             Assert.IsTrue(opex.ContainsKey("coal"));
-            Assert.AreEqual("500",(string) opex["coal"]);
+            Assert.AreEqual("500", opex["coal"].StringValue());
         }
 
         [Test]

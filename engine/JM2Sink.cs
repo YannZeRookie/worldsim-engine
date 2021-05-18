@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using WorldSim.API;
 
 namespace WorldSim.Model
 {
@@ -10,7 +10,7 @@ namespace WorldSim.Model
         private float? _limit;
         private float _consumption;
 
-        public JM2Sink(IDictionary<string, object> init) : base(init)
+        public JM2Sink(DataDictionary init) : base(init)
         {
             Id = "sink";
             Restart();
@@ -18,13 +18,13 @@ namespace WorldSim.Model
 
         public override void Restart()
         {
-            _resourceId = _init["resource_id"] as string;
+            _resourceId = _init["resource_id"].StringValue();
             _limit = null;
             if (_init.ContainsKey("limit"))
             {
-                _limit = Convert.ToSingle(_init["limit"], CultureInfo.InvariantCulture);
+                _limit = _init["limit"].FloatValue();
             }
-            _consumption = Convert.ToSingle(_init["consumption"], CultureInfo.InvariantCulture);
+            _consumption = _init["consumption"].FloatValue();
             base.Restart();
         }
 

@@ -1,7 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
+using WorldSim.API;
 
 namespace WorldSim.Model
 {
@@ -10,7 +9,7 @@ namespace WorldSim.Model
         private readonly Dictionary<string, float> _opex;
         private readonly Dictionary<string, float> _output;
 
-        public JM2Factory(IDictionary<string, object> init) : base(init)
+        public JM2Factory(DataDictionary init) : base(init)
         {
             Id = "factory";
             _opex = new Dictionary<string, float>();
@@ -21,20 +20,20 @@ namespace WorldSim.Model
         public override void Restart()
         {
             _opex.Clear();
-            if (_init.ContainsKey("opex") && _init["opex"] is IDictionary<object, object> opex)
+            if (_init.ContainsKey("opex") && _init["opex"] is DataDictionary opex)
             {
                 foreach (var op in opex)
                 {
-                    _opex[(string) op.Key] = Convert.ToSingle(op.Value, CultureInfo.InvariantCulture);
+                    _opex[op.Key] = op.Value.FloatValue();
                 }
             }
 
             _output.Clear();
-            if (_init.ContainsKey("output") && _init["output"] is IDictionary<object, object> output)
+            if (_init.ContainsKey("output") && _init["output"] is DataDictionary output)
             {
                 foreach (var ot in output)
                 {
-                    _output[(string) ot.Key] = Convert.ToSingle(ot.Value, CultureInfo.InvariantCulture);
+                    _output[ot.Key] = ot.Value.FloatValue();
                 }
             }
 

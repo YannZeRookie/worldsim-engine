@@ -110,7 +110,7 @@ namespace WorldSim.Model
         }
 
         // JM2 Factory
-        public IJM2 CreateJM2(string jm2Id, IDictionary<string, object> init)
+        public IJM2 CreateJM2(string jm2Id, DataDictionary init)
         {
             switch (jm2Id)
             {

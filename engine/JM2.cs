@@ -6,22 +6,22 @@ namespace WorldSim.Model
     public abstract class JM2 : IJM2
     {
         public string Id { get; set; }
-        protected IDictionary<string, object> _init;
-        public IDictionary<string, object> Init { get => _init; }
+        protected DataDictionary _init;
+        public DataDictionary Init { get => _init; }
         public float? Efficiency { get; set; }
 
-        public JM2(IDictionary<string, object> init)
+        public JM2(DataDictionary init)
         {
             _init = init;
             Efficiency = null;
         }
 
-        public IDictionary<string, object> Values
+        public DataDictionary Values
         {
             get => GetValues();
         }
 
-        protected virtual IDictionary<string, object> GetValues()
+        protected virtual DataDictionary GetValues()
         {
             //TODO
             return null;
