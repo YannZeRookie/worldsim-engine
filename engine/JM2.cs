@@ -23,8 +23,7 @@ namespace WorldSim.Model
 
         protected virtual DataDictionary GetValues()
         {
-            //TODO
-            return null;
+            return _init;
         }
         
         public virtual string GetExtraLine(int extraLine)
