@@ -300,13 +300,10 @@ namespace WorldSim.Engine.Tests
         {
             var yaml = @"
 opex:
-  - resource_id: coal
-    consumption: 50
-  - resource_id: o2
-    consumption: 1000
+  coal: 50
+  o2: 1000
 output:
-  - resource_id: co2
-    production: 1833
+  co2: 1833
 ";
             var parser = new DeserializerBuilder()
                 .WithNamingConvention(new UnderscoredNamingConvention())
@@ -331,13 +328,10 @@ output:
         {
             var yaml = @"
 opex:
-  - resource_id: coal
-    consumption: 50
-  - resource_id: o2
-    consumption: 1000
+  coal: 50
+  o2: 1000
 output:
-  - resource_id: co2
-    production: 1800
+  co2: 1800
 ";
             var parser = new DeserializerBuilder()
                 .WithNamingConvention(new UnderscoredNamingConvention())

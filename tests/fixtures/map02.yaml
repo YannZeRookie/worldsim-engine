@@ -89,13 +89,10 @@ map:
       jm2_id: factory
       jm2_init:
         opex:
-          - resource_id: coal
-            consumption: 50
-          - resource_id: o2
-            consumption: 100
+          coal: 50
+          o2: 100
         output:
-          - resource_id: co2
-            production: 50
+          co2: 50
     - x: 1
       y: 1
       jm2_id: sink

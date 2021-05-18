@@ -79,11 +79,9 @@ map:
     jm2_id: factory
     jm2_init:         # These are initialization parameters specific to this JM2
       opex:
-        - resource_id: coal
-          consumption: 500
+        coal: 500
       output:
-        - resource_id: co2
-          production: 50
+        co2: 50
 
 
 # ----------------------------------------------------------------------------------------------------------------------

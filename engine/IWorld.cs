@@ -473,11 +473,16 @@ namespace WorldSim
             ///     Identifies the type of JM2: source, sink, factory, etc.
             /// </summary>
             public string Id { get; set; }
-            
+
             /// <summary>
             ///     Get the initialization values of the JM2
             /// </summary>
             public IDictionary<string, object> Init { get; }
+
+            /// <summary>
+            ///     Get the values of the JM2
+            /// </summary>
+            public IDictionary<string, object> Values { get; }
 
             /// <summary>
             ///     The efficiency of the JM2 the last time is was run.

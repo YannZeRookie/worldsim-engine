@@ -69,19 +69,17 @@ map:
   cells:
   - x: 0
     y: 0 
-    stocks:           # List of initial stocks in this Cell. Optional
+    stocks:           # List of initial stocks in this Cell
       - resource_id: coal   # Resource ID. Required
         stock: 900          # Value of initial stock. Required
   - x: 1
     y: 0
     jm2_id: factory
-    jm2_init: # These are initialization parameters specific to this JM2
+    jm2_init:
       opex:
-        - resource_id: coal
-          consumption: 200
+        coal: 200
       output:
-        - resource_id: co2
-          production: 100
+        co2: 100
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Current Simulation State

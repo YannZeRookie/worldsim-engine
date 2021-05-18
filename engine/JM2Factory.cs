@@ -21,28 +21,20 @@ namespace WorldSim.Model
         public override void Restart()
         {
             _opex.Clear();
-            if (_init.ContainsKey("opex"))
+            if (_init.ContainsKey("opex") && _init["opex"] is IDictionary<object, object> opex)
             {
-                foreach (var ol in (IList) _init["opex"])
+                foreach (var op in opex)
                 {
-                    if (ol is IDictionary<object, object> olo)
-                    {
-                        string resourceId = (string) olo["resource_id"];
-                        _opex[resourceId] = Convert.ToSingle(olo["consumption"], CultureInfo.InvariantCulture);
-                    }
+                    _opex[(string) op.Key] = Convert.ToSingle(op.Value, CultureInfo.InvariantCulture);
                 }
             }
 
             _output.Clear();
-            if (_init.ContainsKey("output"))
+            if (_init.ContainsKey("output") && _init["output"] is IDictionary<object, object> output)
             {
-                foreach (var ol in (IList) _init["output"])
+                foreach (var ot in output)
                 {
-                    if (ol is IDictionary<object, object> olo)
-                    {
-                        string resourceId = (string) olo["resource_id"];
-                        _output[resourceId] = Convert.ToSingle(olo["production"], CultureInfo.InvariantCulture);
-                    }
+                    _output[(string) ot.Key] = Convert.ToSingle(ot.Value, CultureInfo.InvariantCulture);
                 }
             }
 

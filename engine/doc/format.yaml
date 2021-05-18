@@ -63,7 +63,7 @@ units:
 # Resources or the physical quantities used by JM2s in this file.
 # These can be what you want as long as they use the units defined earlier in 'units' (or null)
 resources:
-  - id: coal
+  - id: coal              # Resource IDs must be usable as YAML keys, so prefer a [a-zA-Z0-9_-]+ pattern for them
     name: Coal
     description: A primary fossile energy that generates lots of CO2
     type: stock           # Optional, "stock" by default (=carries over each sim iteration). "volatile" when recomputed from 0 at each sim iteration
@@ -174,19 +174,16 @@ map:
         consumption: 200    # Annual consumption
     - x: 1
       y: 1
-      stocks:                 # You can define a list of initial stocks in any Cell. Optional
+      stocks:                 # You can define a list of initial stocks in any Cell. Optional.  Format is resource_id: quantity
         - resource_id: coal     # Resource ID. Required
           stock: 900            # Value of initial stock. Required
       jm2_id: factory         # A factory
       jm2_init:
-        opex:                 # List of Operational Expenses, i.e. supplies needed for production
-          - resource_id: coal   # Resourced ID of the needed resource   
-            consumption: 500    # Annual Consumption of this supply 
-          - resource_id: o2
-            consumption: 1333   # It takes one C atom of 12g and two O atoms of 16g... 
-        output:
-          - resource_id: co2
-            production: 1833    # ...to produce a CO2 molecule of 44g
+        opex:                 # List of Operational Expenses, i.e. supplies needed for production. Format is resource_id: quantity
+          coal: 500             # Annual Consumption of this supply 
+          o2: 1333              # It takes one C atom of 12g and two O atoms of 16g... 
+        output:               # Production output. Format is resource_id: quantity
+          co2: 1833             # ...to produce a CO2 molecule of 44g
 
 
 # ----------------------------------------------------------------------------------------------------------------------
