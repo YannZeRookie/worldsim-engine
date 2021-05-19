@@ -979,9 +979,11 @@ namespace WorldSim.Engine.Tests
             world.Time.Start = new DateTime(1900, 1, 1);
             world.Time.End = new DateTime(1900, 12, 31);
             world.Time.StepUnit = TimeStep.day;
-            Assert.AreEqual(364,
-                world.Time
-                    .LastIteration()); // 1900 is NOT a Leap Year: it is divisible by 4 but it is not divisible by 400 although it is divisible by 100  
+            Assert.AreEqual(364, world.Time.LastIteration());
+            // 1900 is NOT a Leap Year: it is divisible by 4 but it is not divisible by 400 although it is divisible by 100
+            // Verification:
+            world.Time.Current = world.Time.End;
+            Assert.AreEqual(364, world.Time.Iteration);
         }
     }
 }
