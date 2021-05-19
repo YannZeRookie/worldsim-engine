@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using WorldSim.API;
@@ -18,7 +17,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void LoadSimple01Yaml()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml");
             //-- Header
             Assert.NotNull(engine.World);
@@ -28,14 +27,14 @@ namespace WorldSim.Engine.Tests
             //-- Background
             Assert.IsNotNull(engine.World.Units["mass-t"]);
             Assert.IsFalse(engine.World.Units.ContainsKey("toto"));
-            Assert.Throws<System.Collections.Generic.KeyNotFoundException>(() =>
+            Assert.Throws<KeyNotFoundException>(() =>
             {
                 var a = engine.World.Units["toto"];
             });
             Assert.IsNotNull(engine.World.Resources["coal"]);
             Assert.AreEqual("mass-t", engine.World.Resources["coal"].Unit.Id);
 
-            IKpi kpi = engine.World.Kpis[0];
+            var kpi = engine.World.Kpis[0];
             Assert.AreEqual("Coal Stock", kpi.Name);
             Assert.AreEqual("mass-t", kpi.Unit.Id);
 
@@ -59,19 +58,19 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void LoadAndDontRunSimple01Yaml()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml", true);
             Assert.AreEqual(new DateTime(1800, 1, 1), engine.World.Time.Start);
             Assert.AreEqual(engine.World.Time.Start, engine.World.Time.Current);
         }
 
         /// <summary>
-        /// Test that we can read the format demo file
+        ///     Test that we can read the format demo file
         /// </summary>
         [Test]
         public void LoadFormatYaml()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../../engine/doc/format.yaml");
             Assert.NotNull(engine.World);
         }
@@ -79,9 +78,9 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestKpi()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml");
-            IKpi kpi = engine.World.Kpis[0];
+            var kpi = engine.World.Kpis[0];
             Assert.AreEqual("Coal Stock", kpi.Name);
             engine.World.Time.Restart();
             engine.World.Time.Step();
@@ -91,7 +90,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void RunSimple01Yaml()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml");
             engine.World.Time.Restart();
             Assert.AreEqual(0, engine.World.Time.Iteration);
@@ -108,7 +107,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestTimeTravelSimple01()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml");
             //-- Current time
             Assert.AreEqual(165, engine.World.Time.Iteration);
@@ -125,12 +124,12 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Same as TestTimeTravelSimple01() but using the iteration counter
+        ///     Same as TestTimeTravelSimple01() but using the iteration counter
         /// </summary>
         [Test]
         public void TestIterationTravelSimple01()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple01.yaml");
             //-- Current iteration
             Assert.AreEqual(165, engine.World.Time.Iteration);
@@ -149,7 +148,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestTimeTravelSimple02()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple02.yaml");
             //-- Current time
             Assert.AreEqual(165, engine.World.Time.Iteration);
@@ -171,13 +170,13 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void LoadSimple02Yaml()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/simple02.yaml");
-            ICell cell = engine.World.Map.Cells[1, 0];
-            IJM2 jm2Factory = cell.Jm2;
+            var cell = engine.World.Map.Cells[1, 0];
+            var jm2Factory = cell.Jm2;
             Assert.IsNotNull(jm2Factory);
-            DataDictionary init = jm2Factory.Init;
-            DataDictionary opex = (DataDictionary) init["opex"];
+            var init = jm2Factory.Init;
+            var opex = (DataDictionary) init["opex"];
             Assert.IsTrue(opex.ContainsKey("coal"));
             Assert.AreEqual("500", opex["coal"].StringValue());
         }
@@ -185,8 +184,8 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void RunSimple02Yaml()
         {
-            Engine engine = new Engine();
-            engine.LoadYaml("../../../fixtures/simple02.yaml", false);
+            var engine = new Engine();
+            engine.LoadYaml("../../../fixtures/simple02.yaml");
             engine.World.Time.Restart();
             Assert.AreEqual(0, engine.World.Time.Iteration);
             Assert.AreEqual(new DateTime(1800, 1, 1), engine.World.Time.Current);
@@ -218,7 +217,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void RunDepletion01()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/depletion01.yaml");
             engine.World.Time.Restart();
             Assert.AreEqual(0, engine.World.Time.Iteration);
@@ -252,12 +251,12 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void InitialStock01Yaml()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/initial_stocks.yaml", true);
             Assert.NotNull(engine.World);
 
             engine.World.Time.Restart();
-            ICell cell = engine.World.Map.Cells[0, 0];
+            var cell = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(900.0f, cell.GetStock("coal"));
 
             engine.World.Time.Step();
@@ -268,17 +267,17 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSourcesAndSinks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/map02.yaml", true);
             Assert.NotNull(engine.World);
 
-            ICell limitedSource = engine.World.Map.Cells[0, 0];
+            var limitedSource = engine.World.Map.Cells[0, 0];
             Assert.AreEqual("source", limitedSource.Jm2.Id);
-            ICell unlimitedSource = engine.World.Map.Cells[1, 0];
+            var unlimitedSource = engine.World.Map.Cells[1, 0];
             Assert.AreEqual("source", unlimitedSource.Jm2.Id);
-            ICell factory = engine.World.Map.Cells[0, 1];
+            var factory = engine.World.Map.Cells[0, 1];
             Assert.AreEqual("factory", factory.Jm2.Id);
-            ICell sink = engine.World.Map.Cells[1, 1];
+            var sink = engine.World.Map.Cells[1, 1];
             Assert.AreEqual("sink", sink.Jm2.Id);
 
             engine.World.Time.Step();
@@ -299,7 +298,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSimpleFactory()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/factory01.yaml", true);
             engine.World.Time.Restart();
             engine.World.Time.Step();
@@ -312,14 +311,14 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSimpleSink()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink01.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell emptyCell = engine.World.Map.Cells[0, 0];
+            var emptyCell = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(null, emptyCell.Jm2);
-            ICell sink = engine.World.Map.Cells[1, 0];
+            var sink = engine.World.Map.Cells[1, 0];
             Assert.AreEqual("sink", sink.Jm2.Id);
 
             engine.World.Time.Step();
@@ -330,16 +329,16 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSimpleSinkTwoFullStocks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink02.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
+            var emptyCell1 = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(null, emptyCell1.Jm2);
-            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
+            var emptyCell2 = engine.World.Map.Cells[1, 0];
             Assert.AreEqual(null, emptyCell2.Jm2);
-            ICell sink = engine.World.Map.Cells[2, 0];
+            var sink = engine.World.Map.Cells[2, 0];
             Assert.AreEqual("sink", sink.Jm2.Id);
 
             engine.World.Time.Step();
@@ -351,14 +350,14 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSimpleSinkTwoShortStocks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink02B.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
-            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
-            ICell sink1 = engine.World.Map.Cells[2, 0];
+            var emptyCell1 = engine.World.Map.Cells[0, 0];
+            var emptyCell2 = engine.World.Map.Cells[1, 0];
+            var sink1 = engine.World.Map.Cells[2, 0];
 
             engine.World.Time.Step();
 
@@ -370,16 +369,16 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSimpleTwoSinks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink03.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell emptyCell = engine.World.Map.Cells[0, 0];
+            var emptyCell = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(null, emptyCell.Jm2);
-            ICell sink1 = engine.World.Map.Cells[1, 0];
+            var sink1 = engine.World.Map.Cells[1, 0];
             Assert.AreEqual("sink", sink1.Jm2.Id);
-            ICell sink2 = engine.World.Map.Cells[2, 0];
+            var sink2 = engine.World.Map.Cells[2, 0];
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
             engine.World.Time.Step();
@@ -392,10 +391,10 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TwoStocksTwoSinks()
         {
-            float[] demands = new float[] {100, 150};
-            float[] stocks = new float[] {300, 200};
-            float[,] cluster = new float[,] {{1, 1}, {1, 1}};
-            float[,] allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
+            float[] demands = {100, 150};
+            float[] stocks = {300, 200};
+            float[,] cluster = {{1, 1}, {1, 1}};
+            var allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
             Assert.AreEqual(60.0f, Math.Round(allocationTable[0, 0]));
             Assert.AreEqual(40.0f, Math.Round(allocationTable[0, 1]));
             Assert.AreEqual(90.0f, Math.Round(allocationTable[1, 0]));
@@ -405,10 +404,10 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void ThreeStocksOneSharedTwoSinks()
         {
-            float[] demands = new float[] {100, 150};
-            float[] stocks = new float[] {300, 200, 100};
-            float[,] cluster = new float[,] {{1, 1, 0}, {0, 1, 1}};
-            float[,] allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
+            float[] demands = {100, 150};
+            float[] stocks = {300, 200, 100};
+            float[,] cluster = {{1, 1, 0}, {0, 1, 1}};
+            var allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
             Assert.AreEqual(79.0f, Math.Round(allocationTable[0, 0]));
             Assert.AreEqual(21.0f, Math.Round(allocationTable[0, 1]));
             Assert.AreEqual(0.0f, Math.Round(allocationTable[0, 2]));
@@ -420,10 +419,10 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void ThreeShortStocksOneSharedTwoSinks()
         {
-            float[] demands = new float[] {200, 300};
-            float[] stocks = new float[] {100, 200, 150};
-            float[,] cluster = new float[,] {{1, 1, 0}, {0, 1, 1}};
-            float[,] allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
+            float[] demands = {200, 300};
+            float[] stocks = {100, 200, 150};
+            float[,] cluster = {{1, 1, 0}, {0, 1, 1}};
+            var allocationTable = Allocation.SolomonSpread(cluster, stocks, demands);
             Assert.AreEqual(100.0f, Math.Round(allocationTable[0, 0]));
             Assert.AreEqual(80.0f, Math.Round(allocationTable[0, 1]));
             Assert.AreEqual(0.0f, Math.Round(allocationTable[0, 2]));
@@ -435,18 +434,18 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestSimpleTwoShortStocksTwoSinks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink04.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
+            var emptyCell1 = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(null, emptyCell1.Jm2);
-            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
+            var emptyCell2 = engine.World.Map.Cells[1, 0];
             Assert.AreEqual(null, emptyCell2.Jm2);
-            ICell sink1 = engine.World.Map.Cells[2, 0];
+            var sink1 = engine.World.Map.Cells[2, 0];
             Assert.AreEqual("sink", sink1.Jm2.Id);
-            ICell sink2 = engine.World.Map.Cells[3, 0];
+            var sink2 = engine.World.Map.Cells[3, 0];
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
             engine.World.Time.Step();
@@ -458,20 +457,20 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Here we have plenty of initial stock
+        ///     Here we have plenty of initial stock
         /// </summary>
         [Test]
         public void TestSimpleTwoFullStocksTwoSinks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink05.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell emptyCell1 = engine.World.Map.Cells[0, 0];
-            ICell emptyCell2 = engine.World.Map.Cells[1, 0];
-            ICell sink1 = engine.World.Map.Cells[2, 0];
-            ICell sink2 = engine.World.Map.Cells[3, 0];
+            var emptyCell1 = engine.World.Map.Cells[0, 0];
+            var emptyCell2 = engine.World.Map.Cells[1, 0];
+            var sink1 = engine.World.Map.Cells[2, 0];
+            var sink2 = engine.World.Map.Cells[3, 0];
             Assert.AreEqual(300.0f, emptyCell1.GetStock("coal"));
             Assert.AreEqual(200.0f, emptyCell2.GetStock("coal"));
 
@@ -487,16 +486,16 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestLocalThreeStocksOneSharedTwoSinks()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink06.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2 = engine.World.Map.Cells[1, 0];
-            ICell stock3 = engine.World.Map.Cells[2, 0];
-            ICell sink1 = engine.World.Map.Cells[0, 1];
-            ICell sink2 = engine.World.Map.Cells[2, 1];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[1, 0];
+            var stock3 = engine.World.Map.Cells[2, 0];
+            var sink1 = engine.World.Map.Cells[0, 1];
+            var sink2 = engine.World.Map.Cells[2, 1];
             Assert.AreEqual(300.0f, stock1.GetStock("coal"));
             Assert.AreEqual(200.0f, stock2.GetStock("coal"));
             Assert.AreEqual(100.0f, stock3.GetStock("coal"));
@@ -514,16 +513,16 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestLocalTwoCellsDistance()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink07.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2 = engine.World.Map.Cells[2, 0];
-            ICell stock3 = engine.World.Map.Cells[4, 0];
-            ICell sink1 = engine.World.Map.Cells[0, 1];
-            ICell sink2 = engine.World.Map.Cells[4, 1];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[2, 0];
+            var stock3 = engine.World.Map.Cells[4, 0];
+            var sink1 = engine.World.Map.Cells[0, 1];
+            var sink2 = engine.World.Map.Cells[4, 1];
             Assert.AreEqual(300.0f, stock1.GetStock("coal"));
             Assert.AreEqual(200.0f, stock2.GetStock("coal"));
             Assert.AreEqual(100.0f, stock3.GetStock("coal"));
@@ -539,21 +538,21 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Test of the attenuation algorithm
+        ///     Test of the attenuation algorithm
         /// </summary>
         [Test]
         public void TestSinksAttenuation()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink08.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2 = engine.World.Map.Cells[2, 0];
-            ICell stock3 = engine.World.Map.Cells[3, 0];
-            ICell sink1 = engine.World.Map.Cells[0, 1];
-            ICell sink2 = engine.World.Map.Cells[3, 1];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[2, 0];
+            var stock3 = engine.World.Map.Cells[3, 0];
+            var sink1 = engine.World.Map.Cells[0, 1];
+            var sink2 = engine.World.Map.Cells[3, 1];
             Assert.AreEqual(300.0f, stock1.GetStock("coal"));
             Assert.AreEqual(200.0f, stock2.GetStock("coal"));
             Assert.AreEqual(100.0f, stock3.GetStock("coal"));
@@ -569,35 +568,32 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Test of the First distribution algorithm
+        ///     Test of the First distribution algorithm
         /// </summary>
         [Test]
         public void TestSinksFirst()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink09.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2 = engine.World.Map.Cells[3, 0];
-            ICell stock3 = engine.World.Map.Cells[6, 0];
-            ICell sink1 = engine.World.Map.Cells[2, 0];
-            ICell sink2 = engine.World.Map.Cells[5, 0];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[3, 0];
+            var stock3 = engine.World.Map.Cells[6, 0];
+            var sink1 = engine.World.Map.Cells[2, 0];
+            var sink2 = engine.World.Map.Cells[5, 0];
             Assert.AreEqual(200.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock2.GetStock("coal"));
             Assert.AreEqual(100.0f, stock3.GetStock("coal"));
             Assert.AreEqual("sink", sink1.Jm2.Id);
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
-            foreach (var cell in engine.World.Map.Cells)
-            {
-                ((Cell) cell).StepPrepare((Time) engine.World.Time);
-            }
+            foreach (var cell in engine.World.Map.Cells) ((Cell) cell).StepPrepare((Time) engine.World.Time);
 
-            Allocator allocator =
+            var allocator =
                 Allocator.Allocate((Time) engine.World.Time, engine.World.Resources, (Map) engine.World.Map);
-            Allocation allocation = allocator.Allocations["coal"];
+            var allocation = allocator.Allocations["coal"];
             // D1 demand:
             Assert.AreEqual(100.0f, allocation.AllocationTable[0, 0]);
             Assert.AreEqual(100.0f, allocation.AllocationTable[0, 1]);
@@ -609,33 +605,30 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Test of the Philippe's Paradox
+        ///     Test of the Philippe's Paradox
         /// </summary>
         [Test]
         public void TestPhilippeParadox()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink10.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2 = engine.World.Map.Cells[3, 0];
-            ICell sink1 = engine.World.Map.Cells[2, 0];
-            ICell sink2 = engine.World.Map.Cells[5, 0];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[3, 0];
+            var sink1 = engine.World.Map.Cells[2, 0];
+            var sink2 = engine.World.Map.Cells[5, 0];
             Assert.AreEqual(200.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock2.GetStock("coal"));
             Assert.AreEqual("sink", sink1.Jm2.Id);
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
-            foreach (var cell in engine.World.Map.Cells)
-            {
-                ((Cell) cell).StepPrepare((Time) engine.World.Time);
-            }
+            foreach (var cell in engine.World.Map.Cells) ((Cell) cell).StepPrepare((Time) engine.World.Time);
 
-            Allocator allocator =
+            var allocator =
                 Allocator.Allocate((Time) engine.World.Time, engine.World.Resources, (Map) engine.World.Map);
-            Allocation allocation = allocator.Allocations["coal"];
+            var allocation = allocator.Allocations["coal"];
             // D1 demand:
             Assert.AreEqual(0.0f, allocation.AllocationTable[0, 0]);
             Assert.AreEqual(100.0f, allocation.AllocationTable[0, 1]);
@@ -645,31 +638,28 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// First distribution, split case
+        ///     First distribution, split case
         /// </summary>
         [Test]
         public void TestSplitFirst()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink11.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[1, 0];
-            ICell sink1 = engine.World.Map.Cells[0, 0];
-            ICell sink2 = engine.World.Map.Cells[2, 0];
+            var stock1 = engine.World.Map.Cells[1, 0];
+            var sink1 = engine.World.Map.Cells[0, 0];
+            var sink2 = engine.World.Map.Cells[2, 0];
             Assert.AreEqual(300.0f, stock1.GetStock("coal"));
             Assert.AreEqual("sink", sink1.Jm2.Id);
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
-            foreach (var cell in engine.World.Map.Cells)
-            {
-                ((Cell) cell).StepPrepare((Time) engine.World.Time);
-            }
+            foreach (var cell in engine.World.Map.Cells) ((Cell) cell).StepPrepare((Time) engine.World.Time);
 
-            Allocator allocator =
+            var allocator =
                 Allocator.Allocate((Time) engine.World.Time, engine.World.Resources, (Map) engine.World.Map);
-            Allocation allocation = allocator.Allocations["coal"];
+            var allocation = allocator.Allocations["coal"];
             // D1 demand:
             Assert.AreEqual(100.0f, allocation.AllocationTable[0, 0]);
             Assert.AreEqual(200.0f, allocation.AllocationTable[1, 0]);
@@ -682,35 +672,32 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// First distribution, sophisticated 2D case
+        ///     First distribution, sophisticated 2D case
         /// </summary>
         [Test]
         public void TestSophisticatedFirst()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink14.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[2, 1];
-            ICell stock2 = engine.World.Map.Cells[0, 2];
-            ICell stock3 = engine.World.Map.Cells[3, 3];
-            ICell sink1 = engine.World.Map.Cells[3, 0];
-            ICell sink2 = engine.World.Map.Cells[0, 3];
+            var stock1 = engine.World.Map.Cells[2, 1];
+            var stock2 = engine.World.Map.Cells[0, 2];
+            var stock3 = engine.World.Map.Cells[3, 3];
+            var sink1 = engine.World.Map.Cells[3, 0];
+            var sink2 = engine.World.Map.Cells[0, 3];
             Assert.AreEqual(200.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock2.GetStock("coal"));
             Assert.AreEqual(300.0f, stock3.GetStock("coal"));
             Assert.AreEqual("sink", sink1.Jm2.Id);
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
-            foreach (var cell in engine.World.Map.Cells)
-            {
-                ((Cell) cell).StepPrepare((Time) engine.World.Time);
-            }
+            foreach (var cell in engine.World.Map.Cells) ((Cell) cell).StepPrepare((Time) engine.World.Time);
 
-            Allocator allocator =
+            var allocator =
                 Allocator.Allocate((Time) engine.World.Time, engine.World.Resources, (Map) engine.World.Map);
-            Allocation allocation = allocator.Allocations["coal"];
+            var allocation = allocator.Allocations["coal"];
             // D2 demand:
             Assert.AreEqual(100.0f, allocation.AllocationTable[0, 0]); // S2
             Assert.AreEqual(0.0f, allocation.AllocationTable[0, 1]); // S1
@@ -730,19 +717,19 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// First Cascade test
+        ///     First Cascade test
         /// </summary>
         [Test]
         public void TestFirstCascade()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink12.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[1, 0];
-            ICell stock2 = engine.World.Map.Cells[2, 0];
-            ICell sink1 = engine.World.Map.Cells[0, 0];
+            var stock1 = engine.World.Map.Cells[1, 0];
+            var stock2 = engine.World.Map.Cells[2, 0];
+            var sink1 = engine.World.Map.Cells[0, 0];
             Assert.AreEqual(100.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock2.GetStock("coal"));
             Assert.AreEqual("sink", sink1.Jm2.Id);
@@ -767,55 +754,52 @@ namespace WorldSim.Engine.Tests
         }
 
         /// <summary>
-        /// Test of the Nearest distribution algorithm
-        /// Simple case, one sink is further but it still gets 50% of the source
+        ///     Test of the Nearest distribution algorithm
+        ///     Simple case, one sink is further but it still gets 50% of the source
         /// </summary>
         [Test]
         public void TestSinksNearest()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink15.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[1, 0];
-            ICell sink1 = engine.World.Map.Cells[0, 0];
-            ICell sink2 = engine.World.Map.Cells[3, 0];
+            var stock1 = engine.World.Map.Cells[1, 0];
+            var sink1 = engine.World.Map.Cells[0, 0];
+            var sink2 = engine.World.Map.Cells[3, 0];
             Assert.AreEqual(100.0f, stock1.GetStock("coal"));
             Assert.AreEqual("sink", sink1.Jm2.Id);
             Assert.AreEqual("sink", sink2.Jm2.Id);
 
-            foreach (var cell in engine.World.Map.Cells)
-            {
-                ((Cell) cell).StepPrepare((Time) engine.World.Time);
-            }
+            foreach (var cell in engine.World.Map.Cells) ((Cell) cell).StepPrepare((Time) engine.World.Time);
 
-            Allocator allocator =
+            var allocator =
                 Allocator.Allocate((Time) engine.World.Time, engine.World.Resources, (Map) engine.World.Map);
-            Allocation allocation = allocator.Allocations["coal"];
+            var allocation = allocator.Allocations["coal"];
             // D1 demand:
             Assert.AreEqual(50.0f, allocation.AllocationTable[0, 0]);
             // D2 demand:
             Assert.AreEqual(50.0f, allocation.AllocationTable[1, 0]);
         }
-        
+
         /// <summary>
-        /// Test of the Nearest distribution algorithm
-        /// Unfair case: one Sink grabs a shared source
+        ///     Test of the Nearest distribution algorithm
+        ///     Unfair case: one Sink grabs a shared source
         /// </summary>
         [Test]
         public void TestSinksUnfairNearest()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink16.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2= engine.World.Map.Cells[2, 0];
-            ICell stock3 = engine.World.Map.Cells[7, 0];
-            ICell sink1 = engine.World.Map.Cells[1, 0];
-            ICell sink2 = engine.World.Map.Cells[4, 0];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[2, 0];
+            var stock3 = engine.World.Map.Cells[7, 0];
+            var sink1 = engine.World.Map.Cells[1, 0];
+            var sink2 = engine.World.Map.Cells[4, 0];
             Assert.AreEqual(100.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock1.GetStock("coal"));
@@ -830,22 +814,22 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(1.0f, sink1.Jm2.Efficiency);
             Assert.AreEqual(1.0f, sink2.Jm2.Efficiency);
         }
-        
+
         /// <summary>
-        /// Radius Distribution test
+        ///     Radius Distribution test
         /// </summary>
         [Test]
         public void TestRadius()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/sink13.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
 
-            ICell stock1 = engine.World.Map.Cells[0, 0];
-            ICell stock2 = engine.World.Map.Cells[1, 0];
-            ICell stock3 = engine.World.Map.Cells[4, 0];
-            ICell sink1 = engine.World.Map.Cells[2, 0];
+            var stock1 = engine.World.Map.Cells[0, 0];
+            var stock2 = engine.World.Map.Cells[1, 0];
+            var stock3 = engine.World.Map.Cells[4, 0];
+            var sink1 = engine.World.Map.Cells[2, 0];
             Assert.AreEqual(100.0f, stock1.GetStock("coal"));
             Assert.AreEqual(100.0f, stock2.GetStock("coal"));
             Assert.AreEqual(200.0f, stock3.GetStock("coal"));
@@ -862,7 +846,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void CellsShouldBeAbleToHaveNoJM2()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/empty_cells.yaml");
             engine.World.Time.Restart();
             engine.World.Time.Step();
@@ -872,9 +856,9 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void AKpiCanHaveNoUnit()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/nounit_kpi.yaml", true);
-            IKpi kpi = engine.World.Kpis[0];
+            var kpi = engine.World.Kpis[0];
             Assert.IsNull(kpi.Unit);
             engine.World.Time.Restart();
             engine.World.Time.Step();
@@ -885,10 +869,10 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void AResourceCanHaveNoUnit()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/nounit_resource.yaml", true);
-            IKpi kpi = engine.World.Kpis[0];
-            ICell cell = engine.World.Map.Cells[0, 0];
+            var kpi = engine.World.Kpis[0];
+            var cell = engine.World.Map.Cells[0, 0];
             Assert.IsNull(kpi.Unit);
             engine.World.Time.Restart();
             Assert.AreEqual(0.0f, cell.GetStock("tech"));
@@ -902,7 +886,7 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestVolatileStock()
         {
-            Engine engine = new Engine();
+            var engine = new Engine();
             engine.LoadYaml("../../../fixtures/volatile01.yaml", true);
             Assert.NotNull(engine.World);
             engine.World.Time.Restart();
@@ -915,6 +899,89 @@ namespace WorldSim.Engine.Tests
 
             engine.World.Time.Step();
             Assert.AreEqual(100.0f, engine.World.Map.TotalStock("stuff"));
+        }
+
+        [Test]
+        public void TestLastIteration()
+        {
+            var engine = new Engine();
+            engine.LoadYaml("../../../fixtures/simple01.yaml", true);
+            Assert.AreEqual(400, engine.World.Time.LastIteration());
+        }
+
+        [Test]
+        public void TestLastIterationStepValueRound()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1900, 1, 1);
+            world.Time.End = new DateTime(2100, 1, 1);
+            world.Time.StepValue = 2;
+            Assert.AreEqual(100, world.Time.LastIteration());
+        }
+
+        [Test]
+        public void TestLastIterationStepValueOvershot()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1900, 1, 1);
+            world.Time.End = new DateTime(1910, 1, 1);
+            world.Time.StepValue = 3;
+            Assert.AreEqual(4, world.Time.LastIteration());
+            world.Time.Current = world.Time.End;
+            Assert.AreEqual(4, world.Time.Iteration);
+        }
+
+        [Test]
+        public void TestLastIterationMonths()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1900, 1, 1);
+            world.Time.End = new DateTime(1901, 6, 1);
+            world.Time.StepUnit = TimeStep.month;
+            Assert.AreEqual(17, world.Time.LastIteration());
+        }
+
+        [Test]
+        public void TestLastIterationMonthsStepOvershoot()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1900, 1, 1);
+            world.Time.End = new DateTime(1901, 1, 1);
+            world.Time.StepUnit = TimeStep.month;
+            world.Time.StepValue = 5;
+            Assert.AreEqual(3, world.Time.LastIteration());
+        }
+
+        [Test]
+        public void TestLastIterationDays()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1965, 1, 1);
+            world.Time.End = new DateTime(1965, 12, 31);
+            world.Time.StepUnit = TimeStep.day;
+            Assert.AreEqual(364, world.Time.LastIteration());
+        }
+
+        [Test]
+        public void TestLastIterationDaysLeapYear1()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1904, 1, 1);
+            world.Time.End = new DateTime(1904, 12, 31);
+            world.Time.StepUnit = TimeStep.day;
+            Assert.AreEqual(365, world.Time.LastIteration()); // 1904 is a Leap Year
+        }
+
+        [Test]
+        public void TestLastIterationDaysLeapYear2()
+        {
+            var world = new World();
+            world.Time.Start = new DateTime(1900, 1, 1);
+            world.Time.End = new DateTime(1900, 12, 31);
+            world.Time.StepUnit = TimeStep.day;
+            Assert.AreEqual(364,
+                world.Time
+                    .LastIteration()); // 1900 is NOT a Leap Year: it is divisible by 4 but it is not divisible by 400 although it is divisible by 100  
         }
     }
 }

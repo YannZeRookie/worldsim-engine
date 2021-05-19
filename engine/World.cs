@@ -150,18 +150,21 @@ namespace WorldSim.Model
 
         public void Step(Time currentTime)
         {
-            //-- Run all JM2s on all Cells
-            //-- Preparation: each cell will initialize itself and set-up its demand
-            foreach (var cell in Map.Cells) ((Cell) cell).StepPrepare(currentTime);
+            if (Map != null)
+            {
+                //-- Run all JM2s on all Cells
+                //-- Preparation: each cell will initialize itself and set-up its demand
+                foreach (var cell in Map.Cells) ((Cell) cell).StepPrepare(currentTime);
 
-            // Review all demands and allocate resources to each cell
-            var allocator = Allocator.Allocate(currentTime, Resources, (Map) Map);
+                // Review all demands and allocate resources to each cell
+                var allocator = Allocator.Allocate(currentTime, Resources, (Map) Map);
 
-            //-- Execution: each cell with produce and/or consume stocks
-            foreach (var cell in Map.Cells) ((Cell) cell).StepExecute((Map) Map, currentTime, allocator);
+                //-- Execution: each cell with produce and/or consume stocks
+                foreach (var cell in Map.Cells) ((Cell) cell).StepExecute((Map) Map, currentTime, allocator);
 
-            //-- Finalization: its cell will update its stocks with productions and perform any needed clean-up tasks
-            foreach (var cell in Map.Cells) ((Cell) cell).StepFinalize(currentTime);
+                //-- Finalization: its cell will update its stocks with productions and perform any needed clean-up tasks
+                foreach (var cell in Map.Cells) ((Cell) cell).StepFinalize(currentTime);
+            }
         }
     }
 }

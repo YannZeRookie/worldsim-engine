@@ -90,8 +90,10 @@ namespace WorldSim
             /// <param name="type">The type of the Resource. "stock" for now</param>
             /// <param name="unit">The Unit used by this Resource</param>
             /// <param name="distribution">How the Resource is available across the map. "spread" by default</param>
-            /// <param name="range">If distribution="local", define the distance under which stocks can be used. 1 by default.
-            ///                     If distribution="attenuation", define the distance where it gets the attenuation value</param>
+            /// <param name="range">
+            ///     If distribution="local", define the distance under which stocks can be used. 1 by default.
+            ///     If distribution="attenuation", define the distance where it gets the attenuation value
+            /// </param>
             /// <param name="attenuation">The attenuation factor at range. Used only if distribution="attenuation"</param>
             /// <returns>A new Resource that can be added to the World's list of Resources</returns>
             public IResource CreateResource(string id, string name, string description, string type, IUnit? unit,
@@ -123,7 +125,7 @@ namespace WorldSim
             public IJM2 CreateJM2(string jm2Id, DataDictionary init);
 
             /// <summary>
-            /// Compute the various widths and other parameters that will be used for display formatting purposes
+            ///     Compute the various widths and other parameters that will be used for display formatting purposes
             /// </summary>
             /// <returns>List of various dimensions</returns>
             public IDictionary<string, int> ComputeWidths();
@@ -199,21 +201,21 @@ namespace WorldSim
             public IUnit? Unit { get; set; }
 
             /// <summary>
-            /// If Distribution == "local": distance radius of available stocks
-            /// If Distribution == "attenuation": distance where attenuation is Attenuation
-            /// Ignored for other types of Distributions.
-            /// Default is 1
+            ///     If Distribution == "local": distance radius of available stocks
+            ///     If Distribution == "attenuation": distance where attenuation is Attenuation
+            ///     Ignored for other types of Distributions.
+            ///     Default is 1
             /// </summary>
             public int Range { get; set; }
 
             /// <summary>
-            /// If If Distribution == "attenuation": attenuation value at Range
-            /// Ignored for other types of Distributions.
+            ///     If If Distribution == "attenuation": attenuation value at Range
+            ///     Ignored for other types of Distributions.
             /// </summary>
             public float Attenuation { get; set; }
 
             /// <summary>
-            /// Convert a value using this resource name and unit
+            ///     Convert a value using this resource name and unit
             /// </summary>
             /// <param name="value"></param>
             /// <returns></returns>
@@ -292,12 +294,15 @@ namespace WorldSim
             public int StepValue { get; set; }
 
             /// <summary>
-            ///     Start of the simulation
+            ///     Start of the simulation.
+            ///     Setting the Start date resets the Current date
+            ///     to this value and the iteration number to 0.
             /// </summary>
             public DateTime Start { get; set; }
 
             /// <summary>
-            ///     End of the simulation
+            ///     End of the simulation.
+            ///     This date is **included**, i.e. the last iteration will be on this date.
             /// </summary>
             public DateTime End { get; set; }
 
@@ -314,6 +319,11 @@ namespace WorldSim
             ///     However the iteration cannot be set to a negative value.
             /// </summary>
             public int Iteration { get; set; }
+
+            /// <summary>
+            ///     Get the last iteration number, i.e. when Current == End
+            /// </summary>
+            public int LastIteration();
 
             /// <summary>
             ///     Used to adjust annual productions and consumptions based on the Step Unit and Value.
@@ -442,20 +452,20 @@ namespace WorldSim
             public string ToString();
 
             /// <summary>
-            /// Give the cell the possibility to display extra lines of text in a cell
+            ///     Give the cell the possibility to display extra lines of text in a cell
             /// </summary>
             /// <param name="extraLine">Line index</param>
             /// <returns></returns>
             public string GetExtraLine(int extraLine);
 
             /// <summary>
-            /// Get the number of extra lines to display for this cell
+            ///     Get the number of extra lines to display for this cell
             /// </summary>
             /// <returns></returns>
             int NbExtraLines();
 
             /// <summary>
-            /// Allow the cell to add extra width to fit its extra lines
+            ///     Allow the cell to add extra width to fit its extra lines
             /// </summary>
             /// <returns></returns>
             int ExtraWidth();
@@ -493,20 +503,20 @@ namespace WorldSim
 
 
             /// <summary>
-            /// Give the JM2 the possibility to display extra lines of text in a cell
+            ///     Give the JM2 the possibility to display extra lines of text in a cell
             /// </summary>
             /// <param name="extraLine">Line index</param>
             /// <returns></returns>
             string GetExtraLine(int extraLine);
 
             /// <summary>
-            /// Get the number of extra lines to display for this JM2
+            ///     Get the number of extra lines to display for this JM2
             /// </summary>
             /// <returns></returns>
             public int NbExtraLines();
 
             /// <summary>
-            /// Allow the JM2 to add extra width to fit its extra lines
+            ///     Allow the JM2 to add extra width to fit its extra lines
             /// </summary>
             /// <returns></returns>
             int ExtraWidth();

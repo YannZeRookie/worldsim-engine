@@ -5,36 +5,75 @@ namespace WorldSim.Model
 {
     public class Time : ITime
     {
-        private World _world;
         private DateTime _current;
-        private Int32 _iteration;
+        private int _iteration;
+        private DateTime _start;
+        private readonly World _world;
 
         public Time(World world)
         {
-            this.StepUnit = TimeStep.year;
-            this.StepValue = 1;
-            this.Start = new DateTime(1800, 1, 1);
-            this.End = new DateTime(2101, 1, 1);
+            StepUnit = TimeStep.year;
+            StepValue = 1;
+            _start = new DateTime(1800, 1, 1);
+            End = new DateTime(2101, 1, 1);
             _world = world;
-            _current = this.Start;
+            _current = Start;
             _iteration = 0;
         }
 
         public TimeStep StepUnit { get; set; }
-        public Int32 StepValue { get; set; }
-        public DateTime Start { get; set; }
+        public int StepValue { get; set; }
+
+        public DateTime Start
+        {
+            get => _start;
+            set
+            {
+                _start = value;
+                _current = _start;
+                _iteration = 0;
+            }
+        }
+
         public DateTime End { get; set; }
 
         public DateTime Current
         {
             get => _current;
-            set { RunTo(value); }
+            set => RunTo(value);
         }
 
-        public Int32 Iteration
+        public int Iteration
         {
             get => _iteration;
-            set { IterateTo(value); }
+            set => IterateTo(value);
+        }
+
+        public int LastIteration()
+        {
+            switch (StepUnit)
+            {
+                case TimeStep.year:
+                    if ((End.Year - Start.Year) % StepValue == 0)
+                        return (End.Year - Start.Year) / StepValue;
+                    else
+                        return 1 + (End.Year - Start.Year) / StepValue;
+                case TimeStep.month:
+                    var months = (End.Year - Start.Year) * 12;
+                    months += End.Month - Start.Month;
+                    if (months % StepValue == 0)
+                        return months / StepValue;
+                    else
+                        return 1 + months / StepValue;
+                case TimeStep.day:
+                    var days = (End - Start).Days; // It's magic
+                    if (days % StepValue == 0)
+                        return days / StepValue;
+                    else
+                        return 1 + days / StepValue;
+            }
+
+            return 0;
         }
 
         public float GetAnnualDivider()
@@ -47,13 +86,9 @@ namespace WorldSim.Model
                     return 12.0f / StepValue;
                 case TimeStep.day:
                     if (DateTime.IsLeapYear(Current.Year))
-                    {
                         return 365.0f / StepValue;
-                    }
                     else
-                    {
                         return 365.0f / StepValue;
-                    }
             }
 
             return 1.0f;
@@ -61,23 +96,23 @@ namespace WorldSim.Model
 
         public void Restart()
         {
-            _current = this.Start;
+            _current = Start;
             _iteration = 0;
             _world?.Restart();
         }
 
         public void Step()
         {
-            switch (this.StepUnit)
+            switch (StepUnit)
             {
                 case TimeStep.month:
-                    _current = _current.AddMonths(this.StepValue);
+                    _current = _current.AddMonths(StepValue);
                     break;
                 case TimeStep.day:
-                    _current = _current.AddDays(this.StepValue);
+                    _current = _current.AddDays(StepValue);
                     break;
                 default:
-                    _current = _current.AddYears(this.StepValue);
+                    _current = _current.AddYears(StepValue);
                     break;
             }
 
@@ -90,16 +125,16 @@ namespace WorldSim.Model
             if (_iteration > 0)
             {
                 DateTime newCurrent;
-                switch (this.StepUnit)
+                switch (StepUnit)
                 {
                     case TimeStep.month:
-                        newCurrent = _current.AddMonths(-this.StepValue);
+                        newCurrent = _current.AddMonths(-StepValue);
                         break;
                     case TimeStep.day:
-                        newCurrent = _current.AddDays(-this.StepValue);
+                        newCurrent = _current.AddDays(-StepValue);
                         break;
                     default:
-                        newCurrent = _current.AddYears(-this.StepValue);
+                        newCurrent = _current.AddYears(-StepValue);
                         break;
                 }
 
@@ -125,32 +160,22 @@ namespace WorldSim.Model
         public void RunTo(DateTime targetDate)
         {
             if (targetDate < _current)
-            {
                 // We need to go back to square one before fast-forwarding
                 Restart();
-            }
 
             // Now just fast forward
-            while (targetDate > _current)
-            {
-                Step();
-            }
+            while (targetDate > _current) Step();
         }
 
-        public void IterateTo(Int32 iteration)
+        public void IterateTo(int iteration)
         {
             iteration = Math.Max(0, iteration);
             if (iteration < _iteration)
-            {
                 // We need to go back to square one before fast-forwarding
                 Restart();
-            }
 
             // Now just fast forward
-            while (iteration > _iteration)
-            {
-                Step();
-            }
+            while (iteration > _iteration) Step();
         }
     }
 }
