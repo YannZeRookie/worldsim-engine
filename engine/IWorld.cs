@@ -490,7 +490,8 @@ namespace WorldSim
             public DataDictionary Init { get; }
 
             /// <summary>
-            ///     Get the values of the JM2
+            ///     Get the values of the JM2.
+            ///     Note: don't store the returned dictionary, as it will change at each iteration
             /// </summary>
             public DataDictionary Values { get; }
 

@@ -9,11 +9,24 @@ namespace WorldSim.Model
         private string _resourceId;
         private float? _limit;
         private float _consumption;
+        private float _consumed = 0.0f;
 
         public JM2Sink(DataDictionary init) : base(init)
         {
             Id = "sink";
             Restart();
+        }
+
+        protected override DataDictionary GetValues()
+        {
+            DataDictionary result = new DataDictionary()
+            {
+                {"resource_id", _resourceId},
+                {"consumption", _consumption},
+                {"consumed", _consumed}
+            };
+            if (_limit != null) result.Add("limit", (float) _limit);
+            return result;
         }
 
         public override void Restart()
@@ -34,13 +47,14 @@ namespace WorldSim.Model
             float annualDivider = currentTime.GetAnnualDivider();
             float consumptionTarget = _consumption / annualDivider;
             float actualTarget = Math.Min(_limit ?? _consumption, _consumption) / annualDivider;
-            float consumed = 0.0f;
+            _consumed = 0.0f;
             float efficiency = 1.0f;
 
-            consumed = allocator.Consume(_resourceId, cell, actualTarget);
+            _consumed = allocator.Consume(_resourceId, cell, actualTarget);
+            _limit -= _consumed;
 
             if (consumptionTarget > 0.0f)
-                efficiency = consumed / consumptionTarget;
+                efficiency = _consumed / consumptionTarget;
 
             Efficiency = efficiency;
         }

@@ -9,6 +9,7 @@ namespace WorldSim.Model
         protected string _resourceId;
         protected float? _reserve;
         protected float _production;
+        protected float _produced = 0.0f;
 
         public JM2Source(DataDictionary init) : base(init)
         {
@@ -19,6 +20,18 @@ namespace WorldSim.Model
         public float? Reserve()
         {
             return _reserve;
+        }
+
+        protected override DataDictionary GetValues()
+        {
+            DataDictionary result = new DataDictionary()
+            {
+                {"resource_id", _resourceId},
+                {"production", _production},
+                {"produced", _produced}
+            };
+            if (_reserve != null) result.Add("reserve", (float) _reserve);
+            return result;
         }
 
         public override void Restart()
@@ -39,24 +52,24 @@ namespace WorldSim.Model
         {
             float annualDivider = currentTime.GetAnnualDivider();
             float productionTarget = _production / annualDivider;
-            float produced = 0.0f;
+            _produced = 0.0f;
             if (_reserve != null)
             {
-                float reserve = (float)_reserve;
-                produced = Math.Min(reserve, productionTarget);
-                Efficiency = (produced < reserve) ? 1.0f : (reserve > 0.0f ? produced / productionTarget : 0.0f);
-                _reserve -= produced;
+                float reserve = (float) _reserve;
+                _produced = Math.Min(reserve, productionTarget);
+                Efficiency = (_produced < reserve) ? 1.0f : (reserve > 0.0f ? _produced / productionTarget : 0.0f);
+                _reserve -= _produced;
             }
             else
             {
                 // Infinite reserves
-                produced = productionTarget;
+                _produced = productionTarget;
                 Efficiency = 1.0f;
             }
 
-            output[_resourceId] = produced;
+            output[_resourceId] = _produced;
         }
-
+        
         public override string GetExtraLine(int extraLine)
         {
             if (_reserve != null)
@@ -118,6 +131,7 @@ namespace WorldSim.Model
             else
             {
                 output[_resourceId] = 0.0f;
+                _produced = 0.0f;
             }
         }
 

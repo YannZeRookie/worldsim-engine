@@ -84,6 +84,20 @@ namespace CSharpTest
             //Assert.IsInstanceOf<IEnumerable<TestItem>>(a2);
             // See See https://stackoverflow.com/questions/275073/
         }
+
+        /// <summary>
+        /// See https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/boxing-and-unboxing
+        /// </summary>
+        [Test]
+        public void TestBoxingUnboxing()
+        {
+            float f = 3.14f;
+            object fo = f;  // Boxing
+            Assert.IsInstanceOf<float>(f);      // Expected
+            Assert.IsInstanceOf<object>(fo);    // Expected
+            Assert.IsInstanceOf<float>(fo);     // Implicit unboxing happens here
+        }
+
     }
 
     public interface ITestItem

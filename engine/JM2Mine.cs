@@ -59,6 +59,7 @@ namespace WorldSim.Model
             Efficiency = (extracted < reserve) ? 1.0f : (reserve > 0.0f ? produced / productionTarget : 0.0f);
             _history[currentTime.Iteration] = produced;
             output[_resourceId] = produced;
+            _produced = produced;
         }
     }
 }

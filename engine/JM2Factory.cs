@@ -6,14 +6,16 @@ namespace WorldSim.Model
 {
     public class JM2Factory : JM2
     {
-        private readonly Dictionary<string, float> _opex;
-        private readonly Dictionary<string, float> _output;
-
+        private Dictionary<string, float> _opex;
+        private Dictionary<string, float> _output;
+        private Dictionary<string, float> _produced; // Copy of what was produced    
+        
         public JM2Factory(DataDictionary init) : base(init)
         {
             Id = "factory";
             _opex = new Dictionary<string, float>();
             _output = new Dictionary<string, float>();
+            _produced = new Dictionary<string, float>();
             Restart();
         }
 
@@ -43,6 +45,7 @@ namespace WorldSim.Model
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
             Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
+            _produced.Clear();
             var annualDivider = currentTime.GetAnnualDivider();
             //-- Compute the expected efficiency
             var efficiency = 1.0f;
@@ -73,7 +76,19 @@ namespace WorldSim.Model
                 }
 
             //-- Produce the outputs
-            foreach (var production in _output) output[production.Key] = production.Value * efficiency / annualDivider;
+            foreach (var production in _output)
+            {
+                float produced = production.Value * efficiency / annualDivider;
+                output[production.Key] = produced;
+                _produced[production.Key] = produced;
+            }
+        }
+        
+        protected override DataDictionary GetValues()
+        {
+            DataDictionary result = (DataDictionary) _init.Clone();
+            result.Add("produced", _produced);
+            return result;
         }
 
         public override void DescribeDemand(Time currentTime, IDictionary<string, float> demand)

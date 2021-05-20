@@ -25,6 +25,12 @@ namespace WorldSim.API
         public string StringValue();
         public float FloatValue();
         public string ToString();
+
+        /// <summary>
+        /// Deep Clone
+        /// </summary>
+        /// <returns></returns>
+        public IDataNode Clone();
     }
 
     public enum ValueKind
@@ -37,6 +43,7 @@ namespace WorldSim.API
     {
         private string _stringValue;
         private float _floatValue;
+        public ValueKind Kind { get; }
 
         public NodeType Type
         {
@@ -64,7 +71,17 @@ namespace WorldSim.API
             _stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
         }
 
-        public ValueKind Kind { get; }
+        public DataValue(DataValue value)
+        {
+            Kind = value.Kind;
+            _stringValue = value._stringValue;
+            _floatValue = value._floatValue;
+        }
+
+        public IDataNode Clone()
+        {
+            return new DataValue(this);
+        }
 
         public string StringValue()
         {
@@ -104,6 +121,42 @@ namespace WorldSim.API
             return "DataList: " + Count;
         }
 
+        public IDataNode Clone()
+        {
+            DataList clone = new DataList();
+            foreach (var item in this)
+            {
+                clone.Add(item.Clone());
+            }
+            return clone;
+        }
+
+        public void Add(string value)
+        {
+            Add(new DataValue(value));
+        }
+
+        public void Add(float value)
+        {
+            Add(new DataValue(value));
+        }
+
+        public void Add(IList<float> list)
+        {
+            foreach (float value in list)
+            {
+                Add(new DataValue(value));
+            }
+        }
+        
+        public void Add(IList<string> list)
+        {
+            foreach (string value in list)
+            {
+                Add(new DataValue(value));
+            }
+        }
+        
         public static DataList ConvertGenericData(List<object> generic)
         {
             DataList result = new DataList();
@@ -112,6 +165,14 @@ namespace WorldSim.API
                 if (item is string s)
                 {
                     result.Add(new DataValue(s));
+                }
+                else if (item is float f)
+                {
+                    result.Add(new DataValue(f));
+                }
+                else if ( item is double dd)
+                {
+                    result.Add(new DataValue(Convert.ToSingle(dd)));
                 }
                 else if (item is Dictionary<object, object> d)
                 {
@@ -151,6 +212,16 @@ namespace WorldSim.API
             return "DataDictionary: " + Count;
         }
 
+        public IDataNode Clone()
+        {
+            DataDictionary clone = new DataDictionary();
+            foreach (var item in this)
+            {
+                clone.Add(item.Key, item.Value.Clone());
+            }
+            return clone;
+        }
+
         public void Add(string key, string value)
         {
             Add(key, new DataValue(value));
@@ -161,14 +232,62 @@ namespace WorldSim.API
             Add(key, new DataValue(value));
         }
 
+        public void Add(string key, IDictionary<string, float> dict)
+        {
+            Add(key, CreateFrom(dict));
+        }
+
+        public void Add(string key, IDictionary<string, string> dict)
+        {
+            Add(key, CreateFrom(dict));
+        }
+
+        public void Add(IDictionary<string, float> dict)
+        {
+            foreach (KeyValuePair<string, float> item in dict)
+            {
+                Add(item.Key, new DataValue(item.Value));
+            }
+        }
+
+        public void Add(IDictionary<string, string> dict)
+        {
+            foreach (KeyValuePair<string, string> item in dict)
+            {
+                Add(item.Key, new DataValue(item.Value));
+            }
+        }
+
+        public static DataDictionary CreateFrom(IDictionary<string, float> dict)
+        {
+            DataDictionary result = new DataDictionary();
+            result.Add(dict);
+            return result;
+        }
+
+        public static DataDictionary CreateFrom(IDictionary<string, string> dict)
+        {
+            DataDictionary result = new DataDictionary();
+            result.Add(dict);
+            return result;
+        }
+
         public static DataDictionary ConvertGenericData(Dictionary<object, object> generic)
         {
             DataDictionary result = new DataDictionary();
             foreach (var kp in generic)
             {
-                if (kp.Key is string k1 && kp.Value is string s)
+                if (kp.Key is string ks && kp.Value is string s)
                 {
-                    result.Add(k1, new DataValue(s));
+                    result.Add(ks, new DataValue(s));
+                }
+                else if (kp.Key is string kf && kp.Value is float f)
+                {
+                    result.Add(kf, new DataValue(f));
+                }
+                else if (kp.Key is string kd && kp.Value is double dd)
+                {
+                    result.Add(kd, new DataValue(Convert.ToSingle(dd)));
                 }
                 else if (kp.Key is string k2 && kp.Value is Dictionary<object, object> d)
                 {
