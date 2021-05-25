@@ -1045,6 +1045,63 @@ namespace WorldSim.Engine.Tests
         [Test]
         public void TestDataNodeAccessors()
         {
+            // Build the data set:
+            DataDictionary root = new DataDictionary()
+            {
+                {"res", "coal"},
+                {"qty", 123.45f},
+                {"qty2", "42"},
+                {
+                    "ceo", new DataDictionary()
+                    {
+                        {"first_name", "John"},
+                        {"last_name", "Doe"},
+                        {"age", 56.0f}
+                    }
+                }
+            };
+            // Let's manipulate it in an abstract way:
+            IDataNode rootNode = root;
+            Assert.AreEqual("coal", rootNode["res"].StringValue);
+            Assert.AreEqual(123.45f, rootNode["qty"].FloatValue);
+            Assert.AreEqual("42", rootNode["qty2"].StringValue);
+            Assert.AreEqual(42.0f, rootNode["qty2"].FloatValue);
+            Assert.IsInstanceOf<DataValue>(rootNode["qty2"]);
+            DataValue d = (DataValue) rootNode["qty2"];
+            Assert.AreEqual(ValueKind.Float, d.Kind);
+
+            Assert.AreEqual("Doe", rootNode["ceo"]["last_name"].StringValue);
+            Assert.AreEqual("Doe", rootNode["ceo"][1].StringValue); // Works as index too (but risky)
+            rootNode["ceo"]["first_name"].StringValue = "Bruce";
+            Assert.AreEqual("Bruce", rootNode["ceo"]["first_name"].StringValue);
+
+            // Adding data (here a list of strings)
+            DataList list = new DataList() {"a", "b", "c"};
+            rootNode["alphabet"] = list;
+            Assert.AreEqual(3, rootNode["alphabet"].Count);
+            Assert.AreEqual("b", rootNode["alphabet"][1].StringValue);
+            Assert.AreEqual("b", rootNode["alphabet"]["1"].StringValue); // Works as a key too
+            rootNode["alphabet"][1].StringValue = "bb";
+            Assert.AreEqual("bb", rootNode["alphabet"][1].StringValue);
+            
+            // Iterators: iterating on DataDictionary is natural
+            foreach (KeyValuePair<string, IDataNode> n1 in rootNode)
+            {
+                Console.WriteLine(n1);
+            }
+            // Iterators: you can also iterate on DataList. In this case, the key is the list index as a string
+            foreach (KeyValuePair<string, IDataNode> n2 in rootNode["alphabet"])
+            {
+                Console.WriteLine(n2);
+            }
+        }
+
+        /// <summary>
+        /// IDataNode tests with a real WorldSim file
+        /// </summary>
+        [Test]
+        public void TestDataNodeWithMap()
+        {
             var engine = new Engine();
             engine.LoadYaml("../../../fixtures/map02.yaml", true);
             Assert.NotNull(engine.World);

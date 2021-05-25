@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace WorldSim.API
         public int Count { get; }
         public IDataNode this[int index] { get; set; }
         public IDataNode this[string key] { get; set; }
+        public IEnumerator<KeyValuePair<string, IDataNode>> GetEnumerator();
 
         /// <summary>
         /// Deep Clone
@@ -129,6 +131,11 @@ namespace WorldSim.API
             get => this;
             set => SetStringValue(value.StringValue);
         }
+
+        public IEnumerator<KeyValuePair<string, IDataNode>> GetEnumerator()
+        {
+            return null!;
+        }
     }
 
     public class DataList : List<IDataNode>, IDataNode
@@ -158,7 +165,7 @@ namespace WorldSim.API
         public IDataNode Clone()
         {
             DataList clone = new DataList();
-            foreach (var item in this)
+            foreach (var item in (List<IDataNode>)this)
             {
                 clone.Add(item.Clone());
             }
@@ -246,7 +253,47 @@ namespace WorldSim.API
                 }
             }
         }
-    }
+
+        public new IEnumerator<KeyValuePair<string, IDataNode>> GetEnumerator()
+        {
+            return new DataListEnumerator(base.GetEnumerator());
+        }
+
+        class DataListEnumerator : IEnumerator<KeyValuePair<string, IDataNode>>
+        {
+            private IEnumerator<IDataNode> _enumerator;
+            private int _index = 0;
+
+            public DataListEnumerator(IEnumerator<IDataNode> enumerator)
+            {
+                _enumerator = enumerator;
+            }
+
+            public bool MoveNext()
+            {
+                _index++;
+                return _enumerator.MoveNext();
+            }
+
+            public void Reset()
+            {
+                _index = 0;
+                _enumerator.Reset();
+            }
+
+            object IEnumerator.Current => Current;
+
+            public KeyValuePair<string, IDataNode> Current
+            {
+                get => new KeyValuePair<string, IDataNode>(_index.ToString(CultureInfo.InvariantCulture), _enumerator.Current);
+            }
+
+            public void Dispose()
+            {
+                _enumerator.Dispose();
+            }
+        }
+    } //DataList
 
     public class DataDictionary : Dictionary<string, IDataNode>, IDataNode
     {
@@ -373,6 +420,11 @@ namespace WorldSim.API
                 var kp = this.ElementAt(index);
                 base[kp.Key] = value;
             }
+        }
+
+        public new IEnumerator<KeyValuePair<string, IDataNode>> GetEnumerator()
+        {
+            return base.GetEnumerator();
         }
     }
 }
