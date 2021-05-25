@@ -17,6 +17,7 @@ namespace WorldSim.Model
         private float _recycling = 0.0f;
         private Int32 _timeInUse = 1;
         private Dictionary<Int32, float> _history;
+        protected float _recycled = 0.0f;
 
         public JM2RecyclingMine(DataDictionary init) : base(init)
         {
@@ -24,6 +25,15 @@ namespace WorldSim.Model
             _history = new Dictionary<Int32, float>();
         }
 
+        protected override DataDictionary GetValues()
+        {
+            DataDictionary result = base.GetValues();
+            result.Add("recycling", (float) _recycling);
+            result.Add("time_in_use", (float) _timeInUse);
+            result.Add("recycled", (float) _recycled);
+            return result;
+        }
+        
         public override void Restart()
         {
             base.Restart();
@@ -60,6 +70,7 @@ namespace WorldSim.Model
             _history[currentTime.Iteration] = produced;
             output[_resourceId] = produced;
             _produced = produced;
+            _recycled = recycled;
         }
     }
 }

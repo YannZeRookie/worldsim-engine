@@ -1136,5 +1136,25 @@ namespace WorldSim.Engine.Tests
                 var v = vals[666].FloatValue;
             });
         }
+
+        [Test]
+        public void TestChangeJM2Init()
+        {
+            var engine = new Engine();
+            engine.LoadYaml("../../../fixtures/map02.yaml", true);
+            Assert.NotNull(engine.World);
+            
+            var limitedSource = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual("source", limitedSource.Jm2.Id);
+            var init = limitedSource.Jm2.Init;
+            Assert.AreEqual(100.0f, limitedSource.Jm2.Init["production"].FloatValue);
+            limitedSource.Jm2.Init["production"].FloatValue = 200.0f;
+            Assert.AreEqual(200.0f, limitedSource.Jm2.Init["production"].FloatValue);
+            engine.World.Time.Restart();
+            Assert.AreEqual(0.0f, limitedSource.GetStock("coal"));
+            engine.World.Time.Step();
+            Assert.AreEqual(200.0f, limitedSource.GetStock("coal"));
+            Assert.AreEqual(25.0f, limitedSource.Jm2.Values["reserve"].FloatValue);
+        }
     }
 }

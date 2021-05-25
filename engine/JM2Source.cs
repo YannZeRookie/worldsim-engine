@@ -9,7 +9,7 @@ namespace WorldSim.Model
         protected string _resourceId;
         protected float? _reserve;
         protected float _production;
-        protected float _produced = 0.0f;
+        protected float _produced = 0.0f;   // Produced at last iteration
 
         public JM2Source(DataDictionary init) : base(init)
         {
@@ -109,6 +109,13 @@ namespace WorldSim.Model
         public Jm2SourceMinMax(DataDictionary init) : base(init)
         {
             Id = "sourceMinMax";
+        }
+        
+        protected override DataDictionary GetValues()
+        {
+            DataDictionary result = base.GetValues();
+            result.Add("active", _active ? 1.0f : 0.0f);
+            return result;
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
