@@ -27,8 +27,8 @@ namespace WorldSim.Model
         public override void Restart()
         {
             base.Restart();
-            _recycling = _init.ContainsKey("recycling") ? _init["recycling"].FloatValue() : 0.0f;
-            _timeInUse = _init.ContainsKey("time_in_use") ? Convert.ToInt32(_init["time_in_use"].StringValue()) : 1;
+            _recycling = _init.ContainsKey("recycling") ? _init["recycling"].FloatValue : 0.0f;
+            _timeInUse = _init.ContainsKey("time_in_use") ? Convert.ToInt32(_init["time_in_use"].StringValue) : 1;
         }
 
         public override void Step(IDictionary<string, float> stocks, Time currentTime,

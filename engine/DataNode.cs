@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace WorldSim.API
 {
@@ -22,14 +23,17 @@ namespace WorldSim.API
     public interface IDataNode
     {
         public NodeType Type { get; }
-        public string StringValue();
-        public float FloatValue();
+        public string StringValue { get; set; }
+        public float FloatValue { get; set; }
         public string ToString();
+        public int Count { get; }
+        public IDataNode this[int index] { get; set; }
+        public IDataNode this[string key] { get; set; }
 
         /// <summary>
         /// Deep Clone
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Cloned data structure</returns>
         public IDataNode Clone();
     }
 
@@ -43,7 +47,7 @@ namespace WorldSim.API
     {
         private string _stringValue;
         private float _floatValue;
-        public ValueKind Kind { get; }
+        public ValueKind Kind { get; set; }
 
         public NodeType Type
         {
@@ -52,23 +56,12 @@ namespace WorldSim.API
 
         public DataValue(string value)
         {
-            Kind = ValueKind.String;
-            _stringValue = value;
-
-            // We're going to **try** to evaluate it as a float
-            float fValue = 0.0f;
-            if (Single.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out fValue))
-            {
-                Kind = ValueKind.Float;
-                _floatValue = fValue;
-            }
+            SetStringValue(value);
         }
 
         public DataValue(float value)
         {
-            Kind = ValueKind.Float;
-            _floatValue = value;
-            _stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+            SetFloatValue(value);
         }
 
         public DataValue(DataValue value)
@@ -83,19 +76,58 @@ namespace WorldSim.API
             return new DataValue(this);
         }
 
-        public string StringValue()
+        public string StringValue
         {
-            return _stringValue;
+            get => _stringValue;
+            set => SetStringValue(value);
         }
 
-        public float FloatValue()
+        protected void SetStringValue(string value)
         {
-            return _floatValue;
+            Kind = ValueKind.String;
+            _stringValue = value;
+            float fValue = 0.0f;
+            if (Single.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out fValue))
+            {
+                SetFloatValue(fValue);
+            }
+        }
+
+        public float FloatValue
+        {
+            get => _floatValue;
+            set => SetFloatValue(value);
+        }
+
+        protected void SetFloatValue(float value)
+        {
+            Kind = ValueKind.Float;
+            _floatValue = value;
+            _stringValue = Convert.ToString(value, CultureInfo.InvariantCulture);
         }
 
         public override string ToString()
         {
-            return StringValue();
+            return StringValue;
+        }
+
+        public int Count
+        {
+            get => 0;
+        }
+
+        public IDataNode this[int index]
+        {
+            // We don't care about the index
+            get => this;
+            set => SetStringValue(value.StringValue);
+        }
+
+        public IDataNode this[string key]
+        {
+            // We don't care about the key
+            get => this;
+            set => SetStringValue(value.StringValue);
         }
     }
 
@@ -106,14 +138,16 @@ namespace WorldSim.API
             get => NodeType.List;
         }
 
-        public string StringValue()
+        public string StringValue
         {
-            return "";
+            get => "";
+            set { }
         }
 
-        public float FloatValue()
+        public float FloatValue
         {
-            return 0.0f;
+            get => 0.0f;
+            set { }
         }
 
         public override string ToString()
@@ -128,6 +162,7 @@ namespace WorldSim.API
             {
                 clone.Add(item.Clone());
             }
+
             return clone;
         }
 
@@ -148,7 +183,7 @@ namespace WorldSim.API
                 Add(new DataValue(value));
             }
         }
-        
+
         public void Add(IList<string> list)
         {
             foreach (string value in list)
@@ -156,7 +191,7 @@ namespace WorldSim.API
                 Add(new DataValue(value));
             }
         }
-        
+
         public static DataList ConvertGenericData(List<object> generic)
         {
             DataList result = new DataList();
@@ -170,7 +205,7 @@ namespace WorldSim.API
                 {
                     result.Add(new DataValue(f));
                 }
-                else if ( item is double dd)
+                else if (item is double dd)
                 {
                     result.Add(new DataValue(Convert.ToSingle(dd)));
                 }
@@ -188,6 +223,29 @@ namespace WorldSim.API
 
             return result;
         }
+
+        public IDataNode this[string key]
+        {
+            // Try to interpret the key as an int
+            get
+            {
+                int index;
+                if (int.TryParse(key, NumberStyles.Integer, CultureInfo.InvariantCulture, out index))
+                {
+                    return base[index];
+                }
+
+                return null!;
+            }
+            set
+            {
+                int index;
+                if (int.TryParse(key, NumberStyles.Integer, CultureInfo.InvariantCulture, out index))
+                {
+                    base[index] = value;
+                }
+            }
+        }
     }
 
     public class DataDictionary : Dictionary<string, IDataNode>, IDataNode
@@ -197,14 +255,16 @@ namespace WorldSim.API
             get => NodeType.Dictionary;
         }
 
-        public string StringValue()
+        public string StringValue
         {
-            return "";
+            get => "";
+            set { }
         }
 
-        public float FloatValue()
+        public float FloatValue
         {
-            return 0.0f;
+            get => 0.0f;
+            set { }
         }
 
         public override string ToString()
@@ -219,6 +279,7 @@ namespace WorldSim.API
             {
                 clone.Add(item.Key, item.Value.Clone());
             }
+
             return clone;
         }
 
@@ -302,6 +363,16 @@ namespace WorldSim.API
             }
 
             return result;
+        }
+
+        public IDataNode this[int index]
+        {
+            get => this.ElementAt(index).Value;
+            set
+            {
+                var kp = this.ElementAt(index);
+                base[kp.Key] = value;
+            }
         }
     }
 }

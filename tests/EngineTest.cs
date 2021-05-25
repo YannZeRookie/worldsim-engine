@@ -178,7 +178,7 @@ namespace WorldSim.Engine.Tests
             var init = jm2Factory.Init;
             var opex = (DataDictionary) init["opex"];
             Assert.IsTrue(opex.ContainsKey("coal"));
-            Assert.AreEqual("500", opex["coal"].StringValue());
+            Assert.AreEqual("500", opex["coal"].StringValue);
         }
 
         [Test]
@@ -279,28 +279,28 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual("factory", factory.Jm2.Id);
             var sink = engine.World.Map.Cells[1, 1];
             Assert.AreEqual("sink", sink.Jm2.Id);
-            Assert.AreEqual(200.0f, sink.Jm2.Values["limit"].FloatValue());
+            Assert.AreEqual(200.0f, sink.Jm2.Values["limit"].FloatValue);
 
             engine.World.Time.Step();
 
             Assert.AreEqual(100.0f, limitedSource.GetStock("coal"));
             Assert.AreEqual(300.0f, unlimitedSource.GetStock("o2"));
             Assert.AreEqual(0.0f, factory.GetStock("co2"));
-            Assert.AreEqual(0.0f, ((DataDictionary)factory.Jm2.Values["produced"])["co2"].FloatValue());
+            Assert.AreEqual(0.0f, ((DataDictionary) factory.Jm2.Values["produced"])["co2"].FloatValue);
 
             engine.World.Time.Step();
             Assert.AreEqual(2.0 * 100.0f - 50.0f, limitedSource.GetStock("coal"));
             Assert.AreEqual(2.0 * 300.0f - 100.0f, unlimitedSource.GetStock("o2"));
             Assert.AreEqual(50.0f, factory.GetStock("co2"));
-            Assert.AreEqual(50.0f, ((DataDictionary)factory.Jm2.Values["produced"])["co2"].FloatValue());
-            Assert.AreEqual(0.0f, sink.Jm2.Values["consumed"].FloatValue());
-            Assert.AreEqual(200.0f, sink.Jm2.Values["limit"].FloatValue());
+            Assert.AreEqual(50.0f, ((DataDictionary) factory.Jm2.Values["produced"])["co2"].FloatValue);
+            Assert.AreEqual(0.0f, sink.Jm2.Values["consumed"].FloatValue);
+            Assert.AreEqual(200.0f, sink.Jm2.Values["limit"].FloatValue);
 
             engine.World.Time.Step();
             Assert.AreEqual(2 * 50.0f - 25.0f, factory.GetStock("co2"));
-            Assert.AreEqual(50.0f, ((DataDictionary)factory.Jm2.Values["produced"])["co2"].FloatValue());
-            Assert.AreEqual(25.0f, sink.Jm2.Values["consumed"].FloatValue());
-            Assert.AreEqual(175.0f, sink.Jm2.Values["limit"].FloatValue());
+            Assert.AreEqual(50.0f, ((DataDictionary) factory.Jm2.Values["produced"])["co2"].FloatValue);
+            Assert.AreEqual(25.0f, sink.Jm2.Values["consumed"].FloatValue);
+            Assert.AreEqual(175.0f, sink.Jm2.Values["limit"].FloatValue);
         }
 
         [Test]
@@ -314,7 +314,8 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(50.0f, engine.World.Map.Cells[0, 0].GetStock("coal"));
             Assert.AreEqual(900.0f, engine.World.Map.Cells[0, 0].GetStock("o2"));
             Assert.AreEqual(150.0f, engine.World.Map.Cells[1, 0].GetStock("co2"));
-            Assert.AreEqual(150.0f, ((DataDictionary)engine.World.Map.Cells[1, 0].Jm2.Values["produced"])["co2"].FloatValue());
+            Assert.AreEqual(150.0f,
+                ((DataDictionary) engine.World.Map.Cells[1, 0].Jm2.Values["produced"])["co2"].FloatValue);
         }
 
         [Test]
@@ -329,14 +330,14 @@ namespace WorldSim.Engine.Tests
             Assert.AreEqual(null, emptyCell.Jm2);
             var sink = engine.World.Map.Cells[1, 0];
             Assert.AreEqual("sink", sink.Jm2.Id);
-            Assert.AreEqual("coal", sink.Jm2.Values["resource_id"].StringValue());
-            Assert.AreEqual(100.0f, sink.Jm2.Values["consumption"].FloatValue());
-            Assert.AreEqual(0.0f, sink.Jm2.Values["consumed"].FloatValue());
+            Assert.AreEqual("coal", sink.Jm2.Values["resource_id"].StringValue);
+            Assert.AreEqual(100.0f, sink.Jm2.Values["consumption"].FloatValue);
+            Assert.AreEqual(0.0f, sink.Jm2.Values["consumed"].FloatValue);
 
             engine.World.Time.Step();
 
             Assert.AreEqual(900.0f, emptyCell.GetStock("coal"));
-            Assert.AreEqual(100.0f, sink.Jm2.Values["consumed"].FloatValue());
+            Assert.AreEqual(100.0f, sink.Jm2.Values["consumed"].FloatValue);
         }
 
         [Test]
@@ -907,34 +908,34 @@ namespace WorldSim.Engine.Tests
             var jm2 = sourceCell.Jm2;
 
             Assert.AreEqual(0.0f, sourceCell.GetStock("stuff"));
-            Assert.AreEqual("stuff", jm2.Values["resource_id"].StringValue());
+            Assert.AreEqual("stuff", jm2.Values["resource_id"].StringValue);
 
             engine.World.Time.Step();
             Assert.AreEqual(100.0f, sourceCell.GetStock("stuff"));
-            Assert.AreEqual(900.0f, jm2.Values["reserve"].FloatValue());
-            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue());
+            Assert.AreEqual(900.0f, jm2.Values["reserve"].FloatValue);
+            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue);
 
             engine.World.Time.Step();
             Assert.AreEqual(200.0f, sourceCell.GetStock("stuff"));
-            Assert.AreEqual(800.0f, jm2.Values["reserve"].FloatValue());
-            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue());
+            Assert.AreEqual(800.0f, jm2.Values["reserve"].FloatValue);
+            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue);
 
             engine.World.Time.Iteration = 9;
-            Assert.AreEqual(100.0f, jm2.Values["reserve"].FloatValue());
-            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue());
+            Assert.AreEqual(100.0f, jm2.Values["reserve"].FloatValue);
+            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue);
 
             engine.World.Time.Step();
             Assert.AreEqual(1000.0f, sourceCell.GetStock("stuff"));
-            Assert.AreEqual(0.0f, jm2.Values["reserve"].FloatValue());
-            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue());
-            
+            Assert.AreEqual(0.0f, jm2.Values["reserve"].FloatValue);
+            Assert.AreEqual(100.0f, jm2.Values["produced"].FloatValue);
+
             // Source is now exhausted
             engine.World.Time.Step();
             Assert.AreEqual(1000.0f, sourceCell.GetStock("stuff"));
-            Assert.AreEqual(0.0f, jm2.Values["reserve"].FloatValue());
-            Assert.AreEqual(0.0f, jm2.Values["produced"].FloatValue());
+            Assert.AreEqual(0.0f, jm2.Values["reserve"].FloatValue);
+            Assert.AreEqual(0.0f, jm2.Values["produced"].FloatValue);
         }
-        
+
         [Test]
         public void TestVolatileStock()
         {
@@ -1036,6 +1037,47 @@ namespace WorldSim.Engine.Tests
             // Verification:
             world.Time.Current = world.Time.End;
             Assert.AreEqual(364, world.Time.Iteration);
+        }
+
+        /// <summary>
+        /// Various tests of IDataNode traversing and accessing
+        /// </summary>
+        [Test]
+        public void TestDataNodeAccessors()
+        {
+            var engine = new Engine();
+            engine.LoadYaml("../../../fixtures/map02.yaml", true);
+            Assert.NotNull(engine.World);
+
+            var limitedSource = engine.World.Map.Cells[0, 0];
+            Assert.AreEqual("source", limitedSource.Jm2.Id);
+            var unlimitedSource = engine.World.Map.Cells[1, 0];
+            Assert.AreEqual("source", unlimitedSource.Jm2.Id);
+            var factory = engine.World.Map.Cells[0, 1];
+            Assert.AreEqual("factory", factory.Jm2.Id);
+            var sink = engine.World.Map.Cells[1, 1];
+            Assert.AreEqual("sink", sink.Jm2.Id);
+
+            IDataNode vals = factory.Jm2.Values;
+            Assert.AreEqual(3, vals.Count);
+            // Accessing using indexes
+            var opex1 = vals[0];
+            Assert.AreEqual(2, opex1.Count);
+            // Accessing using keys
+            var opex2 = vals["opex"];
+            Assert.AreEqual(2, opex1.Count);
+            // Cascade access
+            Assert.AreEqual(50.0, vals["opex"]["coal"].FloatValue);
+            // Non-existent Key
+            Assert.Throws<KeyNotFoundException>(() =>
+            {
+                var v = vals["opex"]["stuff"].FloatValue;
+            });
+            // Non-existent Index
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                var v = vals[666].FloatValue;
+            });
         }
     }
 }

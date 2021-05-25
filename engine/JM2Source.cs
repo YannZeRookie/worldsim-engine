@@ -36,14 +36,14 @@ namespace WorldSim.Model
 
         public override void Restart()
         {
-            _resourceId = _init["resource_id"].StringValue();
+            _resourceId = _init["resource_id"].StringValue;
             _reserve = null;
             if (_init.ContainsKey("reserve"))
             {
-                _reserve = _init["reserve"].FloatValue();
+                _reserve = _init["reserve"].FloatValue;
             }
 
-            _production = _init["production"].FloatValue();
+            _production = _init["production"].FloatValue;
             base.Restart();
         }
 
@@ -114,12 +114,12 @@ namespace WorldSim.Model
         public override void Step(IDictionary<string, float> stocks, Time currentTime,
             Allocator allocator, Cell cell, IDictionary<string, float> output)
         {
-            if (stocks[_resourceId] >= _init["levelMax"].FloatValue())
+            if (stocks[_resourceId] >= _init["levelMax"].FloatValue)
             {
                 _active = false;
             }
 
-            if (!_active && stocks[_resourceId] < _init["levelMin"].FloatValue())
+            if (!_active && stocks[_resourceId] < _init["levelMin"].FloatValue)
             {
                 _active = true;
             }

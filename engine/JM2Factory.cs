@@ -26,7 +26,7 @@ namespace WorldSim.Model
             {
                 foreach (var op in opex)
                 {
-                    _opex[op.Key] = op.Value.FloatValue();
+                    _opex[op.Key] = op.Value.FloatValue;
                 }
             }
 
@@ -35,7 +35,7 @@ namespace WorldSim.Model
             {
                 foreach (var ot in output)
                 {
-                    _output[ot.Key] = ot.Value.FloatValue();
+                    _output[ot.Key] = ot.Value.FloatValue;
                 }
             }
 

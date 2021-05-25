@@ -31,13 +31,13 @@ namespace WorldSim.Model
 
         public override void Restart()
         {
-            _resourceId = _init["resource_id"].StringValue();
+            _resourceId = _init["resource_id"].StringValue;
             _limit = null;
             if (_init.ContainsKey("limit"))
             {
-                _limit = _init["limit"].FloatValue();
+                _limit = _init["limit"].FloatValue;
             }
-            _consumption = _init["consumption"].FloatValue();
+            _consumption = _init["consumption"].FloatValue;
             base.Restart();
         }
 
